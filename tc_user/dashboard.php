@@ -569,6 +569,62 @@ try {
 }
 </style>
 
+<script>
+// Mobile Dashboard Enhancement
+document.addEventListener('DOMContentLoaded', function() {
+    // Force display of dashboard elements on mobile
+    if (window.innerWidth <= 768) {
+        console.log('📱 Mobile device detected, ensuring dashboard visibility...');
+        
+        // Force display of all dashboard elements
+        const dashboardElements = [
+            '.dashboard-stats',
+            '.dashboard-quick-actions', 
+            '.attendance-summary',
+            '.recent-activities',
+            '.info-item'
+        ];
+        
+        dashboardElements.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(el => {
+                el.style.display = 'block';
+                el.style.visibility = 'visible';
+                el.style.opacity = '1';
+                console.log(`✅ Made ${selector} visible`);
+            });
+        });
+        
+        // Ensure stats cards are properly styled
+        const statsCards = document.querySelectorAll('.stats-card');
+        statsCards.forEach(card => {
+            card.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            card.style.color = 'white';
+            card.style.display = 'block';
+            console.log('✅ Styled stats card');
+        });
+        
+        // Ensure quick action buttons are visible
+        const quickActionBtns = document.querySelectorAll('.dashboard-quick-actions .btn');
+        quickActionBtns.forEach(btn => {
+            btn.style.display = 'flex';
+            btn.style.visibility = 'visible';
+            btn.style.opacity = '1';
+            console.log('✅ Made quick action button visible');
+        });
+        
+        console.log('📱 Mobile dashboard enhancement complete');
+    }
+    
+    // Handle orientation change
+    window.addEventListener('orientationchange', function() {
+        setTimeout(function() {
+            location.reload(); // Reload page on orientation change to fix layout issues
+        }, 500);
+    });
+});
+</script>
+
 <?php
 require_once 'includes/footer.php';
 ?>

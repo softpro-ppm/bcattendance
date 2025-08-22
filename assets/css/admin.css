@@ -1103,6 +1103,85 @@ body {
     }
 }
 
+/* Mobile Debug Styles - Remove these after fixing */
+@media (max-width: 768px) {
+    .dashboard-stats::before {
+        content: "📱 Mobile Dashboard Stats - Should be visible";
+        display: block;
+        background: #ffeb3b;
+        color: #000;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+        text-align: center;
+        font-weight: bold;
+    }
+    
+    .dashboard-quick-actions::before {
+        content: "📱 Mobile Quick Actions - Should be visible";
+        display: block;
+        background: #4caf50;
+        color: white;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+        text-align: center;
+        font-weight: bold;
+    }
+}
+
+/* Bootstrap Override for Mobile Dashboard */
+@media (max-width: 768px) {
+    /* Override any Bootstrap display utilities that might hide content */
+    .d-none,
+    .d-md-none,
+    .d-sm-none {
+        display: block !important;
+    }
+    
+    /* Ensure row and column classes work properly on mobile */
+    .row {
+        margin: 0 !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .col-6 {
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+        padding: 0.25rem !important;
+        display: block !important;
+    }
+    
+    .col-12 {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+        padding: 0.25rem !important;
+        display: block !important;
+    }
+    
+    /* Force card visibility */
+    .card {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    .card-body {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        padding: 1rem !important;
+    }
+    
+    .card-header {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+}
+
 /* Dashboard Mobile Styles */
 .dashboard-stats .row {
     margin: 0 -0.25rem;
@@ -1117,10 +1196,15 @@ body {
     margin-bottom: 0;
     height: 100%;
     transition: transform 0.3s ease;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .dashboard-stats .stats-card:hover {
     transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
 }
 
 .dashboard-stats .stats-card .card-body {
@@ -1133,6 +1217,7 @@ body {
     font-size: 1.8rem;
     margin-bottom: 0.25rem;
     font-weight: 700;
+    color: white;
 }
 
 .dashboard-stats .stats-label {
@@ -1147,6 +1232,7 @@ body {
     top: 0.5rem;
     font-size: 1.5rem;
     opacity: 0.3;
+    color: white;
 }
 
 /* Quick Actions Mobile Styles */
@@ -1251,33 +1337,56 @@ body {
 
 /* Mobile Responsive Adjustments */
 @media (max-width: 768px) {
+    /* Force display of dashboard elements on mobile */
+    .dashboard-stats,
+    .dashboard-quick-actions,
+    .attendance-summary,
+    .recent-activities,
+    .info-item {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
     .dashboard-stats .col-6 {
-        flex: 0 0 50%;
-        max-width: 50%;
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+        display: block !important;
     }
     
     .dashboard-stats .stats-card {
         margin-bottom: 0.5rem;
+        display: block !important;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
     }
     
     .dashboard-stats .stats-number {
         font-size: 1.5rem;
+        color: white !important;
+    }
+    
+    .dashboard-stats .stats-label {
+        color: rgba(255, 255, 255, 0.9) !important;
     }
     
     .dashboard-stats .stats-icon {
         font-size: 1.2rem;
         right: 0.25rem;
         top: 0.25rem;
+        color: white !important;
     }
     
     .dashboard-quick-actions .col-6 {
-        flex: 0 0 50%;
-        max-width: 50%;
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+        display: block !important;
     }
     
     .dashboard-quick-actions .btn {
         min-height: 70px;
         padding: 0.75rem 0.5rem;
+        display: flex !important;
     }
     
     .dashboard-quick-actions .btn i {
@@ -1292,25 +1401,45 @@ body {
     .info-item {
         margin-bottom: 0.75rem;
         padding: 0.75rem;
+        display: block !important;
+    }
+    
+    /* Ensure cards are visible on mobile */
+    .card {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    .card-body {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
 }
 
 @media (max-width: 576px) {
+    /* Extra small mobile devices */
     .dashboard-stats .stats-number {
         font-size: 1.3rem;
+        color: white !important;
     }
     
     .dashboard-stats .stats-label {
         font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.9) !important;
     }
     
     .dashboard-stats .stats-icon {
         font-size: 1rem;
+        color: white !important;
     }
     
     .dashboard-quick-actions .btn {
         min-height: 60px;
         padding: 0.5rem 0.25rem;
+        display: flex !important;
     }
     
     .dashboard-quick-actions .btn i {
@@ -1323,6 +1452,19 @@ body {
     
     .activity-text {
         font-size: 0.85rem;
+    }
+    
+    /* Force visibility on very small screens */
+    .dashboard-stats,
+    .dashboard-quick-actions,
+    .attendance-summary,
+    .recent-activities,
+    .info-item,
+    .card,
+    .card-body {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
 }
 
