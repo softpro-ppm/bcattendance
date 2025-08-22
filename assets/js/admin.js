@@ -1,6 +1,10 @@
 // BC Attendance Admin Dashboard JavaScript
 
+console.log('Admin.js loaded successfully');
+
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing components...');
+    
     // Initialize all components
     initializeDropdowns();
     initializeConfirmations();
@@ -10,6 +14,8 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeSidebar();
     initializeTreeview();
     initializeMobileFeatures();
+    
+    console.log('All components initialized');
     
     // Auto-hide alerts after 5 seconds
     setTimeout(function() {
@@ -267,10 +273,22 @@ function initializeSidebar() {
     const body = document.body;
     const sidebar = document.querySelector('.main-sidebar');
     
+    console.log('Initializing sidebar...', { 
+        sidebarToggle: sidebarToggle, 
+        body: body, 
+        sidebar: sidebar,
+        windowWidth: window.innerWidth,
+        isMobile: window.innerWidth <= 768
+    });
+    
     if (sidebarToggle) {
+        console.log('Sidebar toggle found, adding event listener');
+        console.log('Toggle button styles:', window.getComputedStyle(sidebarToggle));
+        
         sidebarToggle.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
+            console.log('Sidebar toggle clicked');
             body.classList.toggle('sidebar-open');
             
             // Add ARIA attributes for accessibility
@@ -279,7 +297,18 @@ function initializeSidebar() {
             if (sidebar) {
                 sidebar.setAttribute('aria-hidden', !isOpen);
             }
+            console.log('Sidebar state:', isOpen ? 'open' : 'closed');
         });
+        
+        // Ensure the toggle button is visible
+        sidebarToggle.style.display = 'flex';
+        sidebarToggle.style.visibility = 'visible';
+        sidebarToggle.style.opacity = '1';
+        
+    } else {
+        console.error('Sidebar toggle button not found!');
+        console.log('Available elements with sidebar-toggle class:', document.querySelectorAll('.sidebar-toggle'));
+        console.log('Available elements with sidebar-toggle in main-header:', document.querySelectorAll('.main-header .sidebar-toggle'));
     }
     
     // Close sidebar when clicking outside on mobile
@@ -323,6 +352,34 @@ function initializeSidebar() {
             }
         }
     });
+    
+    // Log mobile detection
+    if (window.innerWidth <= 768) {
+        console.log('Mobile device detected, sidebar should be hidden by default');
+        if (sidebar) {
+            sidebar.setAttribute('aria-hidden', 'true');
+        }
+        // Force show the toggle button on mobile
+        if (sidebarToggle) {
+            sidebarToggle.style.display = 'flex !important';
+            sidebarToggle.style.visibility = 'visible !important';
+            sidebarToggle.style.opacity = '1 !important';
+        }
+    }
+    
+    // Additional check for toggle button visibility
+    setTimeout(() => {
+        if (sidebarToggle) {
+            const computedStyle = window.getComputedStyle(sidebarToggle);
+            console.log('Toggle button computed styles:', {
+                display: computedStyle.display,
+                visibility: computedStyle.visibility,
+                opacity: computedStyle.opacity,
+                position: computedStyle.position,
+                zIndex: computedStyle.zIndex
+            });
+        }
+    }, 100);
 }
 
 // AJAX functions

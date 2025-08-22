@@ -10,6 +10,9 @@ if (!isset($_SESSION['admin_user_id'])) {
     exit();
 }
 
+// Ensure correct timezone for date calculations
+date_default_timezone_set('Asia/Kolkata');
+
 try {
     // Get dashboard statistics
     $stats = getDashboardStats();

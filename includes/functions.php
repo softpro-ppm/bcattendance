@@ -292,6 +292,9 @@ function formatStatusDisplay($status) {
 
 // Get dashboard statistics
 function getDashboardStats() {
+    // Ensure correct timezone for date calculations
+    date_default_timezone_set('Asia/Kolkata');
+    
     $stats = [];
     
     // Total beneficiaries
@@ -310,7 +313,7 @@ function getDashboardStats() {
     $result = fetchRow("SELECT COUNT(*) as total FROM batches WHERE status = 'active'");
     $stats['total_batches'] = $result ? $result['total'] : 0;
     
-    // Today's attendance
+    // Today's attendance - use CURDATE() for consistent date handling
     $result = fetchRow("SELECT COUNT(*) as total FROM attendance WHERE attendance_date = CURDATE()");
     $stats['today_attendance'] = $result ? $result['total'] : 0;
     

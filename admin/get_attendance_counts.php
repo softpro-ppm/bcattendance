@@ -9,6 +9,9 @@ if (!isset($_SESSION['admin_user_id'])) {
     exit();
 }
 
+// Ensure correct timezone for date calculations
+date_default_timezone_set('Asia/Kolkata');
+
 // Get filters from request
 $selectedDate = $_GET['date'] ?? date('Y-m-d');
 $selectedConstituency = $_GET['constituency'] ?? '';

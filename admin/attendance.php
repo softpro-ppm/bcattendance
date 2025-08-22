@@ -62,7 +62,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['mark_attendance'])) {
 }
 
 // Get filters
-$selectedDate = $_GET['date'] ?? date('Y-m-d');
+// Ensure we always get today's date in the correct timezone
+$today = new DateTime('now', new DateTimeZone('Asia/Kolkata')); // Use IST timezone
+$selectedDate = $_GET['date'] ?? $today->format('Y-m-d');
+
+// Debug: Log the date information
+error_log("Debug - Server timezone: " . date_default_timezone_get());
+error_log("Debug - Current server time: " . date('Y-m-d H:i:s'));
+error_log("Debug - IST timezone time: " . $today->format('Y-m-d H:i:s'));
+error_log("Debug - Selected date: " . $selectedDate);
+
 $selectedConstituency = $_GET['constituency'] ?? '';
 $selectedMandal = $_GET['mandal'] ?? '';
 $selectedBatch = $_GET['batch'] ?? '';
@@ -204,6 +213,16 @@ $beneficiaries = fetchAll($query, $allParams, $allTypes);
             </button>
         </div>
         <?php endif; ?>
+        
+        <!-- Date Debug Info (remove in production) -->
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            <strong>Date Information:</strong> 
+            Server Timezone: <?php echo date_default_timezone_get(); ?> | 
+            Server Time: <?php echo date('Y-m-d H:i:s'); ?> | 
+            IST Time: <?php echo $today->format('Y-m-d H:i:s'); ?> | 
+            Selected Date: <?php echo $selectedDate; ?>
+        </div>
 
         <form method="GET" class="mb-4">
             <div class="row">

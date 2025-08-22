@@ -838,6 +838,23 @@ body {
         transition: all 0.3s ease !important;
     }
     
+    /* Additional rules to ensure toggle button visibility */
+    .main-header .sidebar-toggle {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: relative !important;
+        z-index: 1060 !important;
+    }
+    
+    /* Force display of toggle button in navbar */
+    .navbar .sidebar-toggle,
+    .main-header .sidebar-toggle {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
     .sidebar-toggle:hover {
         background-color: #e9ecef !important;
         transform: scale(1.05) !important;
@@ -1599,5 +1616,91 @@ body {
 @media (max-width: 768px) {
     .mobile-nav-info {
         display: block;
+    }
+}
+
+/* Mobile header improvements */
+@media (max-width: 768px) {
+    .main-header {
+        position: sticky;
+        top: 0;
+        z-index: 1040;
+        background: #fff;
+        border-bottom: 1px solid #dee2e6;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .main-header .navbar {
+        padding: 0.5rem 1rem;
+        min-height: 60px;
+    }
+    
+    .main-header .navbar-brand {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+    
+    /* Ensure sidebar toggle is always visible and properly positioned */
+    .main-header .sidebar-toggle {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: relative !important;
+        z-index: 1060 !important;
+        margin-right: 1rem !important;
+        flex-shrink: 0 !important;
+    }
+    
+    /* Force display of all sidebar toggle elements */
+    .sidebar-toggle,
+    .navbar .sidebar-toggle,
+    .main-header .sidebar-toggle {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+}
+
+/* Force sidebar toggle visibility on all screen sizes */
+.sidebar-toggle {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Additional mobile-specific rules */
+@media (max-width: 768px) {
+    /* Force sidebar toggle to be visible */
+    .sidebar-toggle,
+    .main-header .sidebar-toggle,
+    .navbar .sidebar-toggle,
+    .navbar-brand .sidebar-toggle {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: relative !important;
+        z-index: 1060 !important;
+        margin-right: 1rem !important;
+        flex-shrink: 0 !important;
+        background-color: #f8f9fa !important;
+        border: 1px solid #dee2e6 !important;
+        color: #495057 !important;
+        border-radius: 6px !important;
+        min-height: 44px !important;
+        min-width: 44px !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    /* Ensure the toggle button is not hidden by any CSS */
+    .sidebar-toggle[style*="display: none"],
+    .sidebar-toggle[style*="visibility: hidden"],
+    .sidebar-toggle[style*="opacity: 0"] {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
 }

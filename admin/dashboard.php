@@ -8,6 +8,9 @@ $breadcrumbs = [
 
 require_once '../includes/header.php';
 
+// Ensure we have the correct timezone for date calculations
+date_default_timezone_set('Asia/Kolkata');
+
 // Get dashboard statistics
 $stats = getDashboardStats();
 

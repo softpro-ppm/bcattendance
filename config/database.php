@@ -26,6 +26,10 @@ function getDBConnection() {
             }
             
             $connection->set_charset("utf8");
+            
+            // Set timezone for consistent date handling
+            $connection->query("SET time_zone = '+05:30'"); // IST timezone
+            
         } catch (Exception $e) {
             die("Database connection error: " . $e->getMessage());
         }
