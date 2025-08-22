@@ -599,6 +599,94 @@ body {
     padding-right: 0.75rem;
 }
 
+/* Bootstrap responsive column classes */
+.col-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+}
+
+.col-12 {
+    flex: 0 0 100%;
+    max-width: 100%;
+}
+
+.col-lg-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+}
+
+.col-sm-4 {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+}
+
+/* Responsive visibility classes */
+.d-none {
+    display: none !important;
+}
+
+.d-sm-none {
+    display: none !important;
+}
+
+.d-md-none {
+    display: none !important;
+}
+
+.d-lg-none {
+    display: none !important;
+}
+
+.d-sm-inline {
+    display: inline !important;
+}
+
+.d-md-table-cell {
+    display: table-cell !important;
+}
+
+.d-sm-table-cell {
+    display: table-cell !important;
+}
+
+.d-lg-table-cell {
+    display: table-cell !important;
+}
+
+@media (min-width: 576px) {
+    .d-sm-none {
+        display: none !important;
+    }
+    
+    .d-sm-inline {
+        display: inline !important;
+    }
+    
+    .d-sm-table-cell {
+        display: table-cell !important;
+    }
+}
+
+@media (min-width: 768px) {
+    .d-md-none {
+        display: none !important;
+    }
+    
+    .d-md-table-cell {
+        display: table-cell !important;
+    }
+}
+
+@media (min-width: 992px) {
+    .d-lg-none {
+        display: none !important;
+    }
+    
+    .d-lg-table-cell {
+        display: table-cell !important;
+    }
+}
+
 .col-md-3 {
     flex: 0 0 25%;
     max-width: 25%;
@@ -622,6 +710,194 @@ body {
 .col-md-12 {
     flex: 0 0 100%;
     max-width: 100%;
+}
+
+/* Enhanced Dashboard Mobile Styles */
+.dashboard-stats .row {
+    margin: 0 -0.25rem;
+}
+
+.dashboard-stats .col-6 {
+    padding: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-stats .stats-card {
+    margin-bottom: 0;
+    height: 100%;
+}
+
+.dashboard-stats .stats-card .card-body {
+    padding: 1rem;
+    text-align: center;
+    position: relative;
+}
+
+.dashboard-stats .stats-number {
+    font-size: 1.8rem;
+    margin-bottom: 0.25rem;
+}
+
+.dashboard-stats .stats-label {
+    font-size: 0.85rem;
+    margin-bottom: 0;
+}
+
+.dashboard-stats .stats-icon {
+    position: absolute;
+    right: 0.5rem;
+    top: 0.5rem;
+    font-size: 1.5rem;
+    opacity: 0.2;
+}
+
+/* Attendance Summary Mobile Styles */
+.attendance-summary .col-4,
+.attendance-summary .col-6 {
+    padding: 0.25rem;
+}
+
+.attendance-summary h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.attendance-summary p {
+    font-size: 0.85rem;
+    margin-bottom: 0;
+}
+
+/* Dashboard Quick Actions Mobile Styles */
+.dashboard-quick-actions .col-6 {
+    padding: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-quick-actions .btn {
+    padding: 1rem 0.5rem;
+    height: auto;
+    white-space: normal;
+    line-height: 1.2;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.dashboard-quick-actions .btn i {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+}
+
+/* Batch Info Mobile Styles */
+.batch-info {
+    position: relative;
+}
+
+.batch-info strong {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.batch-info small {
+    font-size: 0.75rem;
+    line-height: 1.2;
+}
+
+/* Enhanced Dashboard Mobile Styles */
+.dashboard-stats .row {
+    margin: 0 -0.25rem;
+}
+
+.dashboard-stats .col-6 {
+    padding: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-stats .stats-card {
+    margin-bottom: 0;
+    height: 100%;
+}
+
+.dashboard-stats .stats-card .card-body {
+    padding: 1rem;
+    text-align: center;
+    position: relative;
+}
+
+.dashboard-stats .stats-number {
+    font-size: 1.8rem;
+    margin-bottom: 0.25rem;
+}
+
+.dashboard-stats .stats-label {
+    font-size: 0.85rem;
+    margin-bottom: 0;
+}
+
+.dashboard-stats .stats-icon {
+    position: absolute;
+    right: 0.5rem;
+    top: 0.5rem;
+    font-size: 1.5rem;
+    opacity: 0.2;
+}
+
+/* Attendance Summary Mobile Styles */
+.attendance-summary .col-4,
+.attendance-summary .col-6 {
+    padding: 0.25rem;
+}
+
+.attendance-summary h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.attendance-summary p {
+    font-size: 0.85rem;
+    margin-bottom: 0;
+}
+
+/* Dashboard Quick Actions Mobile Styles */
+.dashboard-quick-actions .col-6 {
+    padding: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-quick-actions .btn {
+    padding: 1rem 0.5rem;
+    height: auto;
+    white-space: normal;
+    line-height: 1.2;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.dashboard-quick-actions .btn i {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+}
+
+/* Batch Info Mobile Styles */
+.batch-info {
+    position: relative;
+}
+
+.batch-info strong {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.batch-info small {
+    font-size: 0.75rem;
+    line-height: 1.2;
 }
 
 /* Mobile Responsive Design */
@@ -660,6 +936,12 @@ body {
     .btn {
         padding: 0.4rem 0.8rem;
         font-size: 0.8rem;
+    }
+    
+    /* Dashboard stats on tablets */
+    .dashboard-stats .col-md-3 {
+        flex: 0 0 50%;
+        max-width: 50%;
     }
 }
 
@@ -738,24 +1020,31 @@ body {
     }
     
     /* Stats cards on mobile */
-    .stats-card {
-        margin-bottom: 1rem;
+    .dashboard-stats .col-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
     }
     
-    .stats-number {
-        font-size: 1.8rem;
+    .dashboard-stats .stats-card {
+        margin-bottom: 0.5rem;
     }
     
-    .stats-icon {
-        font-size: 2rem;
-        right: 0.75rem;
-        top: 0.75rem;
+    .dashboard-stats .stats-number {
+        font-size: 1.5rem;
+    }
+    
+    .dashboard-stats .stats-icon {
+        font-size: 1.2rem;
+        right: 0.25rem;
+        top: 0.25rem;
     }
     
     /* Tables on mobile */
     .table-responsive {
         border: none;
         font-size: 0.8rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
     
     .table th,
@@ -766,6 +1055,22 @@ body {
     
     .table th {
         white-space: nowrap;
+    }
+    
+    /* Mobile table improvements */
+    .table {
+        min-width: 600px;
+    }
+    
+    /* Mobile-only table content */
+    .d-sm-none {
+        display: block !important;
+    }
+    
+    /* Hide less important columns on mobile */
+    .table th.d-none,
+    .table td.d-none {
+        display: none !important;
     }
     
     /* Forms on mobile */
@@ -829,6 +1134,42 @@ body {
         padding: 0.5rem 0.75rem;
         font-size: 0.9rem;
     }
+    
+    /* Quick actions on mobile */
+    .dashboard-quick-actions .col-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+    
+    .dashboard-quick-actions .btn {
+        min-height: 70px;
+        padding: 0.75rem 0.5rem;
+    }
+    
+    .dashboard-quick-actions .btn i {
+        font-size: 1.2rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    /* Dashboard stats on mobile */
+    .dashboard-stats .col-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+    
+    .dashboard-stats .stats-card {
+        margin-bottom: 0.5rem;
+    }
+    
+    .dashboard-stats .stats-number {
+        font-size: 1.5rem;
+    }
+    
+    .dashboard-stats .stats-icon {
+        font-size: 1.2rem;
+        right: 0.25rem;
+        top: 0.25rem;
+    }
 }
 
 @media (max-width: 576px) {
@@ -855,18 +1196,18 @@ body {
     }
     
     /* Stats cards extra small */
-    .stats-number {
-        font-size: 1.5rem;
+    .dashboard-stats .stats-number {
+        font-size: 1.3rem;
     }
     
-    .stats-label {
-        font-size: 0.85rem;
+    .dashboard-stats .stats-label {
+        font-size: 0.75rem;
     }
     
-    .stats-icon {
-        font-size: 1.5rem;
-        right: 0.5rem;
-        top: 0.5rem;
+    .dashboard-stats .stats-icon {
+        font-size: 1rem;
+        right: 0.25rem;
+        top: 0.25rem;
     }
     
     /* Tables extra small */
@@ -914,6 +1255,32 @@ body {
     .dropdown-item {
         padding: 0.4rem 0.75rem;
     }
+    
+    /* Quick actions extra small */
+    .dashboard-quick-actions .btn {
+        min-height: 60px;
+        padding: 0.5rem 0.25rem;
+    }
+    
+    .dashboard-quick-actions .btn i {
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    /* Dashboard stats extra small */
+    .dashboard-stats .stats-number {
+        font-size: 1.3rem;
+    }
+    
+    .dashboard-stats .stats-label {
+        font-size: 0.75rem;
+    }
+    
+    .dashboard-stats .stats-icon {
+        font-size: 1rem;
+        right: 0.25rem;
+        top: 0.25rem;
+    }
 }
 
 /* Landscape orientation adjustments */
@@ -926,8 +1293,12 @@ body {
         padding: 0.75rem;
     }
     
-    .stats-number {
-        font-size: 1.6rem;
+    .dashboard-stats .stats-number {
+        font-size: 1.4rem;
+    }
+    
+    .dashboard-quick-actions .btn {
+        min-height: 60px;
     }
 }
 
@@ -959,6 +1330,59 @@ body {
         display: flex;
         align-items: center;
         justify-content: center;
+    }
+    
+    /* Dashboard stats touch friendly */
+    .dashboard-stats .stats-card {
+        min-height: 80px;
+        touch-action: manipulation;
+    }
+    
+    .dashboard-quick-actions .btn {
+        min-height: 80px;
+        touch-action: manipulation;
+    }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+    /* Touch devices */
+    .btn {
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+    
+    .nav-link {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .dropdown-toggle {
+        min-height: 44px;
+    }
+    
+    .form-control {
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+    
+    .page-link {
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Dashboard stats touch friendly */
+    .dashboard-stats .stats-card {
+        min-height: 80px;
+        touch-action: manipulation;
+    }
+    
+    .dashboard-quick-actions .btn {
+        min-height: 80px;
+        touch-action: manipulation;
     }
 }
 
@@ -1271,36 +1695,6 @@ body {
     .action-buttons .btn {
         flex: 0 0 100%;
         min-width: 100%;
-    }
-}
-
-/* Dashboard mobile styles */
-@media (max-width: 768px) {
-    .dashboard-stats .row {
-        margin: 0 -0.25rem;
-    }
-    
-    .dashboard-stats .col-md-3 {
-        padding: 0.25rem;
-        margin-bottom: 0.5rem;
-    }
-    
-    .dashboard-quick-actions .col-md-3 {
-        padding: 0.25rem;
-        margin-bottom: 0.5rem;
-    }
-    
-    .dashboard-quick-actions .btn {
-        padding: 1rem 0.5rem;
-        height: auto;
-        white-space: normal;
-        line-height: 1.2;
-    }
-    
-    .dashboard-quick-actions .btn i {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-size: 1.5rem;
     }
 }
 
