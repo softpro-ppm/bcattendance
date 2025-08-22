@@ -266,6 +266,110 @@ require_once '../config/database.php';
                 display: block;
             }
         }
+        
+        /* Critical Mobile Dashboard Styles */
+        @media (max-width: 768px) {
+            .dashboard-stats,
+            .dashboard-quick-actions,
+            .attendance-summary,
+            .recent-activities,
+            .info-item {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+            
+            .dashboard-stats .col-6 {
+                flex: 0 0 50% !important;
+                max-width: 50% !important;
+                display: block !important;
+                padding: 0.25rem !important;
+            }
+            
+            .dashboard-stats .stats-card {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+                color: white !important;
+                border: none !important;
+                margin-bottom: 0.5rem !important;
+                display: block !important;
+            }
+            
+            .dashboard-stats .stats-number {
+                color: white !important;
+                font-size: 1.5rem !important;
+                font-weight: 700 !important;
+            }
+            
+            .dashboard-stats .stats-label {
+                color: rgba(255, 255, 255, 0.9) !important;
+                font-size: 0.85rem !important;
+            }
+            
+            .dashboard-stats .stats-icon {
+                color: white !important;
+                opacity: 0.3 !important;
+            }
+            
+            .dashboard-quick-actions .col-6 {
+                flex: 0 0 50% !important;
+                max-width: 50% !important;
+                display: block !important;
+                padding: 0.25rem !important;
+            }
+            
+            .dashboard-quick-actions .btn {
+                display: flex !important;
+                min-height: 70px !important;
+                padding: 0.75rem 0.5rem !important;
+            }
+            
+            .card {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                margin-bottom: 1rem !important;
+            }
+            
+            .card-body {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                padding: 1rem !important;
+            }
+            
+            .card-header {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+            
+            .row {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                margin: 0 !important;
+            }
+            
+            .col-12 {
+                flex: 0 0 100% !important;
+                max-width: 100% !important;
+                padding: 0.25rem !important;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .dashboard-stats .stats-number {
+                font-size: 1.3rem !important;
+            }
+            
+            .dashboard-stats .stats-label {
+                font-size: 0.75rem !important;
+            }
+            
+            .dashboard-quick-actions .btn {
+                min-height: 60px !important;
+                padding: 0.5rem 0.25rem !important;
+            }
+        }
     </style>
 </head>
 <body class="<?php echo isset($bodyClass) ? $bodyClass : ''; ?>">

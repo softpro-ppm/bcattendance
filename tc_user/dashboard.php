@@ -572,9 +572,18 @@ try {
 <script>
 // Mobile Dashboard Enhancement
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Dashboard loaded, checking mobile status...');
+    console.log('📱 Viewport width:', window.innerWidth);
+    console.log('📱 Viewport height:', window.innerHeight);
+    
     // Force display of dashboard elements on mobile
     if (window.innerWidth <= 768) {
         console.log('📱 Mobile device detected, ensuring dashboard visibility...');
+        
+        // Add visual debug indicators
+        document.body.insertAdjacentHTML('afterbegin', 
+            '<div style="background: #ffeb3b; color: #000; padding: 10px; text-align: center; font-weight: bold; position: fixed; top: 0; left: 0; right: 0; z-index: 9999;">📱 MOBILE MODE ACTIVE - Dashboard should be visible</div>'
+        );
         
         // Force display of all dashboard elements
         const dashboardElements = [
@@ -587,40 +596,67 @@ document.addEventListener('DOMContentLoaded', function() {
         
         dashboardElements.forEach(selector => {
             const elements = document.querySelectorAll(selector);
-            elements.forEach(el => {
+            console.log(`🔍 Looking for ${selector}:`, elements.length, 'elements found');
+            elements.forEach((el, index) => {
                 el.style.display = 'block';
                 el.style.visibility = 'visible';
                 el.style.opacity = '1';
-                console.log(`✅ Made ${selector} visible`);
+                el.style.border = '2px solid red'; // Debug border
+                console.log(`✅ Made ${selector}[${index}] visible`);
             });
         });
         
         // Ensure stats cards are properly styled
         const statsCards = document.querySelectorAll('.stats-card');
-        statsCards.forEach(card => {
+        console.log('🔍 Stats cards found:', statsCards.length);
+        statsCards.forEach((card, index) => {
             card.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
             card.style.color = 'white';
             card.style.display = 'block';
-            console.log('✅ Styled stats card');
+            card.style.border = '2px solid green'; // Debug border
+            console.log(`✅ Styled stats card[${index}]`);
         });
         
         // Ensure quick action buttons are visible
         const quickActionBtns = document.querySelectorAll('.dashboard-quick-actions .btn');
-        quickActionBtns.forEach(btn => {
+        console.log('🔍 Quick action buttons found:', quickActionBtns.length);
+        quickActionBtns.forEach((btn, index) => {
             btn.style.display = 'flex';
             btn.style.visibility = 'visible';
             btn.style.opacity = '1';
-            console.log('✅ Made quick action button visible');
+            btn.style.border = '2px solid blue'; // Debug border
+            console.log(`✅ Made quick action button[${index}] visible`);
         });
         
+        // Check if elements are actually visible
+        setTimeout(() => {
+            console.log('🔍 Final visibility check:');
+            dashboardElements.forEach(selector => {
+                const elements = document.querySelectorAll(selector);
+                elements.forEach((el, index) => {
+                    const rect = el.getBoundingClientRect();
+                    const isVisible = rect.width > 0 && rect.height > 0;
+                    console.log(`${selector}[${index}] visible:`, isVisible, 'dimensions:', rect.width, 'x', rect.height);
+                });
+            });
+        }, 1000);
+        
         console.log('📱 Mobile dashboard enhancement complete');
+    } else {
+        console.log('🖥️ Desktop mode detected');
     }
     
     // Handle orientation change
     window.addEventListener('orientationchange', function() {
+        console.log('📱 Orientation changed, reloading...');
         setTimeout(function() {
-            location.reload(); // Reload page on orientation change to fix layout issues
+            location.reload();
         }, 500);
+    });
+    
+    // Handle resize
+    window.addEventListener('resize', function() {
+        console.log('📱 Window resized to:', window.innerWidth, 'x', window.innerHeight);
     });
 });
 </script>
