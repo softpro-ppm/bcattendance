@@ -50,51 +50,51 @@ try {
 ?>
 
 <!-- Statistics Cards - Mobile Optimized -->
-<div class="row dashboard-stats" style="display: block !important; visibility: visible !important; opacity: 1 !important; border: 3px solid orange !important;">
-    <div class="col-6 col-md-3" style="display: block !important; flex: 0 0 50% !important; max-width: 50% !important; padding: 0.25rem !important;">
-        <div class="card stats-card" style="display: block !important; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; color: white !important; border: 2px solid red !important; margin-bottom: 0.5rem !important;">
-            <div class="card-body" style="display: block !important; padding: 1rem !important;">
-                <div class="stats-icon" style="color: white !important; opacity: 0.3 !important;">
+<div class="row dashboard-stats">
+    <div class="col-6 col-md-3">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="stats-icon">
                     <i class="fas fa-layer-group"></i>
                 </div>
-                <div class="stats-number" data-stat="total_batches" style="color: white !important; font-size: 1.5rem !important; font-weight: 700 !important;"><?php echo number_format($batches_count); ?></div>
-                <div class="stats-label" style="color: rgba(255, 255, 255, 0.9) !important; font-size: 0.85rem !important;">Active Batches</div>
+                <div class="stats-number" data-stat="total_batches"><?php echo number_format($batches_count); ?></div>
+                <div class="stats-label">Active Batches</div>
             </div>
         </div>
     </div>
 
-    <div class="col-6 col-md-3" style="display: block !important; flex: 0 0 50% !important; max-width: 50% !important; padding: 0.25rem !important;">
-        <div class="card stats-card" style="display: block !important; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; color: white !important; border: 2px solid red !important; margin-bottom: 0.5rem !important;">
-            <div class="card-body" style="display: block !important; padding: 1rem !important;">
-                <div class="stats-icon" style="color: white !important; opacity: 0.3 !important;">
+    <div class="col-6 col-md-3">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="stats-icon">
                     <i class="fas fa-users"></i>
                 </div>
-                <div class="stats-number" data-stat="total_students" style="color: white !important; font-size: 1.5rem !important; font-weight: 700 !important;"><?php echo number_format($beneficiaries_count); ?></div>
-                <div class="stats-label" style="color: rgba(255, 255, 255, 0.9) !important; font-size: 0.85rem !important;">Total Students</div>
+                <div class="stats-number" data-stat="total_students"><?php echo number_format($beneficiaries_count); ?></div>
+                <div class="stats-label">Total Students</div>
             </div>
         </div>
     </div>
 
-    <div class="col-6 col-md-3" style="display: block !important; flex: 0 0 50% !important; max-width: 50% !important; padding: 0.25rem !important;">
-        <div class="card stats-card" style="display: block !important; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; color: white !important; border: 2px solid red !important; margin-bottom: 0.5rem !important;">
-            <div class="card-body" style="display: block !important; padding: 1rem !important;">
-                <div class="stats-icon" style="color: white !important; opacity: 0.3 !important;">
+    <div class="col-6 col-md-3">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="stats-icon">
                     <i class="fas fa-calendar-check"></i>
                 </div>
-                <div class="stats-number" data-stat="today_attendance" style="color: white !important; font-size: 1.5rem !important; font-weight: 700 !important;"><?php echo $attendance_stats['total_marked']; ?>/<?php echo $beneficiaries_count; ?></div>
-                <div class="stats-label" style="color: rgba(255, 255, 255, 0.9) !important; font-size: 0.85rem !important;">Today's Attendance</div>
+                <div class="stats-number" data-stat="today_attendance"><?php echo $attendance_stats['total_marked']; ?>/<?php echo $beneficiaries_count; ?></div>
+                <div class="stats-label">Today's Attendance</div>
             </div>
         </div>
     </div>
 
-    <div class="col-6 col-md-3" style="display: block !important; flex: 0 0 50% !important; max-width: 50% !important; padding: 0.25rem !important;">
-        <div class="card stats-card" style="display: block !important; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; color: white !important; border: 2px solid red !important; margin-bottom: 0.5rem !important;">
-            <div class="card-body" style="display: block !important; padding: 1rem !important;">
-                <div class="stats-icon" style="color: white !important; opacity: 0.3 !important;">
+    <div class="col-6 col-md-3">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="stats-icon">
                     <i class="fas fa-chart-pie"></i>
                 </div>
-                <div class="stats-number" data-stat="attendance_rate" style="color: white !important; font-size: 1.5rem !important; font-weight: 700 !important;"><?php echo $attendance_percentage; ?>%</div>
-                <div class="stats-label" style="color: rgba(255, 255, 255, 0.9) !important; font-size: 0.85rem !important;">Attendance Rate</div>
+                <div class="stats-number" data-stat="attendance_rate"><?php echo $attendance_percentage; ?>%</div>
+                <div class="stats-label">Attendance Rate</div>
             </div>
         </div>
     </div>
@@ -111,30 +111,30 @@ try {
                 </h3>
             </div>
             <div class="card-body">
-                <div class="row dashboard-quick-actions" style="display: block !important; visibility: visible !important; opacity: 1 !important; border: 3px solid blue !important;">
-                    <div class="col-6 col-md-3" style="display: block !important; flex: 0 0 50% !important; max-width: 50% !important; padding: 0.25rem !important;">
-                        <a href="attendance.php" class="btn btn-primary btn-block" style="display: flex !important; min-height: 70px !important; padding: 0.75rem 0.5rem !important; border: 2px solid green !important;">
+                <div class="row dashboard-quick-actions">
+                    <div class="col-6 col-md-3">
+                        <a href="attendance.php" class="btn btn-primary btn-block">
                             <i class="fas fa-calendar-check"></i><br>
                             <span class="d-none d-sm-inline">Mark Attendance</span>
                             <span class="d-sm-none">Attendance</span>
                         </a>
                     </div>
-                    <div class="col-6 col-md-3" style="display: block !important; flex: 0 0 50% !important; max-width: 50% !important; padding: 0.25rem !important;">
-                        <a href="students.php" class="btn btn-info btn-block" style="display: flex !important; min-height: 70px !important; padding: 0.75rem 0.5rem !important; border: 2px solid green !important;">
+                    <div class="col-6 col-md-3">
+                        <a href="students.php" class="btn btn-info btn-block">
                             <i class="fas fa-user-graduate"></i><br>
                             <span class="d-none d-sm-inline">View Students</span>
                             <span class="d-sm-none">Students</span>
                         </a>
                     </div>
-                    <div class="col-6 col-md-3" style="display: block !important; flex: 0 0 50% !important; max-width: 50% !important; padding: 0.25rem !important;">
-                        <a href="batches.php" class="btn btn-success btn-block" style="display: flex !important; min-height: 70px !important; padding: 0.75rem 0.5rem !important; border: 2px solid green !important;">
+                    <div class="col-6 col-md-3">
+                        <a href="batches.php" class="btn btn-success btn-block">
                             <i class="fas fa-layer-group"></i><br>
                             <span class="d-none d-sm-inline">View Batches</span>
                             <span class="d-sm-none">Batches</span>
                         </a>
                     </div>
-                    <div class="col-6 col-md-3" style="display: block !important; flex: 0 0 50% !important; max-width: 50% !important; padding: 0.25rem !important;">
-                        <a href="reports.php" class="btn btn-warning btn-block" style="display: flex !important; min-height: 70px !important; padding: 0.75rem 0.5rem !important; border: 2px solid green !important;">
+                    <div class="col-6 col-md-3">
+                        <a href="reports.php" class="btn btn-warning btn-block">
                             <i class="fas fa-chart-line"></i><br>
                             <span class="d-none d-sm-inline">View Reports</span>
                             <span class="d-sm-none">Reports</span>
@@ -583,11 +583,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.innerWidth <= 768) {
         console.log('📱 Mobile device detected, ensuring dashboard visibility...');
         
-        // Add visual debug indicators
-        document.body.insertAdjacentHTML('afterbegin', 
-            '<div style="background: #ffeb3b; color: #000; padding: 10px; text-align: center; font-weight: bold; position: fixed; top: 0; left: 0; right: 0; z-index: 9999;">📱 MOBILE MODE ACTIVE - Dashboard should be visible</div>'
-        );
-        
         // Force display of all dashboard elements
         const dashboardElements = [
             '.dashboard-stats',
@@ -604,7 +599,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 el.style.display = 'block';
                 el.style.visibility = 'visible';
                 el.style.opacity = '1';
-                el.style.border = '2px solid red'; // Debug border
                 console.log(`✅ Made ${selector}[${index}] visible`);
             });
         });
@@ -616,7 +610,6 @@ document.addEventListener('DOMContentLoaded', function() {
             card.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
             card.style.color = 'white';
             card.style.display = 'block';
-            card.style.border = '2px solid green'; // Debug border
             console.log(`✅ Styled stats card[${index}]`);
         });
         
@@ -627,22 +620,8 @@ document.addEventListener('DOMContentLoaded', function() {
             btn.style.display = 'flex';
             btn.style.visibility = 'visible';
             btn.style.opacity = '1';
-            btn.style.border = '2px solid blue'; // Debug border
             console.log(`✅ Made quick action button[${index}] visible`);
         });
-        
-        // Check if elements are actually visible
-        setTimeout(() => {
-            console.log('🔍 Final visibility check:');
-            dashboardElements.forEach(selector => {
-                const elements = document.querySelectorAll(selector);
-                elements.forEach((el, index) => {
-                    const rect = el.getBoundingClientRect();
-                    const isVisible = rect.width > 0 && rect.height > 0;
-                    console.log(`${selector}[${index}] visible:`, isVisible, 'dimensions:', rect.width, 'x', rect.height);
-                });
-            });
-        }, 1000);
         
         console.log('📱 Mobile dashboard enhancement complete');
     } else {
@@ -663,19 +642,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Immediate mobile fix attempt
-if (window.innerWidth <= 768) {
-    console.log('🔧 Immediate mobile fix attempt...');
-    
-    // Try to find and show dashboard content immediately
-    const immediateElements = document.querySelectorAll('.dashboard-stats, .dashboard-quick-actions, .attendance-summary, .recent-activities, .info-item');
-    console.log('🔍 Immediate elements found:', immediateElements.length);
-    
-    immediateElements.forEach((el, index) => {
-        el.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; border: 3px solid orange !important;';
-        console.log(`🔧 Immediate fix applied to element ${index}`);
-    });
-}
+
 </script>
 
 <?php
