@@ -1,9 +1,17 @@
 <?php
 // Database configuration
+/*
 define('DB_HOST', '127.0.0.1');
 define('DB_USERNAME', 'root');
 define('DB_PASSWORD', '');
 define('DB_NAME', 'bc_attendance');
+*/
+
+define('DB_HOST', 'localhost');
+define('DB_USERNAME', 'u820431346_bcattendance');
+define('DB_PASSWORD', 'Metx@123');
+define('DB_NAME', 'u820431346_bcattendance');
+
 
 // Create connection
 function getDBConnection() {
