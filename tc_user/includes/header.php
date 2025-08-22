@@ -1,5 +1,6 @@
 <?php
 require_once '../includes/tc_session.php';
+require_once '../includes/functions.php'; // Add missing functions file
 requireTCLogin();
 $current_user = getCurrentTCUser();
 require_once '../config/database.php';
