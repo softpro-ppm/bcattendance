@@ -80,11 +80,195 @@ require_once 'includes/header.php';
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
 }
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+    .attendance-table {
+        font-size: 0.8rem;
+    }
+    
+    .attendance-table th,
+    .attendance-table td {
+        padding: 8px 4px;
+        font-size: 0.8rem;
+    }
+    
+    .attendance-table th:nth-child(3),
+    .attendance-table td:nth-child(3) {
+        display: none;
+    }
+    
+    .attendance-table th:nth-child(1) {
+        width: 50px;
+    }
+    
+    .attendance-table th:nth-child(2) {
+        width: auto;
+    }
+    
+    .attendance-table th:nth-child(4),
+    .attendance-table th:nth-child(5) {
+        width: 120px;
+    }
+    
+    /* Mobile attendance buttons */
+    .attendance-btn {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.75rem;
+        min-width: 60px;
+        margin: 0.25rem;
+    }
+    
+    /* Mobile quick actions */
+    .btn-toolbar .btn-group {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    
+    .btn-toolbar .btn-group .btn {
+        margin-bottom: 0.25rem;
+        width: 100%;
+    }
+    
+    /* Mobile stats cards */
+    .col-md-3 {
+        margin-bottom: 0.5rem;
+    }
+    
+    .card.border-primary,
+    .card.border-success,
+    .card.border-danger,
+    .card.border-info {
+        margin-bottom: 0.5rem;
+    }
+    
+    .card.border-primary .card-body,
+    .card.border-success .card-body,
+    .card.border-danger .card-body,
+    .card.border-info .card-body {
+        padding: 0.75rem 0.5rem;
+    }
+    
+    .card.border-primary h4,
+    .card.border-success h4,
+    .card.border-danger h4,
+    .card.border-info h4 {
+        font-size: 1.2rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .card.border-primary p,
+    .card.border-success p,
+    .card.border-danger p,
+    .card.border-info p {
+        font-size: 0.8rem;
+        margin-bottom: 0;
+    }
+}
+
+@media (max-width: 576px) {
+    .attendance-table {
+        font-size: 0.75rem;
+    }
+    
+    .attendance-table th,
+    .attendance-table td {
+        padding: 6px 3px;
+        font-size: 0.75rem;
+    }
+    
+    .attendance-table th:nth-child(4) {
+        display: none;
+    }
+    
+    .attendance-table td:nth-child(4) {
+        display: none;
+    }
+    
+    .attendance-btn {
+        padding: 0.3rem 0.5rem;
+        font-size: 0.7rem;
+        min-width: 50px;
+    }
+    
+    .card.border-primary h4,
+    .card.border-success h4,
+    .card.border-danger h4,
+    .card.border-info h4 {
+        font-size: 1.1rem;
+    }
+    
+    .card.border-primary p,
+    .card.border-success p,
+    .card.border-danger p,
+    .card.border-info p {
+        font-size: 0.75rem;
+    }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .attendance-btn {
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+    
+    .btn-toolbar .btn {
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+    
+    .attendance-table tbody tr {
+        min-height: 44px;
+    }
+}
+
+/* Mobile Form Improvements */
+@media (max-width: 768px) {
+    .form-control {
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .card-header {
+        padding: 0.75rem 1rem;
+    }
+    
+    .card-title {
+        font-size: 1rem;
+    }
+    
+    .alert-sm {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* Mobile Navigation Info */
+.mobile-attendance-info {
+    display: none;
+    background: #e7f3ff;
+    border: 1px solid #b3d9ff;
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    font-size: 0.85rem;
+    color: #0056b3;
+}
+
+@media (max-width: 768px) {
+    .mobile-attendance-info {
+        display: block;
+    }
+}
 </style>
 
 <?php
-
-
 
 // Get current date and TC info
 $current_date = date('Y-m-d');
@@ -97,8 +281,6 @@ $message_type = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_attendance'])) {
     $batch_id = $_POST['batch_id'];
     $attendance_data = $_POST['attendance'] ?? [];
-    
-
     
     if (!empty($attendance_data)) {
         try {
@@ -136,8 +318,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_attendance'])) 
                 echo "<div class='alert alert-warning'><strong>Some errors occurred:</strong><br>" . implode('<br>', $errors) . "</div>";
             }
             
-
-            
             $message = "Attendance saved successfully for " . date('d M Y') . " ({$saved_count} students processed)";
             $message_type = "success";
         } catch (Exception $e) {
@@ -171,11 +351,6 @@ if ($selected_batch_id) {
                            WHERE ben.batch_id = ? AND ben.status = 'active' AND b.status = 'active'
                            ORDER BY ben.full_name";
     $beneficiaries = fetchAll($beneficiaries_query, [$current_date, $selected_batch_id], 'si') ?: [];
-    
-
-    
-
-    // Attendance data is now fetched directly in the main query via LEFT JOIN
 }
 
 // Get attendance summary for today (for selected batch only)
@@ -192,26 +367,6 @@ if ($selected_batch_id) {
 } else {
     $summary = ['total' => 0, 'present' => 0, 'absent' => 0];
 }
-
-// Debug: Check which students are missing attendance records (temporary)
-if ($selected_batch_id && !empty($beneficiaries)) {
-    $beneficiary_ids = array_column($beneficiaries, 'id');
-    $placeholders = str_repeat('?,', count($beneficiary_ids) - 1) . '?';
-    
-    $missing_query = "SELECT ben.id, ben.full_name 
-                      FROM beneficiaries ben 
-                      WHERE ben.id IN ($placeholders) 
-                      AND ben.id NOT IN (
-                          SELECT a.beneficiary_id 
-                          FROM attendance a 
-                          WHERE a.attendance_date = ? AND a.beneficiary_id IN ($placeholders)
-                      )";
-    
-    $params = array_merge($beneficiary_ids, [$current_date], $beneficiary_ids);
-    $types = str_repeat('i', count($beneficiary_ids)) . 's' . str_repeat('i', count($beneficiary_ids));
-    
-    $missing_students = fetchAll($missing_query, $params, $types) ?: [];
-}
 ?>
 
 <?php if (!empty($message)): ?>
@@ -222,7 +377,7 @@ if ($selected_batch_id && !empty($beneficiaries)) {
     </div>
 <?php endif; ?>
 
-<!-- Date and Batch Selection -->
+<!-- Date and Batch Selection - Mobile Optimized -->
 <div class="row">
     <div class="col-12">
         <div class="card card-primary">
@@ -236,8 +391,15 @@ if ($selected_batch_id && !empty($beneficiaries)) {
                 </div>
             </div>
             <div class="card-body">
+                <!-- Mobile attendance info -->
+                <div class="mobile-attendance-info">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>TC:</strong> <?php echo htmlspecialchars($_SESSION['tc_user_training_center_name']); ?> | 
+                    <strong>Date:</strong> <?php echo date('F j, Y'); ?>
+                </div>
+                
                 <form method="GET" class="row align-items-end">
-                    <div class="col-md-6">
+                    <div class="col-12 col-md-6">
                         <label for="batch_id">Select Batch:</label>
                         <select name="batch_id" id="batch_id" class="form-control" onchange="this.form.submit()">
                             <option value="">-- Select Batch --</option>
@@ -250,7 +412,7 @@ if ($selected_batch_id && !empty($beneficiaries)) {
                         </select>
                     </div>
 
-                    <div class="col-md-3">
+                    <div class="col-12 col-md-3">
                         <div class="text-center">
                             <small class="text-muted">Total Marked</small><br>
                             <strong class="text-info"><?php echo $summary['total']; ?> Students</strong>
@@ -263,9 +425,9 @@ if ($selected_batch_id && !empty($beneficiaries)) {
 </div>
 
 <?php if ($selected_batch_id && !empty($beneficiaries)): ?>
-<!-- Quick Stats Cards - Same as Admin -->
+<!-- Quick Stats Cards - Mobile Optimized -->
 <div class="row mb-3">
-    <div class="col-md-3">
+    <div class="col-6 col-md-3">
         <div class="card border-primary">
             <div class="card-body text-center p-2">
                 <h4 class="card-title text-primary mb-1" id="totalCount"><?php echo count($beneficiaries); ?></h4>
@@ -273,7 +435,7 @@ if ($selected_batch_id && !empty($beneficiaries)) {
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-6 col-md-3">
         <div class="card border-success">
             <div class="card-body text-center p-2">
                 <h4 class="card-title text-success mb-1" id="presentCount"><?php echo $summary['present']; ?></h4>
@@ -281,7 +443,7 @@ if ($selected_batch_id && !empty($beneficiaries)) {
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-6 col-md-3">
         <div class="card border-danger">
             <div class="card-body text-center p-2">
                 <h4 class="card-title text-danger mb-1" id="absentCount"><?php echo $summary['absent']; ?></h4>
@@ -289,7 +451,7 @@ if ($selected_batch_id && !empty($beneficiaries)) {
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-6 col-md-3">
         <div class="card border-info">
             <div class="card-body text-center p-2">
                 <h4 class="card-title text-info mb-1" id="attendanceRate">
@@ -305,7 +467,7 @@ if ($selected_batch_id && !empty($beneficiaries)) {
     </div>
 </div>
 
-<!-- Attendance Form -->
+<!-- Attendance Form - Mobile Optimized -->
 <div class="row">
     <div class="col-12">
         <div class="card">
@@ -328,28 +490,31 @@ if ($selected_batch_id && !empty($beneficiaries)) {
                 <input type="hidden" name="batch_id" value="<?php echo $selected_batch_id; ?>">
                 
                 <div class="card-body">
-                    <!-- Quick Actions -->
+                    <!-- Quick Actions - Mobile Optimized -->
                     <div class="row mb-3">
-                        <div class="col-md-8">
+                        <div class="col-12">
                             <div class="btn-toolbar" role="toolbar">
                                 <div class="btn-group mr-2" role="group">
                                     <button type="button" class="btn btn-success" onclick="markAllPresent()">
-                                        <i class="fas fa-check"></i> Mark All Present
+                                        <i class="fas fa-check"></i> <span class="d-none d-sm-inline">Mark All Present</span>
+                                        <span class="d-sm-none">All Present</span>
                                     </button>
                                     <button type="button" class="btn btn-danger" onclick="markAllAbsent()">
-                                        <i class="fas fa-times"></i> Mark All Absent
+                                        <i class="fas fa-times"></i> <span class="d-none d-sm-inline">Mark All Absent</span>
+                                        <span class="d-sm-none">All Absent</span>
                                     </button>
                                 </div>
                                 <div class="btn-group" role="group">
                                     <button type="button" class="btn btn-outline-secondary" onclick="clearAllAttendance()">
-                                        <i class="fas fa-eraser"></i> Clear All
+                                        <i class="fas fa-eraser"></i> <span class="d-none d-sm-inline">Clear All</span>
+                                        <span class="d-sm-none">Clear</span>
                                     </button>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4 text-right">
+                        <div class="col-12">
                             <div class="alert alert-info alert-sm mb-0 py-2">
-                                <i class="fas fa-info-circle"></i> Use buttons below to mark attendance quickly
+                                <i class="fas fa-info-circle"></i> Use buttons above to mark attendance quickly
                             </div>
                         </div>
                     </div>
@@ -360,8 +525,8 @@ if ($selected_batch_id && !empty($beneficiaries)) {
                                 <tr>
                                     <th>S.No</th>
                                     <th>Student Details</th>
-                                    <th>Batch</th>
-                                    <th>Current Status</th>
+                                    <th class="d-none d-md-table-cell">Batch</th>
+                                    <th class="d-none d-sm-table-cell">Current Status</th>
                                     <th>Mark Attendance</th>
                                 </tr>
                             </thead>
@@ -374,11 +539,15 @@ if ($selected_batch_id && !empty($beneficiaries)) {
                                         <small class="text-muted">
                                             <i class="fas fa-phone"></i> <?php echo htmlspecialchars($beneficiary['mobile_number']); ?>
                                         </small>
+                                        <!-- Mobile-only batch info -->
+                                        <div class="d-md-none mt-1">
+                                            <span class="badge badge-primary badge-sm"><?php echo htmlspecialchars($beneficiary['batch_name']); ?></span>
+                                        </div>
                                     </td>
-                                    <td>
+                                    <td class="d-none d-md-table-cell">
                                         <span class="badge badge-primary"><?php echo htmlspecialchars($beneficiary['batch_name']); ?></span>
                                     </td>
-                                    <td>
+                                    <td class="d-none d-sm-table-cell">
                                         <?php if (!empty($beneficiary['attendance_status'])): ?>
                                             <span class="badge badge-<?php 
                                                 echo $beneficiary['attendance_status'] == 'present' ? 'success' : 
@@ -396,64 +565,48 @@ if ($selected_batch_id && !empty($beneficiaries)) {
                                         <?php endif; ?>
                                     </td>
                                     <td>
-
                                         <input type="hidden" 
                                                name="attendance[<?php echo $beneficiary['id']; ?>]" 
-                                               value="<?php 
-                                                   $status = $beneficiary['attendance_status'];
-                                                   if ($status == 'present' || $status == 'P') {
-                                                       echo 'present';
-                                                   } else {
-                                                       echo 'absent';
-                                                   }
-                                               ?>" 
-                                               class="attendance-status-input">
-                                        <div class="btn-group btn-group-sm status-buttons" role="group">
-                                            <button type="button" 
-                                                    class="btn btn-present <?php 
-                                                        $status = $beneficiary['attendance_status'];
-                                                        echo (($status == 'present' || $status == 'P') ? 'btn-success' : 'btn-outline-success'); 
-                                                    ?>" 
-                                                    onclick="setAttendanceStatus(this, 'present')">
-                                                Present
-                                            </button>
-                                            <button type="button" 
-                                                    class="btn btn-absent <?php 
-                                                        $status = $beneficiary['attendance_status'];
-                                                        echo (($status == 'absent' || $status == 'A' || empty($status)) ? 'btn-danger' : 'btn-outline-danger'); 
-                                                    ?>" 
-                                                    onclick="setAttendanceStatus(this, 'absent')">
-                                                Absent
-                                            </button>
+                                               value="<?php echo $beneficiary['attendance_status'] ?? ''; ?>"
+                                               id="attendance_<?php echo $beneficiary['id']; ?>">
+                                        
+                                        <div class="btn-group-toggle" data-toggle="buttons">
+                                            <label class="btn btn-outline-success btn-sm attendance-btn <?php echo ($beneficiary['attendance_status'] == 'present') ? 'active' : ''; ?>"
+                                                   onclick="markAttendance(<?php echo $beneficiary['id']; ?>, 'present')">
+                                                <i class="fas fa-check"></i> <span class="d-none d-sm-inline">Present</span>
+                                                <span class="d-sm-none">P</span>
+                                            </label>
+                                            <label class="btn btn-outline-danger btn-sm attendance-btn <?php echo ($beneficiary['attendance_status'] == 'absent') ? 'active' : ''; ?>"
+                                                   onclick="markAttendance(<?php echo $beneficiary['id']; ?>, 'absent')">
+                                                <i class="fas fa-times"></i> <span class="d-none d-sm-inline">Absent</span>
+                                                <span class="d-sm-none">A</span>
+                                            </label>
+                                        </div>
+                                        
+                                        <!-- Mobile-only status indicator -->
+                                        <div class="d-sm-none mt-1">
+                                            <?php if (!empty($beneficiary['attendance_status'])): ?>
+                                                <small class="text-<?php echo $beneficiary['attendance_status'] == 'present' ? 'success' : 'danger'; ?>">
+                                                    <i class="fas fa-<?php echo $beneficiary['attendance_status'] == 'present' ? 'check' : 'times'; ?>-circle"></i>
+                                                    <?php echo ucfirst($beneficiary['attendance_status']); ?>
+                                                </small>
+                                            <?php else: ?>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-circle"></i> Not Marked
+                                                </small>
+                                            <?php endif; ?>
                                         </div>
                                     </td>
-
                                 </tr>
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
                     </div>
-                </div>
-                
-                <div class="card-footer">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="btn-toolbar" role="toolbar">
-                                <div class="btn-group mr-2" role="group">
-                                    <button type="button" class="btn btn-success btn-sm" onclick="markAllPresent()">
-                                        <i class="fas fa-check"></i> All Present
-                                    </button>
-                                    <button type="button" class="btn btn-danger btn-sm" onclick="markAllAbsent()">
-                                        <i class="fas fa-times"></i> All Absent
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 text-right">
-                            <button type="submit" name="submit_attendance" class="btn btn-primary btn-lg">
-                                <i class="fas fa-save"></i> Save Attendance
-                            </button>
-                        </div>
+                    
+                    <div class="mt-3 text-center">
+                        <button type="submit" name="submit_attendance" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save"></i> Save Attendance
+                        </button>
                     </div>
                 </div>
             </form>
@@ -461,203 +614,173 @@ if ($selected_batch_id && !empty($beneficiaries)) {
     </div>
 </div>
 
-<?php elseif ($selected_batch_id): ?>
-<!-- No Students Found -->
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-body text-center py-5">
-                <i class="fas fa-users-slash fa-3x text-muted mb-3"></i>
-                <h5 class="text-muted">No students found in this batch</h5>
-                <p class="text-muted">The selected batch may not have any active students.</p>
-            </div>
-        </div>
-    </div>
-</div>
-
 <?php else: ?>
-<!-- No Batch Selected -->
+<!-- No Batch Selected or No Students -->
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-body text-center py-5">
-                <i class="fas fa-layer-group fa-3x text-muted mb-3"></i>
-                <h5 class="text-muted">Please select a batch</h5>
-                <p class="text-muted">Choose a batch from the dropdown above to mark attendance.</p>
+                <?php if (empty($batches)): ?>
+                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                    <h4 class="text-muted">No Active Batches Found</h4>
+                    <p class="text-muted">Contact your administrator to set up training batches.</p>
+                <?php elseif (!$selected_batch_id): ?>
+                    <i class="fas fa-layer-group fa-3x text-info mb-3"></i>
+                    <h4 class="text-muted">Select a Batch</h4>
+                    <p class="text-muted">Please select a batch from the dropdown above to mark attendance.</p>
+                <?php else: ?>
+                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">No Students Found</h4>
+                    <p class="text-muted">The selected batch has no active students.</p>
+                <?php endif; ?>
             </div>
         </div>
     </div>
 </div>
 <?php endif; ?>
 
-
-
 <script>
-// Function to update attendance counts in real-time
-function updateCounts() {
-    const totalInputs = document.querySelectorAll('input[name^="attendance"]').length;
-    let presentCount = 0;
-    let absentCount = 0;
+// Attendance marking functions
+function markAttendance(beneficiaryId, status) {
+    const input = document.getElementById('attendance_' + beneficiaryId);
+    input.value = status;
     
-    document.querySelectorAll('input[name^="attendance"]').forEach(input => {
-        if (input.value === 'present') {
-            presentCount++;
-        } else if (input.value === 'absent') {
-            absentCount++;
-        }
-    });
+    // Update button states
+    const row = input.closest('tr');
+    const presentBtn = row.querySelector('.btn-outline-success');
+    const absentBtn = row.querySelector('.btn-outline-danger');
     
-    const totalMarked = presentCount + absentCount;
-    const rate = totalInputs > 0 ? Math.round((totalMarked / totalInputs) * 100) : 0;
+    // Remove active class from all buttons
+    presentBtn.classList.remove('active');
+    absentBtn.classList.remove('active');
     
-    // Update the stats cards
-    document.getElementById('totalCount').textContent = totalInputs;
-    document.getElementById('presentCount').textContent = presentCount;
-    document.getElementById('absentCount').textContent = absentCount;
-    document.getElementById('attendanceRate').textContent = rate + '%';
-    
-    console.log('📊 Stats updated - Total:', totalInputs, 'Present:', presentCount, 'Absent:', absentCount, 'Rate:', rate + '%');
-}
-
-// Function to set attendance status and update counts
-function setAttendanceStatus(button, status) {
-    console.log('🔥 Individual button clicked:', status);
-    
-    // Get the row containing this button
-    const row = button.closest('tr');
-    const hiddenInput = row.querySelector('input[name^="attendance"]');
-    
-    if (hiddenInput) {
-        // Update hidden input value
-        hiddenInput.value = status;
-        console.log('✅ Updated hidden input to:', status);
-        
-        // Update button appearances
-        const presentButton = row.querySelector('.btn-present');
-        const absentButton = row.querySelector('.btn-absent');
-        
-        if (status === 'present') {
-            presentButton.className = 'btn btn-present btn-success';
-            absentButton.className = 'btn btn-absent btn-outline-danger';
-            console.log('✅ Set to PRESENT (green)');
-        } else {
-            presentButton.className = 'btn btn-present btn-outline-success';
-            absentButton.className = 'btn btn-absent btn-danger';
-            console.log('✅ Set to ABSENT (red)');
-        }
-        
-        // Update the stats in real-time
-        updateCounts();
-    } else {
-        console.error('❌ Hidden input not found for this row');
+    // Add active class to selected button
+    if (status === 'present') {
+        presentBtn.classList.add('active');
+    } else if (status === 'absent') {
+        absentBtn.classList.add('active');
     }
+    
+    // Update counters
+    updateCounters();
 }
 
-// Quick mark functions for all students
 function markAllPresent() {
-    console.log('🟢 Marking all students as PRESENT');
-    const presentButtons = document.querySelectorAll('.btn-present');
-    console.log(`Found ${presentButtons.length} present buttons`);
-    
-    presentButtons.forEach((button, index) => {
-        setAttendanceStatus(button, 'present');
-        console.log(`✅ Processed button ${index + 1}/${presentButtons.length}`);
+    const inputs = document.querySelectorAll('input[name^="attendance["]');
+    inputs.forEach(input => {
+        input.value = 'present';
     });
     
-    // Double-check: ensure all hidden inputs have 'present' value
-    const hiddenInputs = document.querySelectorAll('input[name^="attendance"]');
-    hiddenInputs.forEach(input => {
-        if (!input.value || input.value === '') {
-            input.value = 'present';
-            console.log(`🔧 Fixed empty input for beneficiary: ${input.name}`);
-        }
-    });
+    // Update button states
+    document.querySelectorAll('.btn-outline-success').forEach(btn => btn.classList.add('active'));
+    document.querySelectorAll('.btn-outline-danger').forEach(btn => btn.classList.remove('active'));
     
-    console.log(`🎯 Total inputs processed: ${hiddenInputs.length}`);
-    
-    // Update counts after bulk action
-    updateCounts();
+    updateCounters();
 }
 
 function markAllAbsent() {
-    console.log('🔴 Marking all students as ABSENT');
-    const absentButtons = document.querySelectorAll('.btn-absent');
-    console.log(`Found ${absentButtons.length} absent buttons`);
-    
-    absentButtons.forEach((button, index) => {
-        setAttendanceStatus(button, 'absent');
-        console.log(`✅ Processed button ${index + 1}/${absentButtons.length}`);
+    const inputs = document.querySelectorAll('input[name^="attendance["]');
+    inputs.forEach(input => {
+        input.value = 'absent';
     });
     
-    // Double-check: ensure all hidden inputs have 'absent' value
-    const hiddenInputs = document.querySelectorAll('input[name^="attendance"]');
-    hiddenInputs.forEach(input => {
-        if (!input.value || input.value === '') {
-            input.value = 'absent';
-            console.log(`🔧 Fixed empty input for beneficiary: ${input.name}`);
-        }
-    });
+    // Update button states
+    document.querySelectorAll('.btn-outline-danger').forEach(btn => btn.classList.add('active'));
+    document.querySelectorAll('.btn-outline-success').forEach(btn => btn.classList.remove('active'));
     
-    console.log(`🎯 Total inputs processed: ${hiddenInputs.length}`);
-    
-    // Update counts after bulk action
-    updateCounts();
+    updateCounters();
 }
 
 function clearAllAttendance() {
-    if (confirm('Are you sure you want to clear all attendance selections?')) {
-        // Reset all buttons to default state (absent but unselected appearance)
-        const allPresentButtons = document.querySelectorAll('.btn-present');
-        const allAbsentButtons = document.querySelectorAll('.btn-absent');
-        
-        allPresentButtons.forEach(button => {
-            button.className = 'btn btn-present btn-outline-success';
-        });
-        
-        allAbsentButtons.forEach(button => {
-            button.className = 'btn btn-absent btn-outline-danger';
-        });
-        
-        // Clear all hidden inputs
-        const hiddenInputs = document.querySelectorAll('input[name^="attendance"]');
-        hiddenInputs.forEach(input => {
-            input.value = '';
-        });
-    }
+    const inputs = document.querySelectorAll('input[name^="attendance["]');
+    inputs.forEach(input => {
+        input.value = '';
+    });
+    
+    // Update button states
+    document.querySelectorAll('.btn-outline-success, .btn-outline-danger').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    updateCounters();
 }
 
-// Form validation and debugging
-$(document).ready(function() {
-    // Initialize counts when page loads
-    updateCounts();
+function updateCounters() {
+    const inputs = document.querySelectorAll('input[name^="attendance["]');
+    let present = 0;
+    let absent = 0;
+    let total = 0;
     
-    // Debug: Count hidden inputs when page loads
-    const hiddenInputs = $('input[name^="attendance"]');
-    console.log(`🔍 Debug: Found ${hiddenInputs.length} hidden attendance inputs on page load`);
-    
-    // Check for problematic students
-    const problematicInputs = hiddenInputs.filter('[data-debug]');
-    if (problematicInputs.length > 0) {
-        problematicInputs.each(function() {
-            console.log(`✓ Found problematic student input: ${$(this).data('debug')} (name: ${this.name})`);
-        });
-    } else {
-        console.log('❌ No problematic student inputs found on page');
-    }
-    
-    $('#attendanceForm').submit(function(e) {
-        const marked = $('input[name^="attendance"]').filter(function() {
-            return $(this).val() !== '';
-        }).length;
-        
-        console.log(`📊 Form submission: ${hiddenInputs.length} total inputs, ${marked} with values`);
-        
-        if (marked === 0) {
-            e.preventDefault();
-            alert('Please mark attendance for at least one student.');
+    inputs.forEach(input => {
+        if (input.value === 'present') {
+            present++;
+            total++;
+        } else if (input.value === 'absent') {
+            absent++;
+            total++;
         }
     });
+    
+    // Update display
+    document.getElementById('presentCount').textContent = present;
+    document.getElementById('absentCount').textContent = absent;
+    document.getElementById('totalCount').textContent = total;
+    
+    // Calculate and update rate
+    const totalStudents = inputs.length;
+    const rate = totalStudents > 0 ? Math.round((total / totalStudents) * 100 * 10) / 10 : 0;
+    document.getElementById('attendanceRate').textContent = rate + '%';
+}
+
+// Initialize counters on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateCounters();
+    
+    // Add touch event listeners for mobile
+    if ('ontouchstart' in window) {
+        document.querySelectorAll('.attendance-btn').forEach(btn => {
+            btn.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.95)';
+            });
+            
+            btn.addEventListener('touchend', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+    }
+});
+
+// Form validation
+document.getElementById('attendanceForm').addEventListener('submit', function(e) {
+    const inputs = document.querySelectorAll('input[name^="attendance["]');
+    let hasAttendance = false;
+    
+    inputs.forEach(input => {
+        if (input.value) {
+            hasAttendance = true;
+        }
+    });
+    
+    if (!hasAttendance) {
+        e.preventDefault();
+        alert('Please mark attendance for at least one student before saving.');
+        return false;
+    }
+    
+    // Show loading state
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    submitBtn.disabled = true;
+    
+    // Reset button after 5 seconds
+    setTimeout(() => {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }, 5000);
 });
 </script>
 
-<?php require_once 'includes/footer.php'; ?>
+<?php
+require_once 'includes/footer.php';
+?>

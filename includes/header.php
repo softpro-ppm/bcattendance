@@ -139,7 +139,7 @@ $currentUser = getCurrentUser();
             <nav class="main-header">
                 <div class="navbar">
                     <div class="navbar-brand">
-                        <button class="sidebar-toggle d-md-none" type="button" aria-label="Toggle sidebar">
+                        <button class="sidebar-toggle d-lg-none" type="button" aria-label="Toggle sidebar">
                             <i class="fas fa-bars"></i>
                         </button>
                         <?php echo isset($pageTitle) ? $pageTitle : 'Dashboard'; ?>

@@ -22,7 +22,7 @@ require_once '../config/database.php';
     <link rel="stylesheet" href="../assets/css/admin.css">
     
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css>
     
 
     <style>
@@ -36,10 +36,6 @@ require_once '../config/database.php';
             background: #fff !important;
             color: #415E72 !important;
         }
-        
-
-        
-
         
         /* Top navbar styling for TC - White with drop shadow like admin */
         .main-header {
@@ -68,6 +64,9 @@ require_once '../config/database.php';
             font-weight: 600;
             color: #495057;
             margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
         
         .main-header .sidebar-toggle {
@@ -77,13 +76,22 @@ require_once '../config/database.php';
             font-size: 1.1rem;
             margin-right: 1rem;
             cursor: pointer;
-            padding: 0.25rem 0.5rem;
+            padding: 0.5rem;
             border-radius: 0.25rem;
             transition: all 0.3s ease;
+            min-height: 44px;
+            min-width: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .main-header .sidebar-toggle:hover {
             background-color: #f8f9fa;
+        }
+        
+        .main-header .sidebar-toggle:active {
+            background-color: #e9ecef;
         }
         
         .main-header .navbar-nav .nav-item .dropdown-toggle {
@@ -96,10 +104,18 @@ require_once '../config/database.php';
             transition: background-color 0.3s;
             white-space: nowrap;
             overflow: hidden;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
         
         .main-header .navbar-nav .nav-item .dropdown-toggle:hover {
             background-color: #f8f9fa;
+        }
+        
+        .main-header .navbar-nav .nav-item .dropdown-toggle:active {
+            background-color: #e9ecef;
         }
         
         .main-header .dropdown-menu {
@@ -108,32 +124,151 @@ require_once '../config/database.php';
             top: calc(100% + 5px);
             background: #fff;
             border: 1px solid #dee2e6;
-            border-radius: 5px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            min-width: 160px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            min-width: 180px;
             z-index: 1050;
             display: none;
+            padding: 0.5rem 0;
+        }
+        
+        .main-header .dropdown-menu.show {
+            display: block;
+            animation: fadeInDown 0.2s ease-out;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .main-header .dropdown-item {
-            display: block;
-            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
             color: #495057;
             text-decoration: none;
-            transition: background-color 0.3s;
+            transition: background-color 0.2s;
+            font-size: 0.9rem;
         }
         
         .main-header .dropdown-item:hover {
             background-color: #f8f9fa;
+            text-decoration: none;
         }
         
-        /* Dropdown visibility */
-        .dropdown-menu.show {
-            display: block;
+        .main-header .dropdown-item:active {
+            background-color: #e9ecef;
+        }
+        
+        .main-header .dropdown-divider {
+            margin: 0.5rem 0;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        /* Mobile-specific styles */
+        @media (max-width: 768px) {
+            .main-header .navbar {
+                padding: 0.5rem 1rem;
+            }
+            
+            .main-header .navbar-brand {
+                font-size: 1.1rem;
+                gap: 0.5rem;
+            }
+            
+            .main-header .sidebar-toggle {
+                margin-right: 0.5rem;
+                padding: 0.4rem;
+                min-height: 40px;
+                min-width: 40px;
+            }
+            
+            .main-header .dropdown-menu {
+                min-width: 200px;
+                max-width: 90vw;
+                left: auto;
+                right: 0;
+            }
+            
+            .main-header .dropdown-item {
+                padding: 0.875rem 1rem;
+                font-size: 0.95rem;
+                min-height: 44px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .main-header .navbar {
+                padding: 0.5rem 0.75rem;
+            }
+            
+            .main-header .navbar-brand {
+                font-size: 1rem;
+                gap: 0.4rem;
+            }
+            
+            .main-header .sidebar-toggle {
+                padding: 0.35rem;
+                min-height: 38px;
+                min-width: 38px;
+                font-size: 1rem;
+            }
+            
+            .main-header .dropdown-menu {
+                min-width: 180px;
+                max-width: 85vw;
+            }
+        }
+        
+        /* Touch device optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            .main-header .sidebar-toggle,
+            .main-header .dropdown-toggle,
+            .main-header .dropdown-item {
+                min-height: 44px;
+            }
+            
+            .main-header .sidebar-toggle {
+                min-width: 44px;
+            }
+        }
+        
+        /* Focus visible for accessibility */
+        .main-header .sidebar-toggle:focus-visible,
+        .main-header .dropdown-toggle:focus-visible,
+        .main-header .dropdown-item:focus-visible {
+            outline: 2px solid #28a745;
+            outline-offset: 2px;
+        }
+        
+        /* Mobile navigation improvements */
+        .mobile-nav-info {
+            display: none;
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            font-size: 0.85rem;
+            color: #0056b3;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-nav-info {
+                display: block;
+            }
         }
     </style>
 </head>
-<body class="">
+<body class="<?php echo isset($bodyClass) ? $bodyClass : ''; ?>">
     <div class="wrapper">
         <!-- Sidebar -->
         <aside class="main-sidebar">
@@ -169,13 +304,19 @@ require_once '../config/database.php';
                     <li class="nav-item">
                         <a href="batches.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'batches.php') ? 'active' : ''; ?>">
                             <i class="nav-icon fas fa-layer-group"></i>
-                            <span>Training Batches</span>
+                            <span>Batches</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="reports.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'reports.php') ? 'active' : ''; ?>">
-                            <i class="nav-icon fas fa-chart-bar"></i>
+                            <i class="nav-icon fas fa-chart-line"></i>
                             <span>Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="profile.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'profile.php') ? 'active' : ''; ?>">
+                            <i class="nav-icon fas fa-user-cog"></i>
+                            <span>Profile</span>
                         </a>
                     </li>
                 </ul>
@@ -188,28 +329,33 @@ require_once '../config/database.php';
             <nav class="main-header">
                 <div class="navbar">
                     <div class="navbar-brand">
-                        <button class="sidebar-toggle d-md-none" type="button" aria-label="Toggle sidebar">
+                        <button class="sidebar-toggle d-lg-none" type="button" aria-label="Toggle sidebar">
                             <i class="fas fa-bars"></i>
                         </button>
-                        <?php echo isset($pageTitle) ? $pageTitle : 'TC Panel'; ?>
+                        <span><?php echo isset($pageTitle) ? $pageTitle : 'Dashboard'; ?></span>
                     </div>
                     
                     <ul class="navbar-nav">
                         <li class="nav-item dropdown">
                             <button class="dropdown-toggle" type="button">
-                                <i class="fas fa-graduation-cap"></i>
-                                <?php echo htmlspecialchars($current_user['tc_id']); ?>
+                                <i class="fas fa-user-circle"></i>
+                                <span class="d-none d-sm-inline"><?php echo htmlspecialchars($current_user['full_name']); ?></span>
                                 <i class="fas fa-caret-down ml-1"></i>
                             </button>
                             <div class="dropdown-menu">
+                                <div class="dropdown-item">
+                                    <i class="fas fa-building"></i>
+                                    <strong><?php echo htmlspecialchars($current_user['training_center_name']); ?></strong>
+                                </div>
+                                <div class="dropdown-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <?php echo htmlspecialchars($current_user['mandal_name']); ?>
+                                </div>
+                                <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="profile.php">
                                     <i class="fas fa-user"></i> Profile
                                 </a>
-                                <a class="dropdown-item" href="dashboard.php">
-                                    <i class="fas fa-tachometer-alt"></i> Dashboard
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="../tc_logout.php">
+                                <a class="dropdown-item" href="../logout.php">
                                     <i class="fas fa-sign-out-alt"></i> Logout
                                 </a>
                             </div>
@@ -218,13 +364,12 @@ require_once '../config/database.php';
                 </div>
             </nav>
 
-
-
             <!-- Content -->
             <div class="content">
                 <?php if (isset($pageTitle)): ?>
                 <div class="content-header">
-
+                    <h1 class="page-title"><?php echo htmlspecialchars($pageTitle); ?></h1>
+                    
                     <?php if (isset($breadcrumbs)): ?>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
@@ -240,12 +385,15 @@ require_once '../config/database.php';
                         </ol>
                     </nav>
                     <?php endif; ?>
+                    
+                    <!-- Mobile navigation info -->
+                    <div class="mobile-nav-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>TC:</strong> <?php echo htmlspecialchars($current_user['training_center_name']); ?> | 
+                        <strong>Mandal:</strong> <?php echo htmlspecialchars($current_user['mandal_name']); ?>
+                    </div>
                 </div>
                 <?php endif; ?>
                 
                 <!-- Flash Messages -->
-                <?php 
-                if (function_exists('displayFlashMessages')) {
-                    echo displayFlashMessages(); 
-                }
-                ?>
+                <?php echo displayFlashMessages(); ?>
