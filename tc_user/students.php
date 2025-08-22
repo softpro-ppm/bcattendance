@@ -1,4 +1,8 @@
 <?php
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 $pageTitle = "Students";
 $breadcrumbs = [
     ['title' => 'Dashboard', 'url' => 'dashboard.php'],
@@ -7,17 +11,53 @@ $breadcrumbs = [
 
 require_once 'includes/header.php';
 
+// Debug: Check if we're here
+echo "<!-- Debug: PHP execution started -->\n";
+echo "<!-- Debug: Session data: " . print_r($_SESSION, true) . " -->\n";
+
+// Test database connection
+try {
+    require_once '../config/database.php';
+    $conn = getDBConnection();
+    echo "<!-- Debug: Database connection successful -->\n";
+    
+    // Test a simple query
+    $test_result = $conn->query("SELECT 1 as test");
+    if ($test_result) {
+        $test_row = $test_result->fetch_assoc();
+        echo "<!-- Debug: Test query successful: " . $test_row['test'] . " -->\n";
+    } else {
+        echo "<!-- Debug: Test query failed: " . $conn->error . " -->\n";
+    }
+} catch (Exception $e) {
+    echo "<!-- Debug: Database connection failed: " . $e->getMessage() . " -->\n";
+}
+
+// Debug: Check session variables
+echo "<!-- Debug: TC ID: " . ($_SESSION['tc_user_training_center_id'] ?? 'NOT SET') . " -->\n";
+echo "<!-- Debug: Mandal ID: " . ($_SESSION['tc_user_mandal_id'] ?? 'NOT SET') . " -->\n";
+
 // Get TC info
 $tc_id = $_SESSION['tc_user_training_center_id'];
 $mandal_id = $_SESSION['tc_user_mandal_id'];
+
+echo "<!-- Debug: TC ID variable: $tc_id -->\n";
+echo "<!-- Debug: Mandal ID variable: $mandal_id -->\n";
 
 // Get filter parameters
 $batch_filter = $_GET['batch_id'] ?? '';
 $search = $_GET['search'] ?? '';
 
+echo "<!-- Debug: Batch filter: $batch_filter -->\n";
+echo "<!-- Debug: Search: $search -->\n";
+
 // Get batches for this training center
 $batches_query = "SELECT * FROM batches WHERE tc_id = ? AND status = 'active' ORDER BY name";
+echo "<!-- Debug: Batches query: $batches_query -->\n";
+echo "<!-- Debug: Query params: " . print_r([$tc_id], true) . " -->\n";
+
 $batches = fetchAll($batches_query, [$tc_id], 'i') ?: [];
+echo "<!-- Debug: Batches result: " . print_r($batches, true) . " -->\n";
 
 // Build beneficiaries query with filters - using correct column names
 $beneficiaries_query = "SELECT ben.*, b.name as batch_name, b.code as batch_code
@@ -51,14 +91,39 @@ $beneficiaries_query .= " ORDER BY
         ELSE 999
     END, 
     b.name, ben.full_name";
+echo "<!-- Debug: Beneficiaries query: $beneficiaries_query -->\n";
+echo "<!-- Debug: Query params: " . print_r($params, true) . " -->\n";
+echo "<!-- Debug: Query types: $types -->\n";
+
 $beneficiaries = fetchAll($beneficiaries_query, $params, $types) ?: [];
+echo "<!-- Debug: Beneficiaries result: " . print_r($beneficiaries, true) . " -->\n";
 
 // Get summary stats
 $total_students = count($beneficiaries);
 $batch_count = count($batches);
 $male_count = count(array_filter($beneficiaries, function($b) { return ($b['gender'] ?? '') == 'Male'; }));
 $female_count = count(array_filter($beneficiaries, function($b) { return ($b['gender'] ?? '') == 'Female'; }));
+
+echo "<!-- Debug: Total students: $total_students -->\n";
+echo "<!-- Debug: Batch count: $batch_count -->\n";
+echo "<!-- Debug: Male count: $male_count -->\n";
+echo "<!-- Debug: Female count: $female_count -->\n";
 ?>
+
+<!-- Debug Section -->
+<div class="row">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <h4>Debug Information</h4>
+            <p><strong>TC ID:</strong> <?php echo htmlspecialchars($tc_id ?? 'NOT SET'); ?></p>
+            <p><strong>Mandal ID:</strong> <?php echo htmlspecialchars($mandal_id ?? 'NOT SET'); ?></p>
+            <p><strong>Total Students:</strong> <?php echo htmlspecialchars($total_students ?? 'NOT SET'); ?></p>
+            <p><strong>Batch Count:</strong> <?php echo htmlspecialchars($batch_count ?? 'NOT SET'); ?></p>
+            <p><strong>PHP Version:</strong> <?php echo phpversion(); ?></p>
+            <p><strong>Session ID:</strong> <?php echo session_id(); ?></p>
+        </div>
+    </div>
+</div>
 
 <!-- Filter Section -->
 <div class="row">
