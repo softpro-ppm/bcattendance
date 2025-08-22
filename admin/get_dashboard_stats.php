@@ -14,6 +14,9 @@ if (!isset($_SESSION['admin_user_id'])) {
 date_default_timezone_set('Asia/Kolkata');
 
 try {
+    // Use the new timezone utility functions for reliable IST date handling
+    $today = getCurrentISTDate();
+    
     // Get dashboard statistics
     $stats = getDashboardStats();
     
@@ -37,7 +40,7 @@ try {
         LEFT JOIN mandals m ON bt.mandal_id = m.id
         LEFT JOIN constituencies c ON m.constituency_id = c.id
         LEFT JOIN beneficiaries b ON bt.id = b.batch_id AND b.status = 'active'
-        LEFT JOIN attendance a ON b.id = a.beneficiary_id AND a.attendance_date = CURDATE()
+        LEFT JOIN attendance a ON b.id = a.beneficiary_id AND a.attendance_date = ?
         WHERE bt.status = 'active'
         GROUP BY bt.id, bt.name, c.name, m.name
         ORDER BY 
@@ -45,7 +48,7 @@ try {
             MAX(a.created_at) DESC,
             bt.name
         LIMIT 10
-    ");
+    ", [$today], 's');
 
     // Calculate attendance percentages
     $totalToday = $stats['today_attendance'];

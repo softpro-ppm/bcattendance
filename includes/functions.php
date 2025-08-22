@@ -1,4 +1,52 @@
 <?php
+// Initialize timezone for the entire application
+function initializeApplicationTimezone() {
+    // Set default timezone to IST
+    date_default_timezone_set('Asia/Kolkata');
+    
+    // Also set timezone for any DateTime objects
+    if (class_exists('DateTime')) {
+        // This ensures any new DateTime objects use IST by default
+        ini_set('date.timezone', 'Asia/Kolkata');
+    }
+}
+
+// Call this function immediately
+initializeApplicationTimezone();
+
+// Comprehensive timezone utility functions
+function getCurrentISTDate() {
+    // Force IST timezone
+    date_default_timezone_set('Asia/Kolkata');
+    
+    // Get current time in IST
+    $current_time = time();
+    $ist_date = gmdate('Y-m-d', $current_time + (5.5 * 3600));
+    
+    return $ist_date;
+}
+
+function getCurrentISTDateTime() {
+    // Force IST timezone
+    date_default_timezone_set('Asia/Kolkata');
+    
+    // Get current time in IST
+    $current_time = time();
+    $ist_datetime = gmdate('Y-m-d H:i:s', $current_time + (5.5 * 3600));
+    
+    return $ist_datetime;
+}
+
+function convertToISTDate($utc_timestamp) {
+    // Convert UTC timestamp to IST date
+    return gmdate('Y-m-d', $utc_timestamp + (5.5 * 3600));
+}
+
+function convertToISTDateTime($utc_timestamp) {
+    // Convert UTC timestamp to IST datetime
+    return gmdate('Y-m-d H:i:s', $utc_timestamp + (5.5 * 3600));
+}
+
 // Common utility functions
 
 // Sanitize input
@@ -171,8 +219,9 @@ function isValidAttendanceDate($date, $batchId = null) {
         ];
     }
     
-    // Check if date is in the future
-    if (strtotime($date) > strtotime(date('Y-m-d'))) {
+    // Check if date is in the future using IST timezone
+    $today = getCurrentISTDate();
+    if (strtotime($date) > strtotime($today)) {
         return [
             'valid' => false,
             'reason' => 'Attendance cannot be marked for future dates'
@@ -292,8 +341,8 @@ function formatStatusDisplay($status) {
 
 // Get dashboard statistics
 function getDashboardStats() {
-    // Ensure correct timezone for date calculations
-    date_default_timezone_set('Asia/Kolkata');
+    // Use the new timezone utility functions for reliable IST date handling
+    $today = getCurrentISTDate();
     
     $stats = [];
     
@@ -313,16 +362,16 @@ function getDashboardStats() {
     $result = fetchRow("SELECT COUNT(*) as total FROM batches WHERE status = 'active'");
     $stats['total_batches'] = $result ? $result['total'] : 0;
     
-    // Today's attendance - use CURDATE() for consistent date handling
-    $result = fetchRow("SELECT COUNT(*) as total FROM attendance WHERE attendance_date = CURDATE()");
+    // Today's attendance - use the IST date instead of CURDATE()
+    $result = fetchRow("SELECT COUNT(*) as total FROM attendance WHERE attendance_date = ?", [$today], 's');
     $stats['today_attendance'] = $result ? $result['total'] : 0;
     
     // Present today
-    $result = fetchRow("SELECT COUNT(*) as total FROM attendance WHERE attendance_date = CURDATE() AND (status = 'present' OR status = 'P')");
+    $result = fetchRow("SELECT COUNT(*) as total FROM attendance WHERE attendance_date = ? AND (status = 'present' OR status = 'P')", [$today], 's');
     $stats['present_today'] = $result ? $result['total'] : 0;
     
     // Absent today
-    $result = fetchRow("SELECT COUNT(*) as total FROM attendance WHERE attendance_date = CURDATE() AND (status = 'absent' OR status = 'A')");
+    $result = fetchRow("SELECT COUNT(*) as total FROM attendance WHERE attendance_date = ? AND (status = 'absent' OR status = 'A')", [$today], 's');
     $stats['absent_today'] = $result ? $result['total'] : 0;
     
     return $stats;

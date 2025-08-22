@@ -4,12 +4,15 @@ $breadcrumbs = [
     ['title' => 'Dashboard']
 ];
 
+// Ensure correct timezone for date calculations
+date_default_timezone_set('Asia/Kolkata');
+
 require_once 'includes/header.php';
 
 // Get TC info from session
 $tc_id = $_SESSION['tc_user_training_center_id'];
 $mandal_id = $_SESSION['tc_user_mandal_id'];
-$today = date('Y-m-d');
+$today = getCurrentISTDate();
 
 // Get basic stats with error handling
 try {

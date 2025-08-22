@@ -8,8 +8,8 @@ $breadcrumbs = [
 
 require_once '../includes/header.php';
 
-// Ensure we have the correct timezone for date calculations
-date_default_timezone_set('Asia/Kolkata');
+// Use the new timezone utility functions for reliable IST date handling
+$today = getCurrentISTDate();
 
 // Get dashboard statistics
 $stats = getDashboardStats();
@@ -34,14 +34,14 @@ $batchMarkingStatus = fetchAll("
     LEFT JOIN mandals m ON bt.mandal_id = m.id
     LEFT JOIN constituencies c ON m.constituency_id = c.id
     LEFT JOIN beneficiaries b ON bt.id = b.batch_id AND b.status = 'active'
-    LEFT JOIN attendance a ON b.id = a.beneficiary_id AND a.attendance_date = CURDATE()
+    LEFT JOIN attendance a ON b.id = a.beneficiary_id AND a.attendance_date = ?
     WHERE bt.status = 'active'
     GROUP BY bt.id, bt.name, c.name, m.name
     ORDER BY 
         CASE WHEN COUNT(a.id) > 0 THEN 0 ELSE 1 END,
         MAX(a.created_at) DESC,
         bt.name
-");
+", [$today], 's');
 
 // Simple dashboard - no complex queries needed for percentage cards
 ?>
@@ -273,7 +273,7 @@ $batchMarkingStatus = fetchAll("
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <a href="attendance.php?batch=<?php echo $batch['batch_id']; ?>&date=<?php echo date('Y-m-d'); ?>" 
+                                    <a href="attendance.php?batch=<?php echo $batch['batch_id']; ?>&date=<?php echo $today; ?>" 
                                        class="btn btn-sm btn-outline-primary">
                                         <i class="fas fa-edit"></i> <span class="d-none d-sm-inline">Edit</span>
                                     </a>

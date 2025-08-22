@@ -28,7 +28,12 @@ function getDBConnection() {
             $connection->set_charset("utf8");
             
             // Set timezone for consistent date handling
+            // Set both session and ensure global timezone is handled
             $connection->query("SET time_zone = '+05:30'"); // IST timezone
+            $connection->query("SET @@session.time_zone = '+05:30'"); // Explicit session timezone
+            
+            // Also set PHP timezone to match
+            date_default_timezone_set('Asia/Kolkata');
             
         } catch (Exception $e) {
             die("Database connection error: " . $e->getMessage());

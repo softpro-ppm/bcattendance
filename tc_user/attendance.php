@@ -270,8 +270,8 @@ require_once 'includes/header.php';
 
 <?php
 
-// Get current date and TC info
-$current_date = date('Y-m-d');
+// Get current date in IST timezone
+$current_date = getCurrentISTDate();
 $tc_id = $_SESSION['tc_user_training_center_id'];
 
 $message = '';

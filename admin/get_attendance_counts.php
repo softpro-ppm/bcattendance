@@ -10,10 +10,10 @@ if (!isset($_SESSION['admin_user_id'])) {
 }
 
 // Ensure correct timezone for date calculations
-date_default_timezone_set('Asia/Kolkata');
-
 // Get filters from request
-$selectedDate = $_GET['date'] ?? date('Y-m-d');
+// Use the new timezone utility functions for reliable IST date handling
+$today = getCurrentISTDate();
+$selectedDate = $_GET['date'] ?? $today;
 $selectedConstituency = $_GET['constituency'] ?? '';
 $selectedMandal = $_GET['mandal'] ?? '';
 $selectedBatch = $_GET['batch'] ?? '';

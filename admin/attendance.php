@@ -62,15 +62,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['mark_attendance'])) {
 }
 
 // Get filters
-// Ensure we always get today's date in the correct timezone
-$today = new DateTime('now', new DateTimeZone('Asia/Kolkata')); // Use IST timezone
-$selectedDate = $_GET['date'] ?? $today->format('Y-m-d');
+// Use the new timezone utility functions for reliable IST date handling
+$today = getCurrentISTDate();
+$selectedDate = $_GET['date'] ?? $today;
 
 // Debug: Log the date information
 error_log("Debug - Server timezone: " . date_default_timezone_get());
 error_log("Debug - Current server time: " . date('Y-m-d H:i:s'));
-error_log("Debug - IST timezone time: " . $today->format('Y-m-d H:i:s'));
+error_log("Debug - IST timezone time: " . getCurrentISTDateTime());
 error_log("Debug - Selected date: " . $selectedDate);
+error_log("Debug - Today's IST date: " . $today);
 
 $selectedConstituency = $_GET['constituency'] ?? '';
 $selectedMandal = $_GET['mandal'] ?? '';
@@ -220,7 +221,7 @@ $beneficiaries = fetchAll($query, $allParams, $allTypes);
             <strong>Date Information:</strong> 
             Server Timezone: <?php echo date_default_timezone_get(); ?> | 
             Server Time: <?php echo date('Y-m-d H:i:s'); ?> | 
-            IST Time: <?php echo $today->format('Y-m-d H:i:s'); ?> | 
+            IST Time: <?php echo getCurrentISTDateTime(); ?> | 
             Selected Date: <?php echo $selectedDate; ?>
         </div>
 
