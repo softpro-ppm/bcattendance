@@ -390,12 +390,12 @@ $beneficiaries = fetchAll($query, $allParams, $allTypes);
                                 <input type="checkbox" id="selectAll" onchange="selectAllRows()">
                             </th>
                             <th width="60">S.No</th>
+                            <th width="150">Status</th>
                             <th width="250">Name</th>
                             <th width="120">Mobile</th>
                             <th width="120">Constituency</th>
                             <th width="120">Mandal</th>
                             <th width="100">Batch</th>
-                            <th width="150">Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -406,21 +406,6 @@ $beneficiaries = fetchAll($query, $allParams, $allTypes);
                             </td>
                             <td>
                                 <span class="serial-number"><?php echo $offset + $index + 1; ?></span>
-                            </td>
-                            <td>
-                                <strong><?php echo htmlspecialchars($beneficiary['full_name']); ?></strong>
-                            </td>
-                            <td>
-                                <small><?php echo htmlspecialchars($beneficiary['mobile_number']); ?></small>
-                            </td>
-                            <td>
-                                <small><?php echo htmlspecialchars($beneficiary['constituency_name'] ?? 'N/A'); ?></small>
-                            </td>
-                            <td>
-                                <small><?php echo htmlspecialchars($beneficiary['mandal_name'] ?? 'N/A'); ?></small>
-                            </td>
-                            <td>
-                                <small><?php echo htmlspecialchars($beneficiary['batch_name'] ?? 'N/A'); ?></small>
                             </td>
                             <td>
                                 <input type="hidden" name="attendance[<?php echo $beneficiary['id']; ?>][status]" 
@@ -455,6 +440,21 @@ $beneficiaries = fetchAll($query, $allParams, $allTypes);
                                         Absent
                                     </button>
                                 </div>
+                            </td>
+                            <td>
+                                <strong><?php echo htmlspecialchars($beneficiary['full_name']); ?></strong>
+                            </td>
+                            <td>
+                                <small><?php echo htmlspecialchars($beneficiary['mobile_number']); ?></small>
+                            </td>
+                            <td>
+                                <small><?php echo htmlspecialchars($beneficiary['constituency_name'] ?? 'N/A'); ?></small>
+                            </td>
+                            <td>
+                                <small><?php echo htmlspecialchars($beneficiary['mandal_name'] ?? 'N/A'); ?></small>
+                            </td>
+                            <td>
+                                <small><?php echo htmlspecialchars($beneficiary['batch_name'] ?? 'N/A'); ?></small>
                             </td>
                         </tr>
                         <?php endforeach; ?>

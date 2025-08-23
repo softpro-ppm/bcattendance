@@ -359,10 +359,10 @@ if ($selected_batch_id && !empty($beneficiaries)) {
                             <thead>
                                 <tr>
                                     <th>S.No</th>
+                                    <th>Mark Attendance</th>
                                     <th>Student Details</th>
                                     <th>Batch</th>
                                     <th>Current Status</th>
-                                    <th>Mark Attendance</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -370,33 +370,6 @@ if ($selected_batch_id && !empty($beneficiaries)) {
                                 <tr>
                                     <td><?php echo $index + 1; ?></td>
                                     <td>
-                                        <strong><?php echo htmlspecialchars($beneficiary['full_name']); ?></strong><br>
-                                        <small class="text-muted">
-                                            <i class="fas fa-phone"></i> <?php echo htmlspecialchars($beneficiary['mobile_number']); ?>
-                                        </small>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-primary"><?php echo htmlspecialchars($beneficiary['batch_name']); ?></span>
-                                    </td>
-                                    <td>
-                                        <?php if (!empty($beneficiary['attendance_status'])): ?>
-                                            <span class="badge badge-<?php 
-                                                echo $beneficiary['attendance_status'] == 'present' ? 'success' : 
-                                                     ($beneficiary['attendance_status'] == 'absent' ? 'danger' : 'warning'); 
-                                            ?>">
-                                                <?php echo ucfirst($beneficiary['attendance_status']); ?>
-                                            </span>
-                                            <?php if ($beneficiary['check_in_time']): ?>
-                                                <br><small class="text-muted">
-                                                    <i class="fas fa-clock"></i> <?php echo date('h:i A', strtotime($beneficiary['check_in_time'])); ?>
-                                                </small>
-                                            <?php endif; ?>
-                                        <?php else: ?>
-                                            <span class="badge badge-secondary">Not Marked</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-
                                         <input type="hidden" 
                                                name="attendance[<?php echo $beneficiary['id']; ?>]" 
                                                value="<?php 
@@ -426,6 +399,32 @@ if ($selected_batch_id && !empty($beneficiaries)) {
                                                 Absent
                                             </button>
                                         </div>
+                                    </td>
+                                    <td>
+                                        <strong><?php echo htmlspecialchars($beneficiary['full_name']); ?></strong><br>
+                                        <small class="text-muted">
+                                            <i class="fas fa-phone"></i> <?php echo htmlspecialchars($beneficiary['mobile_number']); ?>
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-primary"><?php echo htmlspecialchars($beneficiary['batch_name']); ?></span>
+                                    </td>
+                                    <td>
+                                        <?php if (!empty($beneficiary['attendance_status'])): ?>
+                                            <span class="badge badge-<?php 
+                                                echo $beneficiary['attendance_status'] == 'present' ? 'success' : 
+                                                     ($beneficiary['attendance_status'] == 'absent' ? 'danger' : 'warning'); 
+                                            ?>">
+                                                <?php echo ucfirst($beneficiary['attendance_status']); ?>
+                                            </span>
+                                            <?php if ($beneficiary['check_in_time']): ?>
+                                                <br><small class="text-muted">
+                                                    <i class="fas fa-clock"></i> <?php echo date('h:i A', strtotime($beneficiary['check_in_time'])); ?>
+                                                </small>
+                                            <?php endif; ?>
+                                        <?php else: ?>
+                                            <span class="badge badge-secondary">Not Marked</span>
+                                        <?php endif; ?>
                                     </td>
 
                                 </tr>
