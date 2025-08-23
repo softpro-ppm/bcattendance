@@ -236,10 +236,13 @@ require_once '../config/database.php';
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
                 will-change: transform;
+                background: #415E72 !important;
             }
             
             .main-sidebar.show {
-                transform: translateX(0);
+                transform: translateX(0) !important;
+                visibility: visible !important;
+                opacity: 1 !important;
             }
             
             .content-wrapper {
@@ -268,16 +271,26 @@ require_once '../config/database.php';
                 opacity: 1;
             }
             
-            /* Ensure sidebar toggle button is visible and styled */
-            .sidebar-toggle {
-                display: block !important;
-                background: #f8f9fa;
-                border: 1px solid #dee2e6;
-                border-radius: 4px;
-                padding: 8px 12px;
-                margin-right: 15px;
-                z-index: 1001;
-            }
+                    /* Ensure sidebar toggle button is visible and styled */
+        .sidebar-toggle {
+            display: block !important;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 8px 12px;
+            margin-right: 15px;
+            z-index: 1001;
+            position: relative;
+            min-width: 44px;
+            min-height: 44px;
+        }
+        
+        /* Force visibility on mobile */
+        .sidebar-toggle.d-md-none {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
             
             .sidebar-toggle:hover {
                 background: #e9ecef;
@@ -445,3 +458,6 @@ require_once '../config/database.php';
                     echo displayFlashMessages(); 
                 }
                 ?>
+            </div>
+        </div>
+    </div>

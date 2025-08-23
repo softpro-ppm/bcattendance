@@ -21,6 +21,12 @@
 
     <script>
     $(document).ready(function() {
+        // Debug: Check if sidebar elements exist
+        console.log('Document ready - checking sidebar elements...');
+        console.log('Sidebar toggle button:', $('.sidebar-toggle').length);
+        console.log('Main sidebar:', $('#mainSidebar').length);
+        console.log('Sidebar overlay:', $('#sidebarOverlay').length);
+        
         // Initialize DataTables with simplified settings (no search, no entries dropdown)
         if ($.fn.DataTable) {
             $('.data-table, table.table').DataTable({
@@ -69,10 +75,21 @@
         });
         
         // Sidebar toggle for mobile
-        $('.sidebar-toggle').on('click', function() {
+        $('.sidebar-toggle').on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Sidebar toggle clicked!');
+            console.log('Button element:', this);
+            console.log('Sidebar element:', $('#mainSidebar')[0]);
+            console.log('Overlay element:', $('#sidebarOverlay')[0]);
+            
             $('#mainSidebar').toggleClass('show');
             $('#sidebarOverlay').toggleClass('show');
             $('body').toggleClass('sidebar-open');
+            
+            console.log('Sidebar classes updated');
+            console.log('Sidebar has show class:', $('#mainSidebar').hasClass('show'));
+            console.log('Overlay has show class:', $('#sidebarOverlay').hasClass('show'));
         });
         
         // Close sidebar when clicking overlay
