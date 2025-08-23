@@ -52,7 +52,7 @@ $batchMarkingStatus = fetchAll("
                     <i class="fas fa-users"></i>
                 </div>
                 <div class="stats-number" data-stat="total_beneficiaries"><?php echo number_format($stats['total_beneficiaries']); ?></div>
-                <div class="stats-label">Total Students</div>
+                <div class="stats-label">Total Students 1OOO</div>
             </div>
         </div>
     </div>
