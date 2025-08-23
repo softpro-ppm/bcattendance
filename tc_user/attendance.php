@@ -43,119 +43,6 @@ require_once 'includes/header.php';
     background-color: rgba(0,123,255,.075);
 }
 
-/* Mobile Responsive Styles */
-@media (max-width: 768px) {
-    /* Hide Batch and Current Status columns on mobile using Bootstrap classes */
-    .col-batch,
-    .col-current-status {
-        display: none !important;
-    }
-    
-    /* Adjust table layout for mobile */
-    .attendance-table {
-        font-size: 0.85rem;
-    }
-    
-    .attendance-table th,
-    .attendance-table td {
-        padding: 8px 4px;
-    }
-    
-    /* Make Mark Attendance column more prominent on mobile */
-    .col-mark-attendance {
-        background-color: #e3f2fd !important;
-        color: #1976d2 !important;
-        font-size: 0.9rem;
-        min-width: 120px;
-    }
-    
-    /* Adjust button sizes for mobile */
-    .btn-group-sm .btn {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.75rem;
-        min-width: 60px;
-    }
-    
-    /* Ensure proper spacing on mobile */
-    .table-responsive {
-        border: none;
-        margin: 0 -0.5rem;
-    }
-    
-    /* Adjust card padding for mobile */
-    .card-body {
-        padding: 0.75rem;
-    }
-    
-    /* Make quick action buttons stack on mobile */
-    .btn-toolbar .btn-group {
-        margin-bottom: 0.5rem;
-    }
-    
-    .btn-toolbar .btn-group .btn {
-        margin-bottom: 0.25rem;
-    }
-    
-    /* Optimize table for mobile view */
-    .attendance-table {
-        min-width: 100%;
-    }
-    
-    /* Ensure S.No column doesn't take too much space */
-    .col-sno {
-        width: 50px;
-        min-width: 50px;
-    }
-    
-    /* Make student details column more readable */
-    .col-student-details {
-        min-width: 150px;
-    }
-    
-    /* Center align content in mobile view */
-    .attendance-table th,
-    .attendance-table td {
-        text-align: center;
-    }
-    
-    .col-student-details {
-        text-align: left;
-    }
-    
-    /* Mobile button styles */
-    .btn-block.btn-md-inline {
-        width: 100%;
-    }
-    
-    /* Ensure proper button spacing on mobile */
-    .btn-toolbar .btn-group {
-        width: 100%;
-        justify-content: center;
-    }
-    
-    .btn-toolbar .btn-group .btn {
-        flex: 1;
-        margin: 0 2px;
-    }
-    
-    /* Stats cards mobile optimization */
-    .card.border-primary,
-    .card.border-success,
-    .card.border-danger,
-    .card.border-info {
-        margin-bottom: 0.5rem;
-    }
-    
-    .card-title {
-        font-size: 1.2rem;
-        margin-bottom: 0.25rem;
-    }
-    
-    .card-text {
-        font-size: 0.75rem;
-    }
-}
-
 /* Quick Stats Cards Styling */
 .card.border-primary {
     border-color: #007bff !important;
@@ -197,6 +84,89 @@ require_once 'includes/header.php';
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
+}
+
+/* Mobile responsive styles for attendance table */
+@media (max-width: 768px) {
+    /* Hide Batch and Current Status columns on mobile */
+    .attendance-table th:nth-child(4),
+    .attendance-table td:nth-child(4),
+    .attendance-table th:nth-child(5),
+    .attendance-table td:nth-child(5) {
+        display: none;
+    }
+    
+    /* Ensure Mark Attendance column stays in second position */
+    .attendance-table th:nth-child(2),
+    .attendance-table td:nth-child(2) {
+        background-color: #e3f2fd !important;
+        color: #1976d2 !important;
+    }
+    
+    /* Optimize table for mobile */
+    .attendance-table {
+        font-size: 0.9rem;
+    }
+    
+    .attendance-table th,
+    .attendance-table td {
+        padding: 8px 6px;
+    }
+    
+    /* Make attendance buttons more touch-friendly */
+    .status-buttons .btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        min-width: 70px;
+    }
+    
+    /* Optimize student details column */
+    .attendance-table td:nth-child(3) {
+        min-width: 140px;
+        max-width: 180px;
+    }
+    
+    .attendance-table td:nth-child(3) strong {
+        font-size: 0.95rem;
+        line-height: 1.3;
+    }
+    
+    .attendance-table td:nth-child(3) small {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 576px) {
+    /* Extra small devices */
+    .attendance-table {
+        font-size: 0.8rem;
+    }
+    
+    .attendance-table th,
+    .attendance-table td {
+        padding: 6px 4px;
+    }
+    
+    .status-buttons .btn {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+        min-width: 65px;
+    }
+    
+    .attendance-table td:nth-child(3) {
+        min-width: 120px;
+        max-width: 160px;
+    }
+    
+    /* Ensure proper spacing on very small screens */
+    .table-responsive {
+        margin: 0 -15px;
+    }
+    
+    .attendance-table {
+        margin: 0;
+        width: 100%;
+    }
 }
 </style>
 
@@ -383,7 +353,7 @@ if ($selected_batch_id && !empty($beneficiaries)) {
 <?php if ($selected_batch_id && !empty($beneficiaries)): ?>
 <!-- Quick Stats Cards - Same as Admin -->
 <div class="row mb-3">
-    <div class="col-md-3 col-6 mb-2">
+    <div class="col-md-3">
         <div class="card border-primary">
             <div class="card-body text-center p-2">
                 <h4 class="card-title text-primary mb-1" id="totalCount"><?php echo count($beneficiaries); ?></h4>
@@ -391,7 +361,7 @@ if ($selected_batch_id && !empty($beneficiaries)) {
             </div>
         </div>
     </div>
-    <div class="col-md-3 col-6 mb-2">
+    <div class="col-md-3">
         <div class="card border-success">
             <div class="card-body text-center p-2">
                 <h4 class="card-title text-success mb-1" id="presentCount"><?php echo $summary['present']; ?></h4>
@@ -399,7 +369,7 @@ if ($selected_batch_id && !empty($beneficiaries)) {
             </div>
         </div>
     </div>
-    <div class="col-md-3 col-6 mb-2">
+    <div class="col-md-3">
         <div class="card border-danger">
             <div class="card-body text-center p-2">
                 <h4 class="card-title text-danger mb-1" id="absentCount"><?php echo $summary['absent']; ?></h4>
@@ -407,7 +377,7 @@ if ($selected_batch_id && !empty($beneficiaries)) {
             </div>
         </div>
     </div>
-    <div class="col-md-3 col-6 mb-2">
+    <div class="col-md-3">
         <div class="card border-info">
             <div class="card-body text-center p-2">
                 <h4 class="card-title text-info mb-1" id="attendanceRate">
@@ -449,46 +419,55 @@ if ($selected_batch_id && !empty($beneficiaries)) {
                 <div class="card-body">
                     <!-- Quick Actions -->
                     <div class="row mb-3">
-                        <div class="col-md-8 col-12">
+                        <div class="col-md-8">
                             <div class="btn-toolbar" role="toolbar">
-                                <div class="btn-group mr-2 mb-2" role="group">
+                                <div class="btn-group mr-2" role="group">
                                     <button type="button" class="btn btn-success" onclick="markAllPresent()">
-                                        <i class="fas fa-check"></i> <span class="d-none d-md-inline">Mark All Present</span><span class="d-md-none">All Present</span>
+                                        <i class="fas fa-check"></i> Mark All Present
                                     </button>
                                     <button type="button" class="btn btn-danger" onclick="markAllAbsent()">
-                                        <i class="fas fa-times"></i> <span class="d-none d-md-inline">Mark All Absent</span><span class="d-md-none">All Absent</span>
+                                        <i class="fas fa-times"></i> Mark All Absent
                                     </button>
                                 </div>
-                                <div class="btn-group mb-2" role="group">
+                                <div class="btn-group" role="group">
                                     <button type="button" class="btn btn-outline-secondary" onclick="clearAllAttendance()">
-                                        <i class="fas fa-eraser"></i> <span class="d-none d-md-inline">Clear All</span><span class="d-md-none">Clear</span>
+                                        <i class="fas fa-eraser"></i> Clear All
                                     </button>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4 col-12">
-                            <div class="alert alert-info alert-sm mb-0 py-2 text-center text-md-right">
-                                <i class="fas fa-info-circle"></i> <span class="d-none d-md-inline">Use buttons below to mark attendance quickly</span><span class="d-md-none">Quick attendance marking</span>
+                        <div class="col-md-4 text-right">
+                            <div class="alert alert-info alert-sm mb-0 py-2">
+                                <i class="fas fa-info-circle"></i> Use buttons below to mark attendance quickly
                             </div>
                         </div>
                     </div>
                     
                     <div class="table-responsive">
+                        <!-- Mobile-responsive attendance table - Batch and Current Status columns hidden on mobile -->
+                        <div class="d-block d-md-none alert alert-info alert-sm mb-2">
+                            <i class="fas fa-mobile-alt"></i> 
+                            <strong>Mobile View:</strong> Batch and Status columns are hidden for better mobile experience. 
+                            Mark Attendance column is positioned second for easy access.
+                            <button type="button" class="btn btn-sm btn-outline-info ml-2" onclick="toggleMobileColumns()">
+                                <i class="fas fa-eye"></i> Show All Columns
+                            </button>
+                        </div>
                         <table class="attendance-table table-striped table-bordered">
                             <thead>
                                 <tr>
-                                    <th class="col-sno">S.No</th>
-                                    <th class="col-mark-attendance" style="background-color: #e3f2fd; color: #1976d2;">📝 Mark Attendance</th>
-                                    <th class="col-student-details">Student Details</th>
-                                    <th class="col-batch d-md-table-cell d-none">Batch</th>
-                                    <th class="col-current-status d-md-table-cell d-none">Current Status</th>
+                                    <th>S.No</th>
+                                    <th style="background-color: #e3f2fd; color: #1976d2;">📝 Mark Attendance</th>
+                                    <th>Student Details</th>
+                                    <th class="d-none d-md-table-cell">Batch</th>
+                                    <th class="d-none d-md-table-cell">Current Status</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($beneficiaries as $index => $beneficiary): ?>
                                 <tr>
-                                    <td class="col-sno"><?php echo $index + 1; ?></td>
-                                    <td class="col-mark-attendance">
+                                    <td><?php echo $index + 1; ?></td>
+                                    <td>
                                         <input type="hidden" 
                                                name="attendance[<?php echo $beneficiary['id']; ?>]" 
                                                value="<?php 
@@ -519,16 +498,16 @@ if ($selected_batch_id && !empty($beneficiaries)) {
                                             </button>
                                         </div>
                                     </td>
-                                    <td class="col-student-details">
+                                    <td>
                                         <strong><?php echo htmlspecialchars($beneficiary['full_name']); ?></strong><br>
                                         <small class="text-muted">
                                             <i class="fas fa-phone"></i> <?php echo htmlspecialchars($beneficiary['mobile_number']); ?>
                                         </small>
                                     </td>
-                                    <td class="col-batch d-md-table-cell d-none">
+                                    <td class="d-none d-md-table-cell">
                                         <span class="badge badge-primary"><?php echo htmlspecialchars($beneficiary['batch_name']); ?></span>
                                     </td>
-                                    <td class="col-current-status d-md-table-cell d-none">
+                                    <td class="d-none d-md-table-cell">
                                         <?php if (!empty($beneficiary['attendance_status'])): ?>
                                             <span class="badge badge-<?php 
                                                 echo $beneficiary['attendance_status'] == 'present' ? 'success' : 
@@ -550,35 +529,26 @@ if ($selected_batch_id && !empty($beneficiaries)) {
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
-                        
-                        <!-- Mobile Info Note -->
-                        <div class="d-md-none mt-3">
-                            <div class="alert alert-warning alert-sm">
-                                <i class="fas fa-mobile-alt"></i> 
-                                <strong>Mobile View:</strong> Batch and Current Status columns are hidden for better mobile experience. 
-                                Mark Attendance is positioned in the 2nd column for easy access.
-                            </div>
-                        </div>
                     </div>
                 </div>
                 
                 <div class="card-footer">
                     <div class="row">
-                        <div class="col-md-6 col-12 mb-2">
+                        <div class="col-md-6">
                             <div class="btn-toolbar" role="toolbar">
-                                <div class="btn-group mr-2 mb-2" role="group">
+                                <div class="btn-group mr-2" role="group">
                                     <button type="button" class="btn btn-success btn-sm" onclick="markAllPresent()">
-                                        <i class="fas fa-check"></i> <span class="d-none d-md-inline">All Present</span><span class="d-md-none">Present</span>
+                                        <i class="fas fa-check"></i> All Present
                                     </button>
                                     <button type="button" class="btn btn-danger btn-sm" onclick="markAllAbsent()">
-                                        <i class="fas fa-times"></i> <span class="d-none d-md-inline">All Absent</span><span class="d-md-none">Absent</span>
+                                        <i class="fas fa-times"></i> All Absent
                                     </button>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6 col-12 text-center text-md-right">
-                            <button type="submit" name="submit_attendance" class="btn btn-primary btn-lg btn-block btn-md-inline">
-                                <i class="fas fa-save"></i> <span class="d-none d-md-inline">Save Attendance</span><span class="d-md-none">Save</span>
+                        <div class="col-md-6 text-right">
+                            <button type="submit" name="submit_attendance" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save"></i> Save Attendance
                             </button>
                         </div>
                     </div>
@@ -793,6 +763,29 @@ $(document).ready(function() {
         }
     });
 });
+
+// Mobile column toggle functionality
+function toggleMobileColumns() {
+    const batchColumns = document.querySelectorAll('.attendance-table th:nth-child(4), .attendance-table td:nth-child(4)');
+    const statusColumns = document.querySelectorAll('.attendance-table th:nth-child(5), .attendance-table td:nth-child(5)');
+    const toggleButton = document.querySelector('button[onclick="toggleMobileColumns()"]');
+    
+    if (batchColumns[0].style.display === 'none' || batchColumns[0].style.display === '') {
+        // Show columns
+        batchColumns.forEach(col => col.style.display = 'table-cell');
+        statusColumns.forEach(col => col.style.display = 'table-cell');
+        toggleButton.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Extra Columns';
+        toggleButton.classList.remove('btn-outline-info');
+        toggleButton.classList.add('btn-outline-warning');
+    } else {
+        // Hide columns
+        batchColumns.forEach(col => col.style.display = 'none');
+        statusColumns.forEach(col => col.style.display = 'none');
+        toggleButton.innerHTML = '<i class="fas fa-eye"></i> Show All Columns';
+        toggleButton.classList.remove('btn-outline-warning');
+        toggleButton.classList.add('btn-outline-info');
+    }
+}
 </script>
 
 <?php require_once 'includes/footer.php'; ?>
