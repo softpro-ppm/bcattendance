@@ -36,14 +36,27 @@
             console.log('Toggle button display:', $('.sidebar-toggle').css('display'));
             console.log('Toggle button visibility:', $('.sidebar-toggle').css('visibility'));
             console.log('Toggle button opacity:', $('.sidebar-toggle').css('opacity'));
+            console.log('Toggle button position:', $('.sidebar-toggle').css('position'));
+            console.log('Toggle button z-index:', $('.sidebar-toggle').css('z-index'));
             
-            // Test click binding
-            $('.sidebar-toggle').on('click', function() {
-                console.log('Direct click test successful!');
-            });
-            
-            // Test if button is clickable
-            console.log('Button is clickable:', $('.sidebar-toggle').is(':visible'));
+                    // Test click binding
+        $('.sidebar-toggle').on('click', function() {
+            console.log('Direct click test successful!');
+        });
+        
+        // Test if button is clickable
+        console.log('Button is clickable:', $('.sidebar-toggle').is(':visible'));
+        
+        // Check for any CSS conflicts
+        console.log('Toggle button computed styles:', window.getComputedStyle($('.sidebar-toggle')[0]));
+        
+        // Additional event binding test
+        $('.sidebar-toggle').on('mousedown', function() {
+            console.log('Mousedown event triggered!');
+        });
+        
+        // Check if jQuery events are properly bound
+        console.log('jQuery events on toggle button:', $._data($('.sidebar-toggle')[0], 'events'));
         }
         
         // Initialize DataTables with simplified settings (no search, no entries dropdown)
@@ -94,7 +107,7 @@
         });
         
         // Sidebar toggle for mobile - multiple event binding methods
-        $('.sidebar-toggle').on('click touchstart', function(e) {
+        $('.sidebar-toggle').on('click touchstart mousedown', function(e) {
             e.preventDefault();
             e.stopPropagation();
             console.log('Sidebar toggle clicked!');
@@ -104,16 +117,22 @@
             console.log('Sidebar element:', $('#mainSidebar')[0]);
             console.log('Overlay element:', $('#sidebarOverlay')[0]);
             
-            $('#mainSidebar').toggleClass('show');
-            $('#sidebarOverlay').toggleClass('show');
-            $('body').toggleClass('sidebar-open');
-            
-            console.log('Sidebar classes updated');
-            console.log('Sidebar has show class:', $('#mainSidebar').hasClass('show'));
-            console.log('Overlay has show class:', $('#sidebarOverlay').hasClass('show'));
-            
-            // Force a repaint
-            $('#mainSidebar')[0].offsetHeight;
+            try {
+                $('#mainSidebar').toggleClass('show');
+                $('#sidebarOverlay').toggleClass('show');
+                $('body').toggleClass('sidebar-open');
+                
+                console.log('Sidebar classes updated');
+                console.log('Sidebar has show class:', $('#mainSidebar').hasClass('show'));
+                console.log('Overlay has show class:', $('#sidebarOverlay').hasClass('show'));
+                
+                // Force a repaint
+                $('#mainSidebar')[0].offsetHeight;
+                
+                console.log('Sidebar toggle completed successfully');
+            } catch (error) {
+                console.error('Error during sidebar toggle:', error);
+            }
         });
         
         // Close sidebar when clicking overlay
