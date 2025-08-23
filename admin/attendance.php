@@ -177,6 +177,7 @@ $beneficiaries = fetchAll($query, $allParams, $allTypes);
         <h3 class="card-title">
             <i class="fas fa-calendar-check"></i>
             Daily Attendance - <?php echo formatDate($selectedDate, 'l, F j, Y'); ?>
+            <span class="badge badge-info ml-2" style="font-size: 0.8em;">NEW: Status column moved to 3rd position</span>
         </h3>
         <div class="card-tools">
             <span class="badge badge-info">
@@ -390,7 +391,7 @@ $beneficiaries = fetchAll($query, $allParams, $allTypes);
                                 <input type="checkbox" id="selectAll" onchange="selectAllRows()">
                             </th>
                             <th width="60">S.No</th>
-                            <th width="150">Status</th>
+                            <th width="150" style="background-color: #e3f2fd; color: #1976d2;">📝 Status</th>
                             <th width="250">Name</th>
                             <th width="120">Mobile</th>
                             <th width="120">Constituency</th>

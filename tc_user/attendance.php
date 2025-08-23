@@ -1,4 +1,5 @@
 <?php
+// Cache busting: Column order updated - Mark Attendance moved before Student Details
 $pageTitle = "Daily Attendance";
 $breadcrumbs = [
     ['title' => 'Dashboard', 'url' => 'dashboard.php'],
@@ -7,6 +8,10 @@ $breadcrumbs = [
 
 require_once 'includes/header.php';
 ?>
+<!-- Force refresh for column order update -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 
 <style>
 /* Custom styling for attendance table without DataTables */
@@ -318,6 +323,7 @@ if ($selected_batch_id && !empty($beneficiaries)) {
                     });
                     echo htmlspecialchars(reset($selected_batch)['name']);
                     ?>
+                    <span class="badge badge-info ml-2" style="font-size: 0.8em;">NEW: Mark Attendance moved to 2nd column</span>
                 </h3>
                 <div class="card-tools">
                     <span class="badge badge-info"><?php echo count($beneficiaries); ?> Students</span>
@@ -359,7 +365,7 @@ if ($selected_batch_id && !empty($beneficiaries)) {
                             <thead>
                                 <tr>
                                     <th>S.No</th>
-                                    <th>Mark Attendance</th>
+                                    <th style="background-color: #e3f2fd; color: #1976d2;">📝 Mark Attendance</th>
                                     <th>Student Details</th>
                                     <th>Batch</th>
                                     <th>Current Status</th>
@@ -643,6 +649,14 @@ $(document).ready(function() {
     } else {
         console.log('❌ No problematic student inputs found on page');
     }
+    
+    // Force table column order verification
+    console.log('🔧 Verifying table column order...');
+    const tableHeaders = $('.attendance-table thead th');
+    console.log('📋 Table headers found:', tableHeaders.length);
+    tableHeaders.each(function(index) {
+        console.log(`Column ${index + 1}: ${$(this).text().trim()}`);
+    });
     
     $('#attendanceForm').submit(function(e) {
         const marked = $('input[name^="attendance"]').filter(function() {
