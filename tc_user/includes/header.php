@@ -24,7 +24,6 @@ require_once '../config/database.php';
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-
     <style>
         /* Override admin sidebar gradient with TC dark blue-gray theme */
         .main-sidebar {
@@ -124,10 +123,6 @@ require_once '../config/database.php';
             }
         }
         
-
-        
-
-        
         /* Top navbar styling for TC - White with drop shadow like admin */
         .main-header {
             background: #fff !important;
@@ -155,22 +150,30 @@ require_once '../config/database.php';
             font-weight: 600;
             color: #495057;
             margin: 0;
+            display: flex;
+            align-items: center;
         }
         
         .main-header .sidebar-toggle {
-            background: none;
-            border: none;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
             color: #495057;
             font-size: 1.1rem;
-            margin-right: 1rem;
+            margin-right: 15px;
             cursor: pointer;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.25rem;
+            padding: 8px 12px;
+            border-radius: 4px;
             transition: all 0.3s ease;
+            display: none;
         }
         
         .main-header .sidebar-toggle:hover {
-            background-color: #f8f9fa;
+            background: #e9ecef;
+        }
+        
+        .main-header .sidebar-toggle:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
         }
         
         .main-header .navbar-nav .nav-item .dropdown-toggle {
@@ -414,13 +417,10 @@ require_once '../config/database.php';
                 </div>
             </nav>
 
-
-
             <!-- Content -->
             <div class="content">
                 <?php if (isset($pageTitle)): ?>
                 <div class="content-header">
-
                     <?php if (isset($breadcrumbs)): ?>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
