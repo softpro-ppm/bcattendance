@@ -27,6 +27,25 @@
         console.log('Main sidebar:', $('#mainSidebar').length);
         console.log('Sidebar overlay:', $('#sidebarOverlay').length);
         
+        // Additional debugging
+        console.log('Window width:', $(window).width());
+        console.log('Is mobile:', $(window).width() <= 767.98);
+        
+        // Check if elements are visible
+        if ($('.sidebar-toggle').length > 0) {
+            console.log('Toggle button display:', $('.sidebar-toggle').css('display'));
+            console.log('Toggle button visibility:', $('.sidebar-toggle').css('visibility'));
+            console.log('Toggle button opacity:', $('.sidebar-toggle').css('opacity'));
+            
+            // Test click binding
+            $('.sidebar-toggle').on('click', function() {
+                console.log('Direct click test successful!');
+            });
+            
+            // Test if button is clickable
+            console.log('Button is clickable:', $('.sidebar-toggle').is(':visible'));
+        }
+        
         // Initialize DataTables with simplified settings (no search, no entries dropdown)
         if ($.fn.DataTable) {
             $('.data-table, table.table').DataTable({
@@ -74,12 +93,14 @@
             }
         });
         
-        // Sidebar toggle for mobile
-        $('.sidebar-toggle').on('click', function(e) {
+        // Sidebar toggle for mobile - multiple event binding methods
+        $('.sidebar-toggle').on('click touchstart', function(e) {
             e.preventDefault();
             e.stopPropagation();
             console.log('Sidebar toggle clicked!');
             console.log('Button element:', this);
+            console.log('Button classes:', this.className);
+            console.log('Button styles:', this.style.cssText);
             console.log('Sidebar element:', $('#mainSidebar')[0]);
             console.log('Overlay element:', $('#sidebarOverlay')[0]);
             
@@ -90,6 +111,9 @@
             console.log('Sidebar classes updated');
             console.log('Sidebar has show class:', $('#mainSidebar').hasClass('show'));
             console.log('Overlay has show class:', $('#sidebarOverlay').hasClass('show'));
+            
+            // Force a repaint
+            $('#mainSidebar')[0].offsetHeight;
         });
         
         // Close sidebar when clicking overlay
