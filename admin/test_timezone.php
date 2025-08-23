@@ -1,99 +1,103 @@
 <?php
 // Test timezone and date settings
 echo "<h2>Timezone and Date Test</h2>";
-
 echo "<p><strong>Current PHP timezone:</strong> " . date_default_timezone_get() . "</p>";
 echo "<p><strong>Current server time:</strong> " . date('Y-m-d H:i:s') . "</p>";
-
-// Test IST timezone
-$ist = new DateTime('now', new DateTimeZone('Asia/Kolkata'));
-echo "<p><strong>IST timezone time:</strong> " . $ist->format('Y-m-d H:i:s') . "</p>";
-
-// Test UTC timezone
-$utc = new DateTime('now', new DateTimeZone('UTC'));
-echo "<p><strong>UTC timezone time:</strong> " . $utc->format('Y-m-d H:i:s') . "</p>";
-
-// Test database timezone
-require_once '../config/database.php';
-$conn = getDBConnection();
-$result = $conn->query("SELECT NOW() as db_time, @@global.time_zone as global_tz, @@session.time_zone as session_tz");
-if ($result) {
-    $row = $result->fetch_assoc();
-    echo "<p><strong>Database time:</strong> " . $row['db_time'] . "</p>";
-    echo "<p><strong>Database global timezone:</strong> " . $row['global_tz'] . "</p>";
-    echo "<p><strong>Database session timezone:</strong> " . $row['session_tz'] . "</p>";
-}
-
-// Test date functions
-echo "<p><strong>date('Y-m-d'):</strong> " . date('Y-m-d') . "</p>";
-echo "<p><strong>date('Y-m-d', time()):</strong> " . date('Y-m-d', time()) . "</p>";
-
-// Test with different timezones
-date_default_timezone_set('Asia/Kolkata');
-echo "<p><strong>After setting IST timezone:</strong> " . date('Y-m-d H:i:s') . "</p>";
-
-date_default_timezone_set('UTC');
-echo "<p><strong>After setting UTC timezone:</strong> " . date('Y-m-d H:i:s') . "</p>";
-
-// Test MySQL CURDATE() function
-$result = $conn->query("SELECT CURDATE() as curdate, CURDATE() + INTERVAL 0 SECOND as curdate_time");
-if ($result) {
-    $row = $result->fetch_assoc();
-    echo "<p><strong>MySQL CURDATE():</strong> " . $row['curdate'] . "</p>";
-    echo "<p><strong>MySQL CURDATE() with time:</strong> " . $row['curdate_time'] . "</p>";
-}
-
-// Test what happens when we set timezone in database
-$conn->query("SET time_zone = '+05:30'");
-$result = $conn->query("SELECT CURDATE() as curdate_ist, NOW() as now_ist");
-if ($result) {
-    $row = $result->fetch_assoc();
-    echo "<p><strong>MySQL CURDATE() after setting IST:</strong> " . $row['curdate_ist'] . "</p>";
-    echo "<p><strong>MySQL NOW() after setting IST:</strong> " . $row['now_ist'] . "</p>";
-}
-
-// Show current time in different formats
-echo "<h3>Current Time Analysis</h3>";
-echo "<p><strong>Your local time (should be):</strong> " . date('Y-m-d H:i:s', time()) . " (IST)</p>";
+echo "<p><strong>IST timezone time:</strong> " . getCurrentISTDateTime() . "</p>";
 echo "<p><strong>UTC time:</strong> " . gmdate('Y-m-d H:i:s') . "</p>";
-echo "<p><strong>IST time (calculated):</strong> " . gmdate('Y-m-d H:i:s', time() + (5.5 * 3600)) . "</p>";
 
-// Test if the issue is with the date() function specifically
-echo "<h3>Date Function Test</h3>";
-$timestamp = time();
-echo "<p><strong>Current timestamp:</strong> " . $timestamp . "</p>";
-echo "<p><strong>date('Y-m-d') from timestamp:</strong> " . date('Y-m-d', $timestamp) . "</p>";
-echo "<p><strong>gmdate('Y-m-d') from timestamp:</strong> " . gmdate('Y-m-d', $timestamp) . "</p>";
+// Test MySQL connection and timezone
+require_once '../config/database.php';
 
-// Test with explicit IST conversion
-$ist_timestamp = $timestamp + (5.5 * 3600);
-echo "<p><strong>IST timestamp (timestamp + 5.5 hours):</strong> " . $ist_timestamp . "</p>";
-echo "<p><strong>date('Y-m-d') from IST timestamp:</strong> " . date('Y-m-d', $ist_timestamp) . "</p>";
+if (isset($connection)) {
+    echo "<h3>Database Timezone Test</h3>";
+    
+    // Test global timezone
+    $result = $connection->query("SELECT @@global.time_zone as global_timezone, @@session.time_zone as session_timezone");
+    if ($result) {
+        $row = $result->fetch_assoc();
+        echo "<p><strong>Global MySQL timezone:</strong> " . ($row['global_timezone'] ?? 'N/A') . "</p>";
+        echo "<p><strong>Session MySQL timezone:</strong> " . ($row['session_timezone'] ?? 'N/A') . "</p>";
+    }
+    
+    // Test MySQL CURDATE() function
+    $result = $connection->query("SELECT CURDATE() as curdate, CURDATE() + INTERVAL 0 SECOND as curdate_time");
+    if ($result) {
+        $row = $result->fetch_assoc();
+        echo "<p><strong>MySQL CURDATE():</strong> " . ($row['curdate'] ?? 'N/A') . "</p>";
+        echo "<p><strong>MySQL CURDATE() + 0 seconds:</strong> " . ($row['curdate_time'] ?? 'N/A') . "</p>";
+    }
+    
+    // Test MySQL NOW() function
+    $result = $connection->query("SELECT NOW() as now_time, UTC_TIMESTAMP() as utc_time");
+    if ($result) {
+        $row = $result->fetch_assoc();
+        echo "<p><strong>MySQL NOW():</strong> " . ($row['now_time'] ?? 'N/A') . "</p>";
+        echo "<p><strong>MySQL UTC_TIMESTAMP():</strong> " . ($row['utc_time'] ?? 'N/A') . "</p>";
+    }
+    
+    // Test setting session timezone
+    echo "<h3>Setting Session Timezone</h3>";
+    $connection->query("SET time_zone = '+05:30'");
+    $connection->query("SET @@session.time_zone = '+05:30'");
+    
+    // Test again after setting
+    $result = $connection->query("SELECT @@session.time_zone as session_timezone");
+    if ($result) {
+        $row = $result->fetch_assoc();
+        echo "<p><strong>Session timezone after SET:</strong> " . ($row['session_timezone'] ?? 'N/A') . "</p>";
+    }
+    
+    // Test CURDATE() after setting timezone
+    $result = $connection->query("SELECT CURDATE() as curdate_after, NOW() as now_after");
+    if ($result) {
+        $row = $result->fetch_assoc();
+        echo "<p><strong>CURDATE() after timezone SET:</strong> " . ($row['curdate_after'] ?? 'N/A') . "</p>";
+        echo "<p><strong>NOW() after timezone SET:</strong> " . ($row['now_after'] ?? 'N/A') . "</p>";
+    }
+    
+    $connection->close();
+} else {
+    echo "<p><strong>Database connection failed</strong></p>";
+}
 
 // Check system time
-echo "<h3>System Time Check</h3>";
 if (function_exists('shell_exec')) {
     $system_time = shell_exec('date');
     echo "<p><strong>System time (shell):</strong> " . trim($system_time) . "</p>";
 }
 
-// Check PHP configuration
+// PHP configuration
 echo "<h3>PHP Configuration</h3>";
 echo "<p><strong>date.timezone setting:</strong> " . ini_get('date.timezone') . "</p>";
 echo "<p><strong>date.default_latitude:</strong> " . ini_get('date.default_latitude') . "</p>";
 echo "<p><strong>date.default_longitude:</strong> " . ini_get('date.default_longitude') . "</p>";
 
-// Check if there are any timezone-related errors
-echo "<h3>Timezone Debugging</h3>";
-$current_time = time();
-$utc_time = gmdate('Y-m-d H:i:s', $current_time);
-$ist_time = gmdate('Y-m-d H:i:s', $current_time + (5.5 * 3600));
+// Manual IST calculation
+echo "<h3>Manual IST Calculations</h3>";
+$utc_time = time();
+$ist_offset = 5.5 * 3600; // 5.5 hours in seconds
+$ist_time = $utc_time + $ist_offset;
 
-echo "<p><strong>Current Unix timestamp:</strong> " . $current_time . "</p>";
-echo "<p><strong>UTC time from timestamp:</strong> " . $utc_time . "</p>";
-echo "<p><strong>IST time from timestamp:</strong> " . $ist_time . "</p>";
+echo "<p><strong>UTC timestamp:</strong> " . $utc_time . "</p>";
+echo "<p><strong>IST timestamp:</strong> " . $ist_time . "</p>";
+echo "<p><strong>UTC date:</strong> " . gmdate('Y-m-d H:i:s', $utc_time) . "</p>";
+echo "<p><strong>IST date:</strong> " . gmdate('Y-m-d H:i:s', $ist_time) . "</p>";
 
-// Test what happens when we manually calculate the date
-$ist_date = gmdate('Y-m-d', $current_time + (5.5 * 3600));
-echo "<p><strong>IST date (manually calculated):</strong> " . $ist_date . "</p>";
+// Test the utility functions
+echo "<h3>Utility Function Tests</h3>";
+echo "<p><strong>getCurrentISTDate():</strong> " . getCurrentISTDate() . "</p>";
+echo "<p><strong>getCurrentISTDateTime():</strong> " . getCurrentISTDateTime() . "</p>";
+
+// Summary
+echo "<h3>Summary</h3>";
+echo "<p><strong>Expected IST date:</strong> " . date('Y-m-d', $ist_time) . "</p>";
+echo "<p><strong>PHP date('Y-m-d'):</strong> " . date('Y-m-d') . "</p>";
+echo "<p><strong>Utility function result:</strong> " . getCurrentISTDate() . "</p>";
+
+if (date('Y-m-d') === getCurrentISTDate()) {
+    echo "<p style='color: green;'><strong>✅ SUCCESS: PHP date matches IST date!</strong></p>";
+} else {
+    echo "<p style='color: red;'><strong>❌ ISSUE: PHP date does not match IST date!</strong></p>";
+}
 ?>
