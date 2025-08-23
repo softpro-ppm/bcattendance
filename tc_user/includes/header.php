@@ -29,12 +29,99 @@ require_once '../config/database.php';
         /* Override admin sidebar gradient with TC dark blue-gray theme */
         .main-sidebar {
             background: #415E72 !important;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
         }
         
         /* TC brand color */
         .brand-image {
             background: #fff !important;
             color: #415E72 !important;
+        }
+        
+        /* Sidebar brand styling */
+        .brand-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            color: #415E72;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .brand-image {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            margin-right: 12px;
+            font-size: 1.5rem;
+        }
+        
+        .brand-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        /* Sidebar navigation styling */
+        .nav-sidebar {
+            padding: 1rem 0;
+        }
+        
+        .nav-sidebar .nav-item {
+            margin: 0;
+        }
+        
+        .nav-sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 0.75rem 1rem;
+            border-radius: 0;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .nav-sidebar .nav-link:hover,
+        .nav-sidebar .nav-link.active {
+            color: #fff;
+            background-color: rgba(255,255,255,0.1);
+            border-left-color: #fff;
+        }
+        
+        .nav-sidebar .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Mobile close button styling */
+        .sidebar-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .sidebar-close:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-close.d-md-none {
+            display: block;
+        }
+        
+        @media (min-width: 768px) {
+            .sidebar-close {
+                display: none !important;
+            }
         }
         
 
@@ -131,14 +218,116 @@ require_once '../config/database.php';
         .dropdown-menu.show {
             display: block;
         }
+        
+        /* Mobile sidebar toggle functionality */
+        @media (max-width: 767.98px) {
+            .main-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                z-index: 1000;
+                width: 250px;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                will-change: transform;
+            }
+            
+            .main-sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .content-wrapper {
+                margin-left: 0;
+                width: 100%;
+                transition: margin-left 0.3s ease-in-out;
+            }
+            
+            /* Overlay when sidebar is open */
+            .sidebar-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+                display: none;
+                opacity: 0;
+                transition: opacity 0.3s ease-in-out;
+                will-change: opacity;
+            }
+            
+            .sidebar-overlay.show {
+                display: block;
+                opacity: 1;
+            }
+            
+            /* Ensure sidebar toggle button is visible and styled */
+            .sidebar-toggle {
+                display: block !important;
+                background: #f8f9fa;
+                border: 1px solid #dee2e6;
+                border-radius: 4px;
+                padding: 8px 12px;
+                margin-right: 15px;
+                z-index: 1001;
+            }
+            
+            .sidebar-toggle:hover {
+                background: #e9ecef;
+            }
+            
+            .sidebar-toggle:focus {
+                outline: none;
+                box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+            }
+            
+            /* Prevent body scroll when sidebar is open */
+            body.sidebar-open {
+                overflow: hidden;
+                position: fixed;
+                width: 100%;
+            }
+            
+            /* Ensure content is properly positioned */
+            .content {
+                padding: 1rem;
+            }
+        }
+        
+        /* Desktop sidebar behavior */
+        @media (min-width: 768px) {
+            .main-sidebar {
+                transform: translateX(0);
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100vh;
+                width: 250px;
+            }
+            
+            .content-wrapper {
+                margin-left: 250px;
+            }
+            
+            .sidebar-toggle {
+                display: none !important;
+            }
+        }
     </style>
     <link rel="stylesheet" href="/assets/css/custom.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
 </head>
 <body class="">
     <div class="wrapper">
+        <!-- Sidebar Overlay for Mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        
         <!-- Sidebar -->
-        <aside class="main-sidebar">
+        <aside class="main-sidebar" id="mainSidebar">
             <!-- Brand Logo -->
             <a href="dashboard.php" class="brand-link">
                 <div class="brand-image">
@@ -146,6 +335,11 @@ require_once '../config/database.php';
                 </div>
                 <span class="brand-text">TC Panel</span>
             </a>
+            
+            <!-- Mobile Close Button -->
+            <button class="sidebar-close d-md-none" type="button" aria-label="Close sidebar">
+                <i class="fas fa-times"></i>
+            </button>
 
             <!-- Sidebar Menu -->
             <nav class="mt-2">

@@ -70,7 +70,43 @@
         
         // Sidebar toggle for mobile
         $('.sidebar-toggle').on('click', function() {
-            $('body').toggleClass('sidebar-collapse');
+            $('#mainSidebar').toggleClass('show');
+            $('#sidebarOverlay').toggleClass('show');
+            $('body').toggleClass('sidebar-open');
+        });
+        
+        // Close sidebar when clicking overlay
+        $('#sidebarOverlay').on('click', function() {
+            $('#mainSidebar').removeClass('show');
+            $('#sidebarOverlay').removeClass('show');
+            $('body').removeClass('sidebar-open');
+        });
+        
+        // Close sidebar when clicking close button
+        $('.sidebar-close').on('click', function() {
+            $('#mainSidebar').removeClass('show');
+            $('#sidebarOverlay').removeClass('show');
+            $('body').removeClass('sidebar-open');
+        });
+        
+        // Close sidebar when clicking outside on mobile
+        $(document).on('click', function(e) {
+            if ($(window).width() <= 767.98) {
+                if (!$(e.target).closest('.main-sidebar, .sidebar-toggle').length) {
+                    $('#mainSidebar').removeClass('show');
+                    $('#sidebarOverlay').removeClass('show');
+                    $('body').removeClass('sidebar-open');
+                }
+            }
+        });
+        
+        // Close sidebar when window is resized to desktop
+        $(window).on('resize', function() {
+            if ($(window).width() > 767.98) {
+                $('#mainSidebar').removeClass('show');
+                $('#sidebarOverlay').removeClass('show');
+                $('body').removeClass('sidebar-open');
+            }
         });
         
         // Initialize confirmation dialogs
