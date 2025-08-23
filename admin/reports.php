@@ -14,9 +14,6 @@ $breadcrumbs = [
     ['title' => 'Attendance Reports']
 ];
 
-// Ensure correct timezone for date calculations
-$today = getCurrentISTDate();
-
 require_once '../includes/header.php';
 
 function handleExport() {
@@ -628,9 +625,8 @@ $mandals = fetchAll("SELECT id, name, constituency_id FROM mandals WHERE status 
 $batches = fetchAll("SELECT id, name, mandal_id FROM batches WHERE status = 'active' ORDER BY name");
 
 // Get form filters
-    // Get filters
-    $startDate = $_GET['start_date'] ?? $today; // Use IST date
-    $endDate = $_GET['end_date'] ?? $today; // Use IST date
+$startDate = $_GET['start_date'] ?? date('Y-m-d'); // Current date
+$endDate = $_GET['end_date'] ?? date('Y-m-d'); // Current date
 $selectedConstituency = $_GET['constituency'] ?? '';
 $selectedMandal = $_GET['mandal'] ?? '';
 $selectedBatch = $_GET['batch'] ?? '';
@@ -783,8 +779,7 @@ function generateReportData($startDate, $endDate, $constituency, $mandal, $batch
             <div class="col-md-3">
                 <div class="form-group">
                     <label for="end_date" class="form-label">End Date</label>
-                    <input type="date" id="end_date" name="end_date" class="form-control" 
-                                       value="<?php echo $endDate; ?>" max="<?php echo $today; ?>">
+                    <input type="date" id="end_date" name="end_date" class="form-control" value="<?php echo $endDate; ?>" max="<?php echo date('Y-m-d'); ?>">
                 </div>
             </div>
             <div class="col-md-2">

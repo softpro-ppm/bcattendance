@@ -62,17 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['mark_attendance'])) {
 }
 
 // Get filters
-// Use the new timezone utility functions for reliable IST date handling
-$today = getCurrentISTDate();
-$selectedDate = $_GET['date'] ?? $today;
-
-// Debug: Log the date information
-error_log("Debug - Server timezone: " . date_default_timezone_get());
-error_log("Debug - Current server time: " . date('Y-m-d H:i:s'));
-error_log("Debug - IST timezone time: " . getCurrentISTDateTime());
-error_log("Debug - Selected date: " . $selectedDate);
-error_log("Debug - Today's IST date: " . $today);
-
+$selectedDate = $_GET['date'] ?? date('Y-m-d');
 $selectedConstituency = $_GET['constituency'] ?? '';
 $selectedMandal = $_GET['mandal'] ?? '';
 $selectedBatch = $_GET['batch'] ?? '';
@@ -179,43 +169,6 @@ $allTypes = 's' . $types;
 
 $beneficiaries = fetchAll($query, $allParams, $allTypes);
 
-// Get total attendance counts for the selected date (across all pages)
-$attendanceCountQuery = "SELECT 
-    COUNT(*) as total_marked,
-    SUM(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END) as present_count,
-    SUM(CASE WHEN a.status = 'absent' THEN 1 ELSE 0 END) as absent_count
-FROM attendance a
-JOIN beneficiaries b ON a.beneficiary_id = b.id
-LEFT JOIN constituencies c ON b.constituency_id = c.id
-LEFT JOIN mandals m ON b.mandal_id = m.id
-LEFT JOIN batches bt ON b.batch_id = bt.id
-WHERE a.attendance_date = ? AND b.status = 'active'";
-
-$attendanceCountParams = [$selectedDate];
-$attendanceCountTypes = 's';
-
-if (!empty($selectedConstituency)) {
-    $attendanceCountQuery .= " AND b.constituency_id = ?";
-    $attendanceCountParams[] = $selectedConstituency;
-    $attendanceCountTypes .= 'i';
-}
-
-if (!empty($selectedMandal)) {
-    $attendanceCountQuery .= " AND b.mandal_id = ?";
-    $attendanceCountParams[] = $selectedMandal;
-    $attendanceCountTypes .= 'i';
-}
-
-if (!empty($selectedBatch)) {
-    $attendanceCountQuery .= " AND b.batch_id = ?";
-    $attendanceCountParams[] = $selectedBatch;
-    $attendanceCountTypes .= 'i';
-}
-
-$attendanceCounts = fetchRow($attendanceCountQuery, $attendanceCountParams, $attendanceCountTypes) ?: ['total_marked' => 0, 'present_count' => 0, 'absent_count' => 0];
-
-// Calculate attendance rate
-$attendanceRate = $attendanceCounts['total_marked'] > 0 ? round(($attendanceCounts['present_count'] / $attendanceCounts['total_marked']) * 100, 1) : 0;
 
 ?>
 
@@ -251,8 +204,6 @@ $attendanceRate = $attendanceCounts['total_marked'] > 0 ? round(($attendanceCoun
             </button>
         </div>
         <?php endif; ?>
-        
-        <!-- Debug box removed - timezone is now working correctly -->
 
         <form method="GET" class="mb-4">
             <div class="row">
@@ -353,41 +304,37 @@ $attendanceRate = $attendanceCounts['total_marked'] > 0 ? round(($attendanceCoun
 
         <?php if (!empty($beneficiaries) && $dateValidation['valid']): ?>
         
-        <!-- Attendance Summary -->
-        <div class="row mb-4">
+        <!-- Attendance Summary Cards -->
+        <div class="row mb-3">
             <div class="col-md-3">
-                <div class="card bg-primary text-white">
-                    <div class="card-body text-center">
-                        <h4 class="card-title">Total</h4>
-                        <h2 class="mb-0"><?php echo number_format($totalRecords); ?></h2>
-                        <small>Total Beneficiaries</small>
+                <div class="card border-primary">
+                    <div class="card-body text-center p-2">
+                        <h4 class="card-title text-primary mb-1" id="totalCount">0</h4>
+                        <p class="card-text small mb-0">Total</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card bg-success text-white">
-                    <div class="card-body text-center">
-                        <h4 class="card-title">Present</h4>
-                        <h2 class="mb-0" id="present-count"><?php echo $attendanceCounts['present_count']; ?></h2>
-                        <small>Marked Present</small>
+                <div class="card border-success">
+                    <div class="card-body text-center p-2">
+                        <h4 class="card-title text-success mb-1" id="presentCount">0</h4>
+                        <p class="card-text small mb-0">Present</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card bg-danger text-white">
-                    <div class="card-body text-center">
-                        <h4 class="card-title">Absent</h4>
-                        <h2 class="mb-0" id="absent-count"><?php echo $attendanceCounts['absent_count']; ?></h2>
-                        <small>Marked Absent</small>
+                <div class="card border-danger">
+                    <div class="card-body text-center p-2">
+                        <h4 class="card-title text-danger mb-1" id="absentCount">0</h4>
+                        <p class="card-text small mb-0">Absent</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card bg-info text-white">
-                    <div class="card-body text-center">
-                        <h4 class="card-title">Rate</h4>
-                        <h2 class="mb-0" id="attendance-rate"><?php echo $attendanceRate; ?>%</h2>
-                        <small>Attendance Rate</small>
+                <div class="card border-info">
+                    <div class="card-body text-center p-2">
+                        <h4 class="card-title text-info mb-1" id="attendanceRate">0%</h4>
+                        <p class="card-text small mb-0">Rate</p>
                     </div>
                 </div>
             </div>
@@ -1315,159 +1262,271 @@ console.log('Total beneficiaries on page:', document.querySelectorAll('.benefici
 console.log('Total checkboxes on page:', document.querySelectorAll('.row-checkbox').length);
 console.log('Search input exists:', !!document.getElementById('search'));
 console.log('Select All checkbox exists:', !!document.getElementById('selectAll'));
+</script>
 
-// Update attendance counts in real-time
-function updateAttendanceCounts() {
-    const presentButtons = document.querySelectorAll('.btn-present');
-    const absentButtons = document.querySelectorAll('.btn-absent');
-    
-    let presentCount = 0;
-    let absentCount = 0;
-    
-    // Count present
-    presentButtons.forEach(btn => {
-        if (btn.classList.contains('btn-success')) {
-            presentCount++;
-        }
-    });
-    
-    // Count absent
-    absentButtons.forEach(btn => {
-        if (btn.classList.contains('btn-danger')) {
-            absentCount++;
-        }
-    });
-    
-    // Update display
-    document.getElementById('present-count').textContent = presentCount;
-    document.getElementById('absent-count').textContent = absentCount;
-    
-    // Calculate and update rate
-    const total = presentCount + absentCount;
-    const rate = total > 0 ? Math.round((presentCount / total) * 100) : 0;
-    document.getElementById('attendance-rate').textContent = rate + '%';
+<!-- Include restrictions CRUD JavaScript -->
+<script src="restrictions.js"></script>
+
+<!-- Enhanced styling for attendance page -->
+<style>
+.beneficiary-row.status-present {
+    background-color: #d4edda !important;
 }
 
-// Handle attendance button clicks
-document.addEventListener('DOMContentLoaded', function() {
-    const presentButtons = document.querySelectorAll('.btn-present');
-    const absentButtons = document.querySelectorAll('.btn-absent');
-    
-    // Add click handlers for present buttons
-    presentButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const row = this.closest('tr');
-            const presentBtn = row.querySelector('.btn-present');
-            const absentBtn = row.querySelector('.btn-absent');
-            
-            // Update button appearances
-            presentBtn.className = 'btn btn-present btn-success';
-            absentBtn.className = 'btn btn-absent btn-outline-danger';
-            
-            // Update hidden input
-            const hiddenInput = row.querySelector('.attendance-status-input');
-            if (hiddenInput) {
-                hiddenInput.value = 'present';
-            }
-            
-            // Update counts
-            updateAttendanceCounts();
-        });
-    });
-    
-    // Add click handlers for absent buttons
-    absentButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const row = this.closest('tr');
-            const presentBtn = row.querySelector('.btn-present');
-            const absentBtn = row.querySelector('.btn-absent');
-            
-            // Update button appearances
-            presentBtn.className = 'btn btn-present btn-outline-success';
-            absentBtn.className = 'btn btn-absent btn-danger';
-            
-            // Update hidden input
-            const hiddenInput = row.querySelector('.attendance-status-input');
-            if (hiddenInput) {
-                hiddenInput.value = 'absent';
-            }
-            
-            // Update counts
-            updateAttendanceCounts();
-        });
-    });
-    
-    // Initialize counts
-    updateAttendanceCounts();
-});
-
-// Bulk actions
-function markAllAs(status) {
-    const presentButtons = document.querySelectorAll('.btn-present');
-    const absentButtons = document.querySelectorAll('.btn-absent');
-    
-    presentButtons.forEach(btn => {
-        const row = btn.closest('tr');
-        const hiddenInput = row.querySelector('.attendance-status-input');
-        if (hiddenInput) {
-            hiddenInput.value = status;
-        }
-        
-        if (status === 'present') {
-            btn.className = 'btn btn-present btn-success';
-            row.querySelector('.btn-absent').className = 'btn btn-absent btn-outline-danger';
-        } else {
-            btn.className = 'btn btn-present btn-outline-success';
-            row.querySelector('.btn-absent').className = 'btn btn-absent btn-danger';
-        }
-    });
-    
-    updateAttendanceCounts();
+.beneficiary-row.status-absent {
+    background-color: #f8d7da !important;
 }
 
-function markSelectedAs(status) {
-    const selectedCheckboxes = document.querySelectorAll('.row-checkbox:checked');
-    
-    if (selectedCheckboxes.length === 0) {
-        alert('Please select some beneficiaries first using the checkboxes.');
-        return;
+.status-buttons {
+    min-width: 120px;
+}
+
+.status-buttons .btn {
+    font-size: 12px;
+    padding: 4px 8px;
+    border-width: 1px;
+    transition: all 0.2s ease;
+}
+
+.status-buttons .btn:focus {
+    box-shadow: none;
+}
+
+.card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.card-body {
+    padding: 0.75rem !important;
+}
+
+.card-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.card-text.small {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.serial-number {
+    font-weight: 600;
+    color: #6c757d;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0,0,0,.075) !important;
+}
+
+.btn-toolbar .btn-group {
+    margin-right: 10px;
+}
+
+.table-responsive {
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.thead-light th {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    font-weight: 600;
+    color: #495057;
+}
+
+@media (max-width: 768px) {
+    .btn-toolbar {
+        flex-direction: column;
     }
     
-    selectedCheckboxes.forEach(checkbox => {
-        const row = checkbox.closest('tr');
-        const presentBtn = row.querySelector('.btn-present');
-        const absentBtn = row.querySelector('.btn-absent');
-        const hiddenInput = row.querySelector('.attendance-status-input');
-        
-        if (hiddenInput) {
-            hiddenInput.value = status;
-        }
-        
-        if (status === 'present') {
-            presentBtn.className = 'btn btn-present btn-success';
-            absentBtn.className = 'btn btn-absent btn-outline-danger';
-        } else {
-            presentBtn.className = 'btn btn-present btn-outline-success';
-            absentBtn.className = 'btn btn-absent btn-danger';
-        }
-    });
+    .btn-group {
+        margin-bottom: 10px;
+        width: 100%;
+    }
     
-    updateAttendanceCounts();
-}
-
-function toggleSelectAll() {
-    const selectAllCheckbox = document.getElementById('selectAll');
-    if (selectAllCheckbox) {
-        selectAllCheckbox.checked = !selectAllCheckbox.checked;
-        selectAllRows();
+    .btn-group .btn {
+        flex: 1;
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;
     }
 }
 
-function selectAllRows() {
-    const selectAllCheckbox = document.getElementById('selectAll');
-    const checkboxes = document.querySelectorAll('.row-checkbox');
-    
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = selectAllCheckbox.checked;
-    });
+.modal-lg {
+    max-width: 800px;
 }
+
+.restriction-item {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
+    background-color: #f8f9fa;
+}
+
+.restriction-item.active {
+    border-color: #28a745;
+    background-color: #d4edda;
+}
+
+.restriction-item.inactive {
+    border-color: #dc3545;
+    background-color: #f8d7da;
+    opacity: 0.7;
+}
+
+.restriction-badge {
+    font-size: 12px;
+    padding: 4px 8px;
+}
+
+/* Pagination styling */
+.pagination-sm .page-link {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    cursor: auto;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+</style>
+
+<!-- Attendance Restrictions CRUD Modal -->
+<div class="modal fade" id="restrictionsModal" tabindex="-1" aria-labelledby="restrictionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="restrictionsModalLabel">
+                    <i class="fas fa-ban"></i> Manage Attendance Restrictions
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-plus"></i> Add New Restriction</h6>
+                    </div>
+                    <div class="card-body">
+                        <form id="addRestrictionForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="restrictionType">Restriction Type</label>
+                                        <select class="form-control" id="restrictionType" name="restriction_type" required>
+                                            <option value="">Select Type</option>
+                                            <option value="day_of_week">Day of Week</option>
+                                            <option value="specific_date">Specific Date</option>
+                                            <option value="date_range">Date Range</option>
+                                            <option value="custom">Custom Rule</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="restrictionName">Restriction Name</label>
+                                        <input type="text" class="form-control" id="restrictionName" name="restriction_name" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group" id="restrictionValueGroup">
+                                        <label for="restrictionValue">Value</label>
+                                        <input type="text" class="form-control" id="restrictionValue" name="restriction_value" required>
+                                        <small class="form-text text-muted" id="valueHelp"></small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="appliesTo">Applies To</label>
+                                        <select class="form-control" id="appliesTo" name="applies_to">
+                                            <option value="all">All</option>
+                                            <option value="constituency">Specific Constituency</option>
+                                            <option value="mandal">Specific Mandal</option>
+                                            <option value="batch">Specific Batch</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row" id="dateRangeGroup" style="display: none;">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="startDate">Start Date</label>
+                                        <input type="date" class="form-control" id="startDate" name="start_date">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="endDate">End Date</label>
+                                        <input type="date" class="form-control" id="endDate" name="end_date">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="restrictionDescription">Description</label>
+                                <textarea class="form-control" id="restrictionDescription" name="description" rows="2"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="isActive" name="is_active" checked>
+                                    <label class="form-check-label" for="isActive">
+                                        Active (restriction is enforced)
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="text-right">
+                                <button type="button" class="btn btn-secondary" onclick="resetRestrictionForm()">Reset</button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Save Restriction
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-list"></i> Current Restrictions</h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="restrictionsList">
+                            <div class="text-center">
+                                <i class="fas fa-spinner fa-spin"></i> Loading restrictions...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php
+require_once '../includes/footer.php';
+?>

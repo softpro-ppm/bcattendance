@@ -31,6 +31,8 @@ $currentUser = getCurrentUser();
             <link rel="stylesheet" href="<?php echo $css; ?>">
         <?php endforeach; ?>
     <?php endif; ?>
+    <link rel="stylesheet" href="/assets/css/custom.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
 </head>
 <body class="<?php echo isset($bodyClass) ? $bodyClass : ''; ?>">
     <div class="wrapper">
@@ -139,7 +141,7 @@ $currentUser = getCurrentUser();
             <nav class="main-header">
                 <div class="navbar">
                     <div class="navbar-brand">
-                        <button class="sidebar-toggle d-lg-none" type="button" aria-label="Toggle sidebar">
+                        <button class="sidebar-toggle d-md-none" type="button" aria-label="Toggle sidebar">
                             <i class="fas fa-bars"></i>
                         </button>
                         <?php echo isset($pageTitle) ? $pageTitle : 'Dashboard'; ?>

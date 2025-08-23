@@ -9,11 +9,8 @@ if (!isset($_SESSION['admin_user_id'])) {
     exit();
 }
 
-// Ensure correct timezone for date calculations
 // Get filters from request
-// Use the new timezone utility functions for reliable IST date handling
-$today = getCurrentISTDate();
-$selectedDate = $_GET['date'] ?? $today;
+$selectedDate = $_GET['date'] ?? date('Y-m-d');
 $selectedConstituency = $_GET['constituency'] ?? '';
 $selectedMandal = $_GET['mandal'] ?? '';
 $selectedBatch = $_GET['batch'] ?? '';

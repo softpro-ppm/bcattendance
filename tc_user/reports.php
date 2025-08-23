@@ -13,9 +13,8 @@ $mandal_id = $_SESSION['tc_user_mandal_id'];
 
 // Get filter parameters
 $report_type = $_GET['report_type'] ?? '';
-// Get date range (default to today)
-$date_from = $_GET['date_from'] ?? getCurrentISTDate(); // Today in IST
-$date_to = $_GET['date_to'] ?? getCurrentISTDate(); // Today in IST
+$date_from = $_GET['date_from'] ?? date('Y-m-01'); // First day of current month
+$date_to = $_GET['date_to'] ?? date('Y-m-d'); // Today
 $batch_filter = $_GET['batch_id'] ?? '';
 
 // Get batches for this training center

@@ -4,15 +4,12 @@ $breadcrumbs = [
     ['title' => 'Dashboard']
 ];
 
-// Ensure correct timezone for date calculations
-date_default_timezone_set('Asia/Kolkata');
-
 require_once 'includes/header.php';
 
 // Get TC info from session
 $tc_id = $_SESSION['tc_user_training_center_id'];
 $mandal_id = $_SESSION['tc_user_mandal_id'];
-$today = getCurrentISTDate();
+$today = date('Y-m-d');
 
 // Get basic stats with error handling
 try {
@@ -52,9 +49,9 @@ try {
 }
 ?>
 
-<!-- Statistics Cards - Mobile Optimized -->
-<div class="row dashboard-stats">
-    <div class="col-6 col-md-3">
+<div class="row">
+    <!-- Statistics Cards - EXACT same structure as admin -->
+    <div class="col-md-3">
         <div class="card stats-card">
             <div class="card-body">
                 <div class="stats-icon">
@@ -66,7 +63,7 @@ try {
         </div>
     </div>
 
-    <div class="col-6 col-md-3">
+    <div class="col-md-3">
         <div class="card stats-card">
             <div class="card-body">
                 <div class="stats-icon">
@@ -78,7 +75,7 @@ try {
         </div>
     </div>
 
-    <div class="col-6 col-md-3">
+    <div class="col-md-3">
         <div class="card stats-card">
             <div class="card-body">
                 <div class="stats-icon">
@@ -90,7 +87,7 @@ try {
         </div>
     </div>
 
-    <div class="col-6 col-md-3">
+    <div class="col-md-3">
         <div class="card stats-card">
             <div class="card-body">
                 <div class="stats-icon">
@@ -103,551 +100,623 @@ try {
     </div>
 </div>
 
-<!-- Quick Actions Section - Mobile Optimized -->
-<div class="row">
+<!-- Today's Attendance Section - Beautiful Redesign -->
+<div class="row mt-4">
     <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-bolt"></i>
-                    Quick Actions
+        <div class="card attendance-overview-card">
+            <div class="card-header bg-gradient-primary">
+                <h3 class="card-title text-white">
+                    <i class="fas fa-calendar-day me-2"></i>
+                    Today's Attendance Overview
                 </h3>
-            </div>
-            <div class="card-body">
-                <div class="row dashboard-quick-actions">
-                    <div class="col-6 col-md-3">
-                        <a href="attendance.php" class="btn btn-primary btn-block">
-                            <i class="fas fa-calendar-check"></i><br>
-                            <span class="d-none d-sm-inline">Mark Attendance</span>
-                            <span class="d-sm-none">Attendance</span>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <a href="students.php" class="btn btn-info btn-block">
-                            <i class="fas fa-user-graduate"></i><br>
-                            <span class="d-none d-sm-inline">View Students</span>
-                            <span class="d-sm-none">Students</span>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <a href="batches.php" class="btn btn-success btn-block">
-                            <i class="fas fa-layer-group"></i><br>
-                            <span class="d-none d-sm-inline">View Batches</span>
-                            <span class="d-sm-none">Batches</span>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <a href="reports.php" class="btn btn-warning btn-block">
-                            <i class="fas fa-chart-line"></i><br>
-                            <span class="d-none d-sm-inline">View Reports</span>
-                            <span class="d-sm-none">Reports</span>
-                        </a>
-                    </div>
+                <div class="card-tools">
+                    <a href="attendance.php" class="btn btn-light btn-sm">
+                        <i class="fas fa-plus me-1"></i> Mark Attendance
+                    </a>
                 </div>
+            </div>
+            <div class="card-body p-4">
+                <?php if ($attendance_stats['total_marked'] == 0): ?>
+                    <!-- No Attendance State -->
+                    <div class="text-center py-5">
+                        <div class="no-attendance-icon mb-4">
+                            <i class="fas fa-calendar-times"></i>
+                        </div>
+                        <h4 class="text-muted mb-3">No attendance marked yet for today</h4>
+                        <p class="text-muted mb-4">Start marking attendance to see beautiful statistics and progress tracking</p>
+                        <a href="attendance.php" class="btn btn-primary btn-lg">
+                            <i class="fas fa-plus me-2"></i> Begin Marking Attendance
+                        </a>
+                    </div>
+                <?php else: ?>
+                    <!-- Attendance Statistics -->
+                    <div class="row">
+                        <!-- Present Students Card -->
+                        <div class="col-md-4 mb-4">
+                            <div class="attendance-stat-card present-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-number"><?php echo $attendance_stats['present_count']; ?></div>
+                                    <div class="stat-label">Present Today</div>
+                                    <div class="stat-percentage">
+                                        <?php 
+                                        $present_percentage = $attendance_stats['total_marked'] > 0 ? 
+                                            round(($attendance_stats['present_count'] / $attendance_stats['total_marked']) * 100, 1) : 0;
+                                        echo $present_percentage . '%';
+                                        ?>
+                                    </div>
+                                </div>
+                                <div class="stat-progress">
+                                    <div class="progress">
+                                        <div class="progress-bar bg-success" style="width: <?php echo $present_percentage; ?>%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Absent Students Card -->
+                        <div class="col-md-4 mb-4">
+                            <div class="attendance-stat-card absent-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-times-circle"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-number"><?php echo $attendance_stats['absent_count']; ?></div>
+                                    <div class="stat-label">Absent Today</div>
+                                    <div class="stat-percentage">
+                                        <?php 
+                                        $absent_percentage = $attendance_stats['total_marked'] > 0 ? 
+                                            round(($attendance_stats['absent_count'] / $attendance_stats['total_marked']) * 100, 1) : 0;
+                                        echo $absent_percentage . '%';
+                                        ?>
+                                    </div>
+                                </div>
+                                <div class="stat-progress">
+                                    <div class="progress">
+                                        <div class="progress-bar bg-danger" style="width: <?php echo $absent_percentage; ?>%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Total Marked Card -->
+                        <div class="col-md-4 mb-4">
+                            <div class="attendance-stat-card total-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-clipboard-check"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-number"><?php echo $attendance_stats['total_marked']; ?></div>
+                                    <div class="stat-label">Total Marked</div>
+                                    <div class="stat-percentage">
+                                        <?php echo $attendance_percentage; ?>% of Total
+                                    </div>
+                                </div>
+                                <div class="stat-progress">
+                                    <div class="progress">
+                                        <div class="progress-bar bg-primary" style="width: <?php echo $attendance_percentage; ?>%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Overall Progress Section -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="overall-progress-section">
+                                <h5 class="text-muted mb-3">
+                                    <i class="fas fa-chart-line me-2"></i>
+                                    Overall Attendance Progress
+                                </h5>
+                                <div class="progress-group">
+                                    <div class="progress-header">
+                                        <span class="progress-label">Attendance Completion</span>
+                                        <span class="progress-value"><?php echo $attendance_percentage; ?>%</span>
+                                    </div>
+                                    <div class="progress progress-lg">
+                                        <div class="progress-bar bg-gradient-primary" 
+                                             style="width: <?php echo $attendance_percentage; ?>%"
+                                             data-width="<?php echo $attendance_percentage; ?>">
+                                        </div>
+                                    </div>
+                                    <div class="progress-stats">
+                                        <small class="text-muted">
+                                            <?php echo $attendance_stats['total_marked']; ?> out of <?php echo $beneficiaries_count; ?> students marked
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Today's Attendance Summary - Mobile Optimized -->
-<div class="row">
-    <div class="col-12 col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-calendar-check"></i>
-                    Today's Attendance Summary
+<!-- Today's Batch Attendance Status -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card batch-status-card">
+            <div class="card-header bg-gradient-info">
+                <h3 class="card-title text-white">
+                    <i class="fas fa-list me-2"></i>
+                    Today's Batch Attendance Status
                 </h3>
-            </div>
-            <div class="card-body">
-                <div class="row attendance-summary">
-                    <div class="col-4 col-sm-4">
-                        <div class="text-center">
-                            <h3 class="text-success"><?php echo number_format($attendance_stats['present_count']); ?></h3>
-                            <p class="mb-0">Present</p>
-                        </div>
-                    </div>
-                    <div class="col-4 col-sm-4">
-                        <div class="text-center">
-                            <h3 class="text-danger"><?php echo number_format($attendance_stats['absent_count']); ?></h3>
-                            <p class="mb-0">Absent</p>
-                        </div>
-                    </div>
-                    <div class="col-4 col-sm-4">
-                        <div class="text-center">
-                            <h3 class="text-primary"><?php echo number_format($attendance_stats['total_marked']); ?></h3>
-                            <p class="mb-0">Total Marked</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <?php if ($beneficiaries_count > 0): ?>
-                <div class="mt-3">
-                    <div class="progress" style="height: 25px;">
-                        <div class="progress-bar bg-success" 
-                             role="progressbar" 
-                             style="width: <?php echo $attendance_percentage; ?>%" 
-                             aria-valuenow="<?php echo $attendance_percentage; ?>" 
-                             aria-valuemin="0" 
-                             aria-valuemax="100">
-                            <?php echo $attendance_percentage; ?>%
-                        </div>
-                    </div>
-                    <small class="text-muted mt-2 d-block text-center">
-                        <?php echo number_format($attendance_stats['total_marked']); ?> out of <?php echo number_format($beneficiaries_count); ?> students marked
-                    </small>
-                </div>
-                <?php endif; ?>
-                
-                <div class="mt-3 text-center">
-                    <a href="attendance.php" class="btn btn-primary btn-sm">
-                        <i class="fas fa-edit"></i> Manage Attendance
+                <div class="card-tools">
+                    <a href="attendance.php" class="btn btn-light btn-sm">
+                        <i class="fas fa-plus me-1"></i> Mark Attendance
                     </a>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Recent Activity - Mobile Optimized -->
-    <div class="col-12 col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-history"></i>
-                    Recent Activity
-                </h3>
-            </div>
-            <div class="card-body">
+            <div class="card-body p-4">
                 <?php
-                // Get recent attendance entries
-                try {
-                    $recent_query = "SELECT a.attendance_date, a.status, ben.full_name, b.name as batch_name
-                                   FROM attendance a
-                                   JOIN beneficiaries ben ON a.beneficiary_id = ben.id
-                                   JOIN batches b ON ben.batch_id = b.id
-                                   WHERE b.tc_id = ? 
-                                   ORDER BY a.created_at DESC 
-                                   LIMIT 5";
-                    $recent_activities = fetchAll($recent_query, [$tc_id], 'i');
-                } catch (Exception $e) {
-                    $recent_activities = [];
-                }
+                // Get batch attendance status for today
+                $batch_status_query = "SELECT 
+                                        b.id as batch_id,
+                                        b.name as batch_name,
+                                        COUNT(ben.id) as total_beneficiaries,
+                                        COUNT(a.id) as marked_attendance,
+                                        SUM(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END) as present_count,
+                                        SUM(CASE WHEN a.status = 'absent' THEN 1 ELSE 0 END) as absent_count,
+                                        CASE 
+                                            WHEN COUNT(a.id) > 0 THEN 'submitted'
+                                            ELSE 'pending'
+                                        END as status
+                                       FROM batches b
+                                       LEFT JOIN beneficiaries ben ON b.id = ben.batch_id AND ben.status = 'active'
+                                       LEFT JOIN attendance a ON ben.id = a.beneficiary_id AND a.attendance_date = ?
+                                       WHERE b.tc_id = ? AND b.status = 'active'
+                                       GROUP BY b.id, b.name
+                                       ORDER BY 
+                                           CASE WHEN COUNT(a.id) > 0 THEN 0 ELSE 1 END,
+                                           b.name";
+                $batch_status = fetchAll($batch_status_query, [$today, $tc_id], 'si') ?: [];
                 ?>
                 
-                <?php if (!empty($recent_activities)): ?>
-                <div class="recent-activities">
-                    <?php foreach ($recent_activities as $activity): ?>
-                    <div class="activity-item d-flex align-items-center mb-2 p-2 border-bottom">
-                        <div class="activity-icon mr-3">
-                            <?php if ($activity['status'] === 'present'): ?>
-                                <i class="fas fa-check-circle text-success"></i>
-                            <?php else: ?>
-                                <i class="fas fa-times-circle text-danger"></i>
-                            <?php endif; ?>
-                        </div>
-                        <div class="activity-details flex-grow-1">
-                            <div class="activity-text">
-                                <strong><?php echo htmlspecialchars($activity['full_name']); ?></strong> 
-                                marked as <strong><?php echo ucfirst($activity['status']); ?></strong>
-                            </div>
-                            <small class="text-muted">
-                                <?php echo htmlspecialchars($activity['batch_name']); ?> • 
-                                <?php echo date('M j', strtotime($activity['attendance_date'])); ?>
-                            </small>
-                        </div>
+                <?php if (!empty($batch_status)): ?>
+                    <div class="table-responsive">
+                        <table class="table table-hover batch-status-table">
+                            <thead>
+                                <tr>
+                                    <th class="text-center" style="width: 60px;">#</th>
+                                    <th>Batch Name</th>
+                                    <th class="text-center">Progress</th>
+                                    <th class="text-center">Present</th>
+                                    <th class="text-center">Absent</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($batch_status as $index => $batch): ?>
+                                <tr class="batch-row">
+                                    <td class="text-center">
+                                        <span class="batch-number"><?php echo $index + 1; ?></span>
+                                    </td>
+                                    <td>
+                                        <div class="batch-info">
+                                            <strong class="batch-name"><?php echo htmlspecialchars($batch['batch_name']); ?></strong>
+                                            <small class="text-muted d-block">
+                                                <?php echo $batch['total_beneficiaries']; ?> students
+                                            </small>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="progress-wrapper">
+                                            <div class="progress progress-sm">
+                                                <?php 
+                                                $batch_progress = $batch['total_beneficiaries'] > 0 ? 
+                                                    ($batch['marked_attendance'] / $batch['total_beneficiaries']) * 100 : 0;
+                                                ?>
+                                                <div class="progress-bar bg-info" style="width: <?php echo $batch_progress; ?>%"></div>
+                                            </div>
+                                            <small class="text-muted">
+                                                <?php echo $batch['marked_attendance']; ?>/<?php echo $batch['total_beneficiaries']; ?>
+                                            </small>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge badge-success badge-lg">
+                                            <?php echo $batch['present_count']; ?>
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge badge-danger badge-lg">
+                                            <?php echo $batch['absent_count']; ?>
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <?php if ($batch['status'] == 'submitted'): ?>
+                                            <span class="badge badge-success badge-lg">
+                                                <i class="fas fa-check me-1"></i>Submitted
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="badge badge-warning badge-lg">
+                                                <i class="fas fa-clock me-1"></i>Pending
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="attendance.php?batch_id=<?php echo $batch['batch_id']; ?>" 
+                                           class="btn btn-primary btn-sm">
+                                            <i class="fas fa-edit me-1"></i> 
+                                            <?php echo $batch['status'] == 'submitted' ? 'Edit' : 'Mark'; ?>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
                     </div>
-                    <?php endforeach; ?>
-                </div>
                 <?php else: ?>
-                <div class="text-center py-3">
-                    <i class="fas fa-info-circle fa-2x text-muted mb-2"></i>
-                    <p class="text-muted mb-0">No recent activity</p>
-                </div>
+                    <div class="text-center py-5">
+                        <div class="no-batches-icon mb-4">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <h5 class="text-muted mb-3">No active batches found</h5>
+                        <p class="text-muted">Contact your administrator to set up training batches.</p>
+                    </div>
                 <?php endif; ?>
-                
-                <div class="mt-3 text-center">
-                    <a href="reports.php" class="btn btn-outline-info btn-sm">
-                        <i class="fas fa-chart-line"></i> View Full Reports
-                    </a>
-                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Training Center Information - Mobile Optimized -->
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-building"></i>
-                    Training Center Information
-                </h3>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-12 col-md-6">
-                        <div class="info-item mb-3">
-                            <strong><i class="fas fa-id-card text-primary"></i> TC ID:</strong>
-                            <span class="ml-2"><?php echo htmlspecialchars($_SESSION['tc_user_tc_id']); ?></span>
-                        </div>
-                        <div class="info-item mb-3">
-                            <strong><i class="fas fa-building text-success"></i> Training Center:</strong>
-                            <span class="ml-2"><?php echo htmlspecialchars($_SESSION['tc_user_training_center_name']); ?></span>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-6">
-                        <div class="info-item mb-3">
-                            <strong><i class="fas fa-map-marker-alt text-warning"></i> Mandal:</strong>
-                            <span class="ml-2"><?php echo htmlspecialchars($_SESSION['tc_user_mandal_name']); ?></span>
-                        </div>
-                        <div class="info-item mb-3">
-                            <strong><i class="fas fa-calendar text-info"></i> Today:</strong>
-                            <span class="ml-2"><?php echo date('F j, Y'); ?></span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="mt-3 text-center">
-                    <a href="profile.php" class="btn btn-outline-secondary btn-sm">
-                        <i class="fas fa-user-cog"></i> Update Profile
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
+<!-- Custom CSS for Beautiful Attendance Dashboard -->
 <style>
-/* Dashboard Mobile Styles */
-.dashboard-stats .row {
-    margin: 0 -0.25rem;
+/* Attendance Overview Card */
+.attendance-overview-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
 }
 
-.dashboard-stats .col-6 {
-    padding: 0.25rem;
-    margin-bottom: 0.5rem;
+.attendance-overview-card .card-header {
+    border: none;
+    padding: 1.5rem;
 }
 
-.dashboard-stats .stats-card {
-    margin-bottom: 0;
-    height: 100%;
-    transition: transform 0.3s ease;
+.attendance-overview-card .card-header h3 {
+    margin: 0;
+    font-weight: 600;
 }
 
-.dashboard-stats .stats-card:hover {
-    transform: translateY(-2px);
-}
-
-.dashboard-stats .stats-card .card-body {
-    padding: 1rem;
-    text-align: center;
-    position: relative;
-}
-
-.dashboard-stats .stats-number {
-    font-size: 1.8rem;
-    margin-bottom: 0.25rem;
-    font-weight: 700;
-}
-
-.dashboard-stats .stats-label {
-    font-size: 0.85rem;
-    margin-bottom: 0;
-    color: rgba(255, 255, 255, 0.9);
-}
-
-.dashboard-stats .stats-icon {
-    position: absolute;
-    right: 0.5rem;
-    top: 0.5rem;
-    font-size: 1.5rem;
-    opacity: 0.3;
-}
-
-/* Quick Actions Mobile Styles */
-.dashboard-quick-actions .col-6 {
-    padding: 0.25rem;
-    margin-bottom: 0.5rem;
-}
-
-.dashboard-quick-actions .btn {
-    padding: 1rem 0.5rem;
-    height: auto;
-    white-space: normal;
-    line-height: 1.2;
-    min-height: 80px;
+/* No Attendance State */
+.no-attendance-icon {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 50%;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
+    margin: 0 auto;
+    color: #6c757d;
+    font-size: 3rem;
+}
+
+/* Attendance Stat Cards */
+.attendance-stat-card {
+    background: #fff;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
     transition: all 0.3s ease;
+    border: 1px solid #f8f9fa;
+    position: relative;
+    overflow: hidden;
 }
 
-.dashboard-quick-actions .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+.attendance-stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
 }
 
-.dashboard-quick-actions .btn i {
-    display: block;
-    margin-bottom: 0.5rem;
+.attendance-stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+}
+
+.present-card::before {
+    background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+}
+
+.absent-card::before {
+    background: linear-gradient(90deg, #dc3545 0%, #fd7e14 100%);
+}
+
+.total-card::before {
+    background: linear-gradient(90deg, #007bff 0%, #6610f2 100%);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #fff;
 }
 
-/* Attendance Summary Mobile Styles */
-.attendance-summary .col-4,
-.attendance-summary .col-6 {
-    padding: 0.25rem;
+.present-card .stat-icon {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
 }
 
-.attendance-summary h3 {
-    font-size: 1.5rem;
-    margin-bottom: 0.25rem;
+.absent-card .stat-icon {
+    background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+}
+
+.total-card .stat-icon {
+    background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+}
+
+.stat-content {
+    margin-bottom: 1rem;
+}
+
+.stat-number {
+    font-size: 2.5rem;
     font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.25rem;
 }
 
-.attendance-summary p {
-    font-size: 0.85rem;
+.stat-label {
+    font-size: 1rem;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.stat-percentage {
+    font-size: 0.9rem;
+    color: #495057;
+    font-weight: 600;
+}
+
+.stat-progress {
+    margin-top: 1rem;
+}
+
+.stat-progress .progress {
+    height: 8px;
+    border-radius: 10px;
+    background-color: #f8f9fa;
+}
+
+.stat-progress .progress-bar {
+    border-radius: 10px;
+    transition: width 1s ease;
+}
+
+/* Overall Progress Section */
+.overall-progress-section {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 2rem;
+    border: 1px solid #e9ecef;
+}
+
+.progress-group {
     margin-bottom: 0;
 }
 
-/* Recent Activities Mobile Styles */
-.activity-item {
-    border-radius: 8px;
-    transition: background-color 0.2s;
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
 }
 
-.activity-item:hover {
-    background-color: #f8f9fa;
-}
-
-.activity-icon {
-    font-size: 1.2rem;
-    width: 24px;
-    text-align: center;
-}
-
-.activity-text {
-    font-size: 0.9rem;
-    line-height: 1.3;
-}
-
-/* Info Items Mobile Styles */
-.info-item {
-    padding: 0.5rem;
-    border-radius: 6px;
-    background-color: #f8f9fa;
-    border-left: 3px solid #28a745;
-}
-
-.info-item strong {
+.progress-label {
+    font-weight: 600;
     color: #495057;
 }
 
-.info-item i {
-    width: 20px;
-    text-align: center;
+.progress-value {
+    font-weight: 700;
+    color: #007bff;
+    font-size: 1.1rem;
 }
 
-/* Progress Bar Mobile Styles */
-.progress {
-    border-radius: 12px;
+.progress-lg {
+    height: 12px;
+    border-radius: 10px;
     background-color: #e9ecef;
 }
 
-.progress-bar {
-    border-radius: 12px;
+.progress-stats {
+    margin-top: 0.75rem;
+    text-align: center;
+}
+
+/* Batch Status Card */
+.batch-status-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.batch-status-card .card-header {
+    border: none;
+    padding: 1.5rem;
+}
+
+.batch-status-card .card-header h3 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.batch-status-table {
+    margin-bottom: 0;
+}
+
+.batch-status-table th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    color: #495057;
+    padding: 1.25rem 0.75rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.batch-status-table td {
+    padding: 1.25rem 0.75rem;
+    vertical-align: middle;
+    border-top: 1px solid #f8f9fa;
+}
+
+.batch-row:hover {
+    background-color: #f8f9fa;
+    transform: scale(1.01);
+    transition: all 0.2s ease;
+}
+
+.batch-number {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 30px;
     font-weight: 600;
     font-size: 0.9rem;
+}
+
+.batch-info .batch-name {
+    color: #2c3e50;
+    font-size: 1.1rem;
+}
+
+.progress-wrapper {
+    text-align: center;
+}
+
+.progress-wrapper .progress {
+    height: 8px;
+    border-radius: 10px;
+    background-color: #e9ecef;
+    margin-bottom: 0.5rem;
+}
+
+.progress-wrapper .progress-bar {
+    border-radius: 10px;
+    transition: width 1s ease;
+}
+
+.badge-lg {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 20px;
+}
+
+.no-batches-icon {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
+    margin: 0 auto;
+    color: #6c757d;
+    font-size: 3rem;
 }
 
-/* Mobile Responsive Adjustments */
+/* Responsive Design */
 @media (max-width: 768px) {
-    .dashboard-stats .col-6 {
-        flex: 0 0 50%;
-        max-width: 50%;
+    .attendance-stat-card {
+        margin-bottom: 1rem;
     }
     
-    .dashboard-stats .stats-card {
-        margin-bottom: 0.5rem;
+    .stat-number {
+        font-size: 2rem;
     }
     
-    .dashboard-stats .stats-number {
-        font-size: 1.5rem;
+    .overall-progress-section {
+        padding: 1.5rem;
     }
     
-    .dashboard-stats .stats-icon {
-        font-size: 1.2rem;
-        right: 0.25rem;
-        top: 0.25rem;
-    }
-    
-    .dashboard-quick-actions .col-6 {
-        flex: 0 0 50%;
-        max-width: 50%;
-    }
-    
-    .dashboard-quick-actions .btn {
-        min-height: 70px;
+    .batch-status-table th,
+    .batch-status-table td {
         padding: 0.75rem 0.5rem;
-    }
-    
-    .dashboard-quick-actions .btn i {
-        font-size: 1.2rem;
-        margin-bottom: 0.25rem;
-    }
-    
-    .attendance-summary h3 {
-        font-size: 1.3rem;
-    }
-    
-    .info-item {
-        margin-bottom: 0.75rem;
-        padding: 0.75rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .dashboard-stats .stats-number {
-        font-size: 1.3rem;
-    }
-    
-    .dashboard-stats .stats-label {
-        font-size: 0.75rem;
-    }
-    
-    .dashboard-stats .stats-icon {
-        font-size: 1rem;
-    }
-    
-    .dashboard-quick-actions .btn {
-        min-height: 60px;
-        padding: 0.5rem 0.25rem;
-    }
-    
-    .dashboard-quick-actions .btn i {
-        font-size: 1rem;
-    }
-    
-    .attendance-summary h3 {
-        font-size: 1.2rem;
-    }
-    
-    .activity-text {
         font-size: 0.85rem;
     }
-}
-
-/* Touch Device Optimizations */
-@media (hover: none) and (pointer: coarse) {
-    .dashboard-stats .stats-card {
-        min-height: 80px;
-        touch-action: manipulation;
-    }
     
-    .dashboard-quick-actions .btn {
-        min-height: 80px;
-        touch-action: manipulation;
-    }
-    
-    .activity-item {
-        min-height: 44px;
+    .batch-number {
+        width: 25px;
+        height: 25px;
+        line-height: 25px;
+        font-size: 0.8rem;
     }
 }
 
-/* Landscape Orientation */
-@media (max-width: 768px) and (orientation: landscape) {
-    .dashboard-stats .stats-number {
-        font-size: 1.4rem;
-    }
-    
-    .dashboard-quick-actions .btn {
-        min-height: 60px;
-    }
+/* Animation for progress bars */
+.progress-bar {
+    animation: progressAnimation 1.5s ease-out;
+}
+
+@keyframes progressAnimation {
+    from { width: 0%; }
+    to { width: var(--progress-width); }
 }
 </style>
 
+<!-- JavaScript for Enhanced Interactions -->
 <script>
-// Basic JavaScript Test
-console.log('🔧 Basic JavaScript test - if you see this, JS is working');
-
-// Mobile Dashboard Enhancement
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Dashboard loaded, checking mobile status...');
-    console.log('📱 Viewport width:', window.innerWidth);
-    console.log('📱 Viewport height:', window.innerHeight);
-    
-    // Force display of dashboard elements on mobile
-    if (window.innerWidth <= 768) {
-        console.log('📱 Mobile device detected, ensuring dashboard visibility...');
-        
-        // Force display of all dashboard elements
-        const dashboardElements = [
-            '.dashboard-stats',
-            '.dashboard-quick-actions', 
-            '.attendance-summary',
-            '.recent-activities',
-            '.info-item'
-        ];
-        
-        dashboardElements.forEach(selector => {
-            const elements = document.querySelectorAll(selector);
-            console.log(`🔍 Looking for ${selector}:`, elements.length, 'elements found');
-            elements.forEach((el, index) => {
-                el.style.display = 'block';
-                el.style.visibility = 'visible';
-                el.style.opacity = '1';
-                console.log(`✅ Made ${selector}[${index}] visible`);
-            });
-        });
-        
-        // Ensure stats cards are properly styled
-        const statsCards = document.querySelectorAll('.stats-card');
-        console.log('🔍 Stats cards found:', statsCards.length);
-        statsCards.forEach((card, index) => {
-            card.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-            card.style.color = 'white';
-            card.style.display = 'block';
-            console.log(`✅ Styled stats card[${index}]`);
-        });
-        
-        // Ensure quick action buttons are visible
-        const quickActionBtns = document.querySelectorAll('.dashboard-quick-actions .btn');
-        console.log('🔍 Quick action buttons found:', quickActionBtns.length);
-        quickActionBtns.forEach((btn, index) => {
-            btn.style.display = 'flex';
-            btn.style.visibility = 'visible';
-            btn.style.opacity = '1';
-            console.log(`✅ Made quick action button[${index}] visible`);
-        });
-        
-        console.log('📱 Mobile dashboard enhancement complete');
-    } else {
-        console.log('🖥️ Desktop mode detected');
-    }
-    
-    // Handle orientation change
-    window.addEventListener('orientationchange', function() {
-        console.log('📱 Orientation changed, reloading...');
-        setTimeout(function() {
-            location.reload();
-        }, 500);
+    // Animate progress bars on page load
+    const progressBars = document.querySelectorAll('.progress-bar');
+    progressBars.forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0%';
+        setTimeout(() => {
+            bar.style.width = width;
+        }, 300);
     });
     
-    // Handle resize
-    window.addEventListener('resize', function() {
-        console.log('📱 Window resized to:', window.innerWidth, 'x', window.innerHeight);
+    // Add hover effects to attendance stat cards
+    const statCards = document.querySelectorAll('.attendance-stat-card');
+    statCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-8px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+    
+    // Add hover effects to batch rows
+    const batchRows = document.querySelectorAll('.batch-row');
+    batchRows.forEach(row => {
+        row.addEventListener('mouseenter', function() {
+            this.style.backgroundColor = '#f8f9fa';
+        });
+        
+        row.addEventListener('mouseleave', function() {
+            this.style.backgroundColor = '';
+        });
     });
 });
-
-
 </script>
 
-<?php
-require_once 'includes/footer.php';
-?>
+<?php require_once 'includes/footer.php'; ?>

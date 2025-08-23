@@ -143,8 +143,7 @@ function getTCUserBeneficiaries($batch_id = null) {
 
 // Check if date is today (for editing restriction)
 function isToday($date) {
-    // Use IST date for comparison
-    return getCurrentISTDate() === date('Y-m-d', strtotime($date));
+    return date('Y-m-d') === date('Y-m-d', strtotime($date));
 }
 
 // Log attendance edit for admin tracking

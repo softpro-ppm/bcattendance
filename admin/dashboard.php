@@ -8,9 +8,6 @@ $breadcrumbs = [
 
 require_once '../includes/header.php';
 
-// Use the new timezone utility functions for reliable IST date handling
-$today = getCurrentISTDate();
-
 // Get dashboard statistics
 $stats = getDashboardStats();
 
@@ -34,21 +31,21 @@ $batchMarkingStatus = fetchAll("
     LEFT JOIN mandals m ON bt.mandal_id = m.id
     LEFT JOIN constituencies c ON m.constituency_id = c.id
     LEFT JOIN beneficiaries b ON bt.id = b.batch_id AND b.status = 'active'
-    LEFT JOIN attendance a ON b.id = a.beneficiary_id AND a.attendance_date = ?
+    LEFT JOIN attendance a ON b.id = a.beneficiary_id AND a.attendance_date = CURDATE()
     WHERE bt.status = 'active'
     GROUP BY bt.id, bt.name, c.name, m.name
     ORDER BY 
         CASE WHEN COUNT(a.id) > 0 THEN 0 ELSE 1 END,
         MAX(a.created_at) DESC,
         bt.name
-", [$today], 's');
+");
 
 // Simple dashboard - no complex queries needed for percentage cards
 ?>
 
-<!-- Statistics Cards - Enhanced for Mobile -->
-<div class="row dashboard-stats">
-    <div class="col-6 col-md-3">
+<div class="row">
+    <!-- Statistics Cards -->
+    <div class="col-md-3">
         <div class="card stats-card">
             <div class="card-body">
                 <div class="stats-icon">
@@ -60,7 +57,7 @@ $batchMarkingStatus = fetchAll("
         </div>
     </div>
 
-    <div class="col-6 col-md-3">
+    <div class="col-md-3">
         <div class="card stats-card">
             <div class="card-body">
                 <div class="stats-icon">
@@ -72,7 +69,7 @@ $batchMarkingStatus = fetchAll("
         </div>
     </div>
 
-    <div class="col-6 col-md-3">
+    <div class="col-md-3">
         <div class="card stats-card">
             <div class="card-body">
                 <div class="stats-icon">
@@ -84,7 +81,7 @@ $batchMarkingStatus = fetchAll("
         </div>
     </div>
 
-    <div class="col-6 col-md-3">
+    <div class="col-md-3">
         <div class="card stats-card">
             <div class="card-body">
                 <div class="stats-icon">
@@ -97,9 +94,9 @@ $batchMarkingStatus = fetchAll("
     </div>
 </div>
 
-<!-- Today's Attendance Section - Mobile Optimized -->
 <div class="row">
-    <div class="col-12 col-lg-6">
+    <!-- Today's Attendance -->
+    <div class="col-md-6">
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">
@@ -108,27 +105,27 @@ $batchMarkingStatus = fetchAll("
                 </h3>
             </div>
             <div class="card-body">
-                <div class="row attendance-summary">
-                    <div class="col-4 col-sm-4">
+                <div class="row">
+                    <div class="col-md-4">
                         <div class="text-center">
                             <h3 class="text-success" data-stat="present_today"><?php echo number_format($stats['present_today']); ?></h3>
                             <p class="mb-0">Present</p>
                         </div>
                     </div>
-                    <div class="col-4 col-sm-4">
+                    <div class="col-md-4">
                         <div class="text-center">
                             <h3 class="text-danger" data-stat="absent_today"><?php echo number_format($stats['absent_today']); ?></h3>
                             <p class="mb-0">Absent</p>
                         </div>
                     </div>
-                    <div class="col-4 col-sm-4">
+                    <div class="col-md-4">
                         <div class="text-center">
                             <h3 class="text-primary" data-stat="today_attendance"><?php echo number_format($stats['today_attendance']); ?></h3>
                             <p class="mb-0">Total Marked</p>
                         </div>
                     </div>
                 </div>
-                <div class="mt-3 text-center">
+                <div class="mt-3">
                     <a href="attendance.php" class="btn btn-primary btn-sm">
                         <i class="fas fa-plus"></i> Daily Attendance
                     </a>
@@ -138,7 +135,7 @@ $batchMarkingStatus = fetchAll("
     </div>
 
     <!-- Today's Attendance Summary -->
-    <div class="col-12 col-lg-6">
+    <div class="col-md-6">
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">
@@ -157,15 +154,15 @@ $batchMarkingStatus = fetchAll("
                 $absentPercentage = $todayTotal > 0 ? round(($todayAbsent / $todayTotal) * 100, 1) : 0;
                 ?>
                 
-                <div class="row text-center attendance-summary">
-                    <div class="col-6">
+                <div class="row text-center">
+                    <div class="col-md-6">
                         <div class="text-center">
                             <h3 class="text-success" data-stat="present_percentage"><?php echo $presentPercentage; ?>%</h3>
                             <p class="mb-1">Present</p>
                             <small class="text-muted"><?php echo number_format($todayPresent); ?> out of <?php echo number_format($todayTotal); ?></small>
                         </div>
                     </div>
-                    <div class="col-6">
+                    <div class="col-md-6">
                         <div class="text-center">
                             <h3 class="text-danger" data-stat="absent_percentage"><?php echo $absentPercentage; ?>%</h3>
                             <p class="mb-1">Absent</p>
@@ -186,9 +183,9 @@ $batchMarkingStatus = fetchAll("
     </div>
 </div>
 
-<!-- Batch Attendance Marking Status - Mobile Optimized -->
+<!-- Batch Attendance Marking Status -->
 <div class="row">
-    <div class="col-12">
+    <div class="col-md-12">
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">
@@ -208,13 +205,13 @@ $batchMarkingStatus = fetchAll("
                         <thead>
                             <tr>
                                 <th>Sl. No.</th>
-                                <th class="d-none d-md-table-cell">Mandal</th>
+                                <th>Mandal</th>
                                 <th>Batch Name</th>
                                 <th>Total Marked</th>
-                                <th class="d-none d-sm-table-cell">Present</th>
-                                <th class="d-none d-sm-table-cell">Absent</th>
+                                <th>Present</th>
+                                <th>Absent</th>
                                 <th>Status</th>
-                                <th class="d-none d-lg-table-cell">Last Updated</th>
+                                <th>Last Updated</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -222,26 +219,19 @@ $batchMarkingStatus = fetchAll("
                             <?php foreach ($batchMarkingStatus as $index => $batch): ?>
                             <tr>
                                 <td><?php echo $index + 1; ?></td>
-                                <td class="d-none d-md-table-cell">
+                                <td>
                                     <strong><?php echo htmlspecialchars($batch['mandal_name'] ?? 'N/A'); ?></strong>
                                 </td>
-                                <td>
-                                    <div class="batch-info">
-                                        <strong><?php echo htmlspecialchars($batch['batch_name']); ?></strong>
-                                        <small class="d-md-none text-muted d-block">
-                                            <?php echo htmlspecialchars($batch['mandal_name'] ?? 'N/A'); ?>
-                                        </small>
-                                    </div>
-                                </td>
+                                <td><?php echo htmlspecialchars($batch['batch_name']); ?></td>
                                 <td>
                                     <span class="badge badge-info">
                                         <?php echo number_format($batch['marked_attendance']); ?>/<?php echo number_format($batch['total_beneficiaries']); ?>
                                     </span>
                                 </td>
-                                <td class="d-none d-sm-table-cell">
+                                <td>
                                     <span class="badge badge-success"><?php echo number_format($batch['present_count']); ?></span>
                                 </td>
-                                <td class="d-none d-sm-table-cell">
+                                <td>
                                     <span class="badge badge-danger"><?php echo number_format($batch['absent_count']); ?></span>
                                 </td>
                                 <td>
@@ -254,16 +244,8 @@ $batchMarkingStatus = fetchAll("
                                             <i class="fas fa-clock"></i> Not Yet Submitted
                                         </span>
                                     <?php endif; ?>
-                                    
-                                    <!-- Mobile-only attendance summary -->
-                                    <div class="d-sm-none mt-1">
-                                        <small class="text-muted">
-                                            P: <?php echo number_format($batch['present_count']); ?> | 
-                                            A: <?php echo number_format($batch['absent_count']); ?>
-                                        </small>
-                                    </div>
                                 </td>
-                                <td class="d-none d-lg-table-cell">
+                                <td>
                                     <?php if ($batch['last_marked_time']): ?>
                                         <small class="text-success">
                                             <i class="fas fa-clock"></i> <?php echo date('H:i', strtotime($batch['last_marked_time'])); ?>
@@ -273,9 +255,9 @@ $batchMarkingStatus = fetchAll("
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <a href="attendance.php?batch=<?php echo $batch['batch_id']; ?>&date=<?php echo $today; ?>" 
+                                    <a href="attendance.php?batch=<?php echo $batch['batch_id']; ?>&date=<?php echo date('Y-m-d'); ?>" 
                                        class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-edit"></i> <span class="d-none d-sm-inline">Edit</span>
+                                        <i class="fas fa-edit"></i> Edit
                                     </a>
                                 </td>
                             </tr>
@@ -297,9 +279,9 @@ $batchMarkingStatus = fetchAll("
     </div>
 </div>
 
-<!-- Quick Actions - Mobile Optimized -->
+<!-- Quick Actions -->
 <div class="row">
-    <div class="col-12">
+    <div class="col-md-12">
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">
@@ -308,33 +290,29 @@ $batchMarkingStatus = fetchAll("
                 </h3>
             </div>
             <div class="card-body">
-                <div class="row dashboard-quick-actions">
-                    <div class="col-6 col-md-3">
+                <div class="row">
+                    <div class="col-md-3">
                         <a href="beneficiaries.php?action=add" class="btn btn-success btn-block">
                             <i class="fas fa-user-plus"></i><br>
-                            <span class="d-none d-sm-inline">Add New Student</span>
-                            <span class="d-sm-none">Add Student</span>
+                            Add New Student
                         </a>
                     </div>
-                    <div class="col-6 col-md-3">
+                    <div class="col-md-3">
                         <a href="attendance.php" class="btn btn-primary btn-block">
                             <i class="fas fa-calendar-check"></i><br>
-                            <span class="d-none d-sm-inline">Daily Attendance</span>
-                            <span class="d-sm-none">Attendance</span>
+                            Daily Attendance
                         </a>
                     </div>
-                    <div class="col-6 col-md-3">
+                    <div class="col-md-3">
                         <a href="reports.php" class="btn btn-info btn-block">
                             <i class="fas fa-chart-bar"></i><br>
-                            <span class="d-none d-sm-inline">Attendance Reports</span>
-                            <span class="d-sm-none">Reports</span>
+                            Attendance Reports
                         </a>
                     </div>
-                    <div class="col-6 col-md-3">
+                    <div class="col-md-3">
                         <a href="settings.php" class="btn btn-warning btn-block">
                             <i class="fas fa-cogs"></i><br>
-                            <span class="d-none d-sm-inline">System Settings</span>
-                            <span class="d-sm-none">Settings</span>
+                            System Settings
                         </a>
                     </div>
                 </div>
@@ -521,4 +499,3 @@ $inlineJS = "
 
 require_once '../includes/footer.php';
 ?>
-

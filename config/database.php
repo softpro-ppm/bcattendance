@@ -1,20 +1,13 @@
 <?php
 // Database configuration
-/*
-define('DB_HOST', '127.0.0.1');
-define('DB_USERNAME', 'root');
-define('DB_PASSWORD', '');
-define('DB_NAME', 'bc_attendance');
-*/
-
 define('DB_HOST', 'localhost');
 define('DB_USERNAME', 'u820431346_bcattendance');
 define('DB_PASSWORD', 'Metx@123');
 define('DB_NAME', 'u820431346_bcattendance');
 
-
 // Create connection
 function getDBConnection() {
+    date_default_timezone_set('Asia/Kolkata');
     static $connection = null;
     
     if ($connection === null) {
@@ -26,20 +19,12 @@ function getDBConnection() {
             }
             
             $connection->set_charset("utf8");
-            
-            // Set timezone for consistent date handling
-            // Set both session and ensure global timezone is handled
-            $connection->query("SET time_zone = '+05:30'"); // IST timezone
-            $connection->query("SET @@session.time_zone = '+05:30'"); // Explicit session timezone
-            
-            // Also set PHP timezone to match
-            date_default_timezone_set('Asia/Kolkata');
-            
         } catch (Exception $e) {
             die("Database connection error: " . $e->getMessage());
         }
     }
     
+    @$connection->query("SET time_zone = '+05:30'");
     return $connection;
 }
 

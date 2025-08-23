@@ -71,21 +71,11 @@ if (!isset($_SESSION['csrf_token'])) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <meta name="theme-color" content="#28a745">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TC Login - BC Attendance System</title>
     <link rel="stylesheet" href="assets/css/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             min-height: 100vh;
@@ -94,7 +84,6 @@ if (!isset($_SESSION['csrf_token'])) {
             justify-content: center;
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 1rem;
         }
         
         .login-container {
@@ -105,18 +94,6 @@ if (!isset($_SESSION['csrf_token'])) {
             width: 100%;
             max-width: 400px;
             backdrop-filter: blur(10px);
-            animation: fadeInUp 0.6s ease-out;
-        }
-        
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
         
         .login-header {
@@ -135,7 +112,6 @@ if (!isset($_SESSION['csrf_token'])) {
             justify-content: center;
             color: white;
             font-size: 2rem;
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
         }
         
         .login-title {
@@ -151,30 +127,6 @@ if (!isset($_SESSION['csrf_token'])) {
             margin: 0.5rem 0 0 0;
         }
         
-        .credentials-info {
-            background: #e7f3ff;
-            border: 1px solid #b3d9ff;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            font-size: 0.85rem;
-        }
-        
-        .credentials-info h4 {
-            margin: 0 0 0.5rem 0;
-            color: #0056b3;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .credentials-info p {
-            margin: 0.25rem 0;
-            color: #0056b3;
-            line-height: 1.4;
-        }
-        
         .form-group {
             margin-bottom: 1.5rem;
         }
@@ -184,7 +136,6 @@ if (!isset($_SESSION['csrf_token'])) {
             margin-bottom: 0.5rem;
             font-weight: 500;
             color: #495057;
-            font-size: 0.9rem;
         }
         
         .form-control {
@@ -195,7 +146,6 @@ if (!isset($_SESSION['csrf_token'])) {
             font-size: 1rem;
             transition: all 0.3s ease;
             box-sizing: border-box;
-            min-height: 48px; /* Touch-friendly height */
         }
         
         .form-control:focus {
@@ -219,12 +169,11 @@ if (!isset($_SESSION['csrf_token'])) {
             transform: translateY(-50%);
             color: #6c757d;
             z-index: 10;
-            font-size: 1.1rem;
         }
         
         .btn-login {
             width: 100%;
-            padding: 0.875rem;
+            padding: 0.75rem;
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             color: white;
             border: none;
@@ -233,11 +182,6 @@ if (!isset($_SESSION['csrf_token'])) {
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            min-height: 48px; /* Touch-friendly height */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
         }
         
         .btn-login:hover {
@@ -246,179 +190,62 @@ if (!isset($_SESSION['csrf_token'])) {
             box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
         }
         
-        .btn-login:active {
-            transform: translateY(0);
-        }
-        
         .error-message {
             background-color: #f8d7da;
             color: #721c24;
             padding: 0.75rem;
-            border-radius: 8px;
+            border-radius: 5px;
             margin-bottom: 1rem;
             border: 1px solid #f5c6cb;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
+        }
+        
+        .login-footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: #6c757d;
+            font-size: 0.875rem;
         }
         
         .admin-login-link {
             text-align: center;
-            margin-top: 1.5rem;
-            padding-top: 1rem;
-            border-top: 1px solid #e9ecef;
+            margin-top: 1rem;
         }
         
         .admin-login-link a {
             color: #28a745;
             text-decoration: none;
             font-size: 0.9rem;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
         }
         
         .admin-login-link a:hover {
-            background-color: #f8f9fa;
-            text-decoration: none;
+            text-decoration: underline;
         }
         
-        .login-footer {
-            text-align: center;
-            margin-top: 1.5rem;
-            color: #6c757d;
-            font-size: 0.8rem;
-            line-height: 1.4;
+        .credentials-info {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
         }
         
-        /* Mobile Responsive Styles */
+        .credentials-info h4 {
+            margin: 0 0 0.5rem 0;
+            color: #0056b3;
+            font-size: 0.9rem;
+        }
+        
+        .credentials-info p {
+            margin: 0.25rem 0;
+            color: #0056b3;
+        }
+        
         @media (max-width: 480px) {
-            body {
-                padding: 0.5rem;
-                align-items: flex-start;
-                padding-top: 2rem;
-            }
-            
             .login-container {
-                margin: 0;
+                margin: 1rem;
                 padding: 1.5rem;
-                border-radius: 12px;
-                max-width: 100%;
             }
-            
-            .login-logo {
-                width: 70px;
-                height: 70px;
-                font-size: 1.8rem;
-            }
-            
-            .login-title {
-                font-size: 1.3rem;
-            }
-            
-            .login-subtitle {
-                font-size: 0.85rem;
-            }
-            
-            .credentials-info {
-                padding: 0.75rem;
-                font-size: 0.8rem;
-            }
-            
-            .credentials-info h4 {
-                font-size: 0.85rem;
-            }
-            
-            .form-control {
-                font-size: 16px; /* Prevent zoom on iOS */
-                padding: 0.875rem 1rem;
-            }
-            
-            .btn-login {
-                padding: 1rem;
-                font-size: 1rem;
-            }
-        }
-        
-        @media (max-width: 360px) {
-            .login-container {
-                padding: 1.25rem;
-            }
-            
-            .login-logo {
-                width: 60px;
-                height: 60px;
-                font-size: 1.5rem;
-            }
-            
-            .login-title {
-                font-size: 1.2rem;
-            }
-            
-            .form-control {
-                padding: 0.75rem 0.875rem;
-            }
-            
-            .btn-login {
-                padding: 0.875rem;
-            }
-        }
-        
-        /* Landscape orientation adjustments */
-        @media (max-width: 768px) and (orientation: landscape) {
-            body {
-                align-items: center;
-                padding: 1rem;
-            }
-            
-            .login-container {
-                max-width: 450px;
-            }
-        }
-        
-        /* Touch device optimizations */
-        @media (hover: none) and (pointer: coarse) {
-            .btn-login {
-                min-height: 52px;
-            }
-            
-            .form-control {
-                min-height: 52px;
-            }
-            
-            .admin-login-link a {
-                min-height: 44px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-        }
-        
-        /* Loading state */
-        .btn-login.loading {
-            pointer-events: none;
-            opacity: 0.8;
-        }
-        
-        .btn-login.loading i {
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Focus visible for accessibility */
-        .btn-login:focus-visible,
-        .form-control:focus-visible,
-        .admin-login-link a:focus-visible {
-            outline: 2px solid #28a745;
-            outline-offset: 2px;
         }
     </style>
 </head>
@@ -458,8 +285,7 @@ if (!isset($_SESSION['csrf_token'])) {
                            class="form-control" 
                            placeholder="Enter your TC ID (e.g., TTC7430317)"
                            value="<?php echo isset($_POST['tc_id']) ? htmlspecialchars($_POST['tc_id']) : ''; ?>"
-                           required
-                           autocomplete="username">
+                           required>
                 </div>
             </div>
 
@@ -472,14 +298,13 @@ if (!isset($_SESSION['csrf_token'])) {
                            name="password" 
                            class="form-control" 
                            placeholder="Enter password"
-                           required
-                           autocomplete="current-password">
+                           required>
                 </div>
             </div>
 
-            <button type="submit" class="btn-login" id="loginBtn">
+            <button type="submit" class="btn-login">
                 <i class="fas fa-sign-in-alt"></i>
-                <span>Sign In</span>
+                Sign In
             </button>
         </form>
 
@@ -501,49 +326,10 @@ if (!isset($_SESSION['csrf_token'])) {
         document.getElementById('tc_id').focus();
         
         // Add loading state to form
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const button = document.getElementById('loginBtn');
-            const buttonText = button.querySelector('span');
-            const buttonIcon = button.querySelector('i');
-            
-            // Show loading state
-            button.classList.add('loading');
-            buttonIcon.className = 'fas fa-spinner fa-spin';
-            buttonText.textContent = 'Signing In...';
+        document.querySelector('form').addEventListener('submit', function() {
+            const button = this.querySelector('.btn-login');
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
             button.disabled = true;
-            
-            // Prevent double submission
-            setTimeout(() => {
-                if (button.disabled) {
-                    button.disabled = false;
-                    button.classList.remove('loading');
-                    buttonIcon.className = 'fas fa-sign-in-alt';
-                    buttonText.textContent = 'Sign In';
-                }
-            }, 10000); // Reset after 10 seconds
-        });
-        
-        // Mobile-specific enhancements
-        if ('ontouchstart' in window) {
-            // Touch device optimizations
-            document.body.classList.add('touch-device');
-            
-            // Prevent zoom on input focus (iOS)
-            const inputs = document.querySelectorAll('input');
-            inputs.forEach(input => {
-                input.addEventListener('focus', function() {
-                    this.style.fontSize = '16px';
-                });
-            });
-        }
-        
-        // Handle orientation change
-        window.addEventListener('orientationchange', function() {
-            setTimeout(() => {
-                // Force viewport recalculation
-                const vh = window.innerHeight * 0.01;
-                document.documentElement.style.setProperty('--vh', `${vh}px`);
-            }, 100);
         });
     </script>
 </body>
