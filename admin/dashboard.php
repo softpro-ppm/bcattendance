@@ -101,7 +101,7 @@ $batchMarkingStatus = fetchAll("
             <div class="card-header">
                 <h3 class="card-title">
                     <i class="fas fa-calendar-check"></i>
-                    Today's Attendance
+                    Today's Attendance 1
                 </h3>
             </div>
             <div class="card-body">
