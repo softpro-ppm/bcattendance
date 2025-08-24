@@ -21,6 +21,44 @@
 
     <script>
     $(document).ready(function() {
+        // Debug: Check if sidebar elements exist
+        console.log('Document ready - checking sidebar elements...');
+        console.log('Sidebar toggle button:', $('.sidebar-toggle').length);
+        console.log('Main sidebar:', $('#mainSidebar').length);
+        console.log('Sidebar overlay:', $('#sidebarOverlay').length);
+        
+        // Additional debugging
+        console.log('Window width:', $(window).width());
+        console.log('Is mobile:', $(window).width() <= 767.98);
+        
+        // Check if elements are visible
+        if ($('.sidebar-toggle').length > 0) {
+            console.log('Toggle button display:', $('.sidebar-toggle').css('display'));
+            console.log('Toggle button visibility:', $('.sidebar-toggle').css('visibility'));
+            console.log('Toggle button opacity:', $('.sidebar-toggle').css('opacity'));
+            console.log('Toggle button position:', $('.sidebar-toggle').css('position'));
+            console.log('Toggle button z-index:', $('.sidebar-toggle').css('z-index'));
+            
+                    // Test click binding
+        $('.sidebar-toggle').on('click', function() {
+            console.log('Direct click test successful!');
+        });
+        
+        // Test if button is clickable
+        console.log('Button is clickable:', $('.sidebar-toggle').is(':visible'));
+        
+        // Check for any CSS conflicts
+        console.log('Toggle button computed styles:', window.getComputedStyle($('.sidebar-toggle')[0]));
+        
+        // Additional event binding test
+        $('.sidebar-toggle').on('mousedown', function() {
+            console.log('Mousedown event triggered!');
+        });
+        
+        // Check if jQuery events are properly bound
+        console.log('jQuery events on toggle button:', $._data($('.sidebar-toggle')[0], 'events'));
+        }
+        
         // Initialize DataTables with simplified settings (no search, no entries dropdown)
         if ($.fn.DataTable) {
             $('.data-table, table.table').DataTable({
@@ -68,9 +106,67 @@
             }
         });
         
-        // Sidebar toggle for mobile
-        $('.sidebar-toggle').on('click', function() {
-            $('body').toggleClass('sidebar-collapse');
+        // Sidebar toggle for mobile - multiple event binding methods
+        $('.sidebar-toggle').on('click touchstart mousedown', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Sidebar toggle clicked!');
+            console.log('Button element:', this);
+            console.log('Button classes:', this.className);
+            console.log('Button styles:', this.style.cssText);
+            console.log('Sidebar element:', $('#mainSidebar')[0]);
+            console.log('Overlay element:', $('#sidebarOverlay')[0]);
+            
+            try {
+                $('#mainSidebar').toggleClass('show');
+                $('#sidebarOverlay').toggleClass('show');
+                $('body').toggleClass('sidebar-open');
+                
+                console.log('Sidebar classes updated');
+                console.log('Sidebar has show class:', $('#mainSidebar').hasClass('show'));
+                console.log('Overlay has show class:', $('#sidebarOverlay').hasClass('show'));
+                
+                // Force a repaint
+                $('#mainSidebar')[0].offsetHeight;
+                
+                console.log('Sidebar toggle completed successfully');
+            } catch (error) {
+                console.error('Error during sidebar toggle:', error);
+            }
+        });
+        
+        // Close sidebar when clicking overlay
+        $('#sidebarOverlay').on('click', function() {
+            $('#mainSidebar').removeClass('show');
+            $('#sidebarOverlay').removeClass('show');
+            $('body').removeClass('sidebar-open');
+        });
+        
+        // Close sidebar when clicking close button
+        $('.sidebar-close').on('click', function() {
+            $('#mainSidebar').removeClass('show');
+            $('#sidebarOverlay').removeClass('show');
+            $('body').removeClass('sidebar-open');
+        });
+        
+        // Close sidebar when clicking outside on mobile
+        $(document).on('click', function(e) {
+            if ($(window).width() <= 767.98) {
+                if (!$(e.target).closest('.main-sidebar, .sidebar-toggle').length) {
+                    $('#mainSidebar').removeClass('show');
+                    $('#sidebarOverlay').removeClass('show');
+                    $('body').removeClass('sidebar-open');
+                }
+            }
+        });
+        
+        // Close sidebar when window is resized to desktop
+        $(window).on('resize', function() {
+            if ($(window).width() > 767.98) {
+                $('#mainSidebar').removeClass('show');
+                $('#sidebarOverlay').removeClass('show');
+                $('body').removeClass('sidebar-open');
+            }
         });
         
         // Initialize confirmation dialogs

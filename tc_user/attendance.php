@@ -85,6 +85,89 @@ require_once 'includes/header.php';
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
 }
+
+/* Mobile responsive styles for attendance table */
+@media (max-width: 768px) {
+    /* Hide Batch and Current Status columns on mobile */
+    .attendance-table th:nth-child(4),
+    .attendance-table td:nth-child(4),
+    .attendance-table th:nth-child(5),
+    .attendance-table td:nth-child(5) {
+        display: none;
+    }
+    
+    /* Ensure Mark Attendance column stays in second position */
+    .attendance-table th:nth-child(2),
+    .attendance-table td:nth-child(2) {
+        background-color: #e3f2fd !important;
+        color: #1976d2 !important;
+    }
+    
+    /* Optimize table for mobile */
+    .attendance-table {
+        font-size: 0.9rem;
+    }
+    
+    .attendance-table th,
+    .attendance-table td {
+        padding: 8px 6px;
+    }
+    
+    /* Make attendance buttons more touch-friendly */
+    .status-buttons .btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        min-width: 70px;
+    }
+    
+    /* Optimize student details column */
+    .attendance-table td:nth-child(3) {
+        min-width: 140px;
+        max-width: 180px;
+    }
+    
+    .attendance-table td:nth-child(3) strong {
+        font-size: 0.95rem;
+        line-height: 1.3;
+    }
+    
+    .attendance-table td:nth-child(3) small {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 576px) {
+    /* Extra small devices */
+    .attendance-table {
+        font-size: 0.8rem;
+    }
+    
+    .attendance-table th,
+    .attendance-table td {
+        padding: 6px 4px;
+    }
+    
+    .status-buttons .btn {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+        min-width: 65px;
+    }
+    
+    .attendance-table td:nth-child(3) {
+        min-width: 120px;
+        max-width: 160px;
+    }
+    
+    /* Ensure proper spacing on very small screens */
+    .table-responsive {
+        margin: 0 -15px;
+    }
+    
+    .attendance-table {
+        margin: 0;
+        width: 100%;
+    }
+}
 </style>
 
 <?php
@@ -361,14 +444,23 @@ if ($selected_batch_id && !empty($beneficiaries)) {
                     </div>
                     
                     <div class="table-responsive">
+                        <!-- Mobile-responsive attendance table - Batch and Current Status columns hidden on mobile -->
+                        <div class="d-block d-md-none alert alert-info alert-sm mb-2">
+                            <i class="fas fa-mobile-alt"></i> 
+                            <strong>Mobile View:</strong> Batch and Status columns are hidden for better mobile experience. 
+                            Mark Attendance column is positioned second for easy access.
+                            <button type="button" class="btn btn-sm btn-outline-info ml-2 d-inline-block d-md-none" onclick="toggleMobileColumns()">
+                                <i class="fas fa-eye"></i> Show All Columns
+                            </button>
+                        </div>
                         <table class="attendance-table table-striped table-bordered">
                             <thead>
                                 <tr>
                                     <th>S.No</th>
                                     <th style="background-color: #e3f2fd; color: #1976d2;">📝 Mark Attendance</th>
                                     <th>Student Details</th>
-                                    <th>Batch</th>
-                                    <th>Current Status</th>
+                                    <th class="d-none d-md-table-cell">Batch</th>
+                                    <th class="d-none d-md-table-cell">Current Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -412,10 +504,10 @@ if ($selected_batch_id && !empty($beneficiaries)) {
                                             <i class="fas fa-phone"></i> <?php echo htmlspecialchars($beneficiary['mobile_number']); ?>
                                         </small>
                                     </td>
-                                    <td>
+                                    <td class="d-none d-md-table-cell">
                                         <span class="badge badge-primary"><?php echo htmlspecialchars($beneficiary['batch_name']); ?></span>
                                     </td>
-                                    <td>
+                                    <td class="d-none d-md-table-cell">
                                         <?php if (!empty($beneficiary['attendance_status'])): ?>
                                             <span class="badge badge-<?php 
                                                 echo $beneficiary['attendance_status'] == 'present' ? 'success' : 
@@ -671,6 +763,29 @@ $(document).ready(function() {
         }
     });
 });
+
+// Mobile column toggle functionality
+function toggleMobileColumns() {
+    const batchColumns = document.querySelectorAll('.attendance-table th:nth-child(4), .attendance-table td:nth-child(4)');
+    const statusColumns = document.querySelectorAll('.attendance-table th:nth-child(5), .attendance-table td:nth-child(5)');
+    const toggleButton = document.querySelector('button[onclick="toggleMobileColumns()"]');
+    
+    if (batchColumns[0].style.display === 'none' || batchColumns[0].style.display === '') {
+        // Show columns
+        batchColumns.forEach(col => col.style.display = 'table-cell');
+        statusColumns.forEach(col => col.style.display = 'table-cell');
+        toggleButton.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Extra Columns';
+        toggleButton.classList.remove('btn-outline-info');
+        toggleButton.classList.add('btn-outline-warning');
+    } else {
+        // Hide columns
+        batchColumns.forEach(col => col.style.display = 'none');
+        statusColumns.forEach(col => col.style.display = 'none');
+        toggleButton.innerHTML = '<i class="fas fa-eye"></i> Show All Columns';
+        toggleButton.classList.remove('btn-outline-warning');
+        toggleButton.classList.add('btn-outline-info');
+    }
+}
 </script>
 
 <?php require_once 'includes/footer.php'; ?>

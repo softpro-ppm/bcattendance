@@ -24,11 +24,11 @@ require_once '../config/database.php';
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-
     <style>
         /* Override admin sidebar gradient with TC dark blue-gray theme */
         .main-sidebar {
             background: #415E72 !important;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
         }
         
         /* TC brand color */
@@ -37,9 +37,91 @@ require_once '../config/database.php';
             color: #415E72 !important;
         }
         
-
+        /* Sidebar brand styling */
+        .brand-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            color: #415E72;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
         
-
+        .brand-image {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            margin-right: 12px;
+            font-size: 1.5rem;
+        }
+        
+        .brand-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        /* Sidebar navigation styling */
+        .nav-sidebar {
+            padding: 1rem 0;
+        }
+        
+        .nav-sidebar .nav-item {
+            margin: 0;
+        }
+        
+        .nav-sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 0.75rem 1rem;
+            border-radius: 0;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .nav-sidebar .nav-link:hover,
+        .nav-sidebar .nav-link.active {
+            color: #fff;
+            background-color: rgba(255,255,255,0.1);
+            border-left-color: #fff;
+        }
+        
+        .nav-sidebar .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Mobile close button styling */
+        .sidebar-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .sidebar-close:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-close.d-md-none {
+            display: block;
+        }
+        
+        @media (min-width: 768px) {
+            .sidebar-close {
+                display: none !important;
+            }
+        }
         
         /* Top navbar styling for TC - White with drop shadow like admin */
         .main-header {
@@ -68,22 +150,30 @@ require_once '../config/database.php';
             font-weight: 600;
             color: #495057;
             margin: 0;
+            display: flex;
+            align-items: center;
         }
         
         .main-header .sidebar-toggle {
-            background: none;
-            border: none;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
             color: #495057;
             font-size: 1.1rem;
-            margin-right: 1rem;
+            margin-right: 15px;
             cursor: pointer;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.25rem;
+            padding: 8px 12px;
+            border-radius: 4px;
             transition: all 0.3s ease;
+            display: none;
         }
         
         .main-header .sidebar-toggle:hover {
-            background-color: #f8f9fa;
+            background: #e9ecef;
+        }
+        
+        .main-header .sidebar-toggle:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
         }
         
         .main-header .navbar-nav .nav-item .dropdown-toggle {
@@ -131,14 +221,152 @@ require_once '../config/database.php';
         .dropdown-menu.show {
             display: block;
         }
+        
+        /* Mobile sidebar toggle functionality */
+        @media (max-width: 767.98px) {
+            .main-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                z-index: 1000;
+                width: 250px;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                will-change: transform;
+                background: #415E72 !important;
+            }
+            
+            .main-sidebar.show {
+                transform: translateX(0) !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+            
+            .content-wrapper {
+                margin-left: 0;
+                width: 100%;
+                transition: margin-left 0.3s ease-in-out;
+            }
+            
+            /* Overlay when sidebar is open */
+            .sidebar-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+                display: none;
+                opacity: 0;
+                transition: opacity 0.3s ease-in-out;
+                will-change: opacity;
+            }
+            
+            .sidebar-overlay.show {
+                display: block;
+                opacity: 1;
+            }
+            
+            /* Ensure sidebar toggle button is visible and styled */
+            .sidebar-toggle {
+                display: block !important;
+                background: #f8f9fa;
+                border: 1px solid #dee2e6;
+                border-radius: 4px;
+                padding: 8px 12px;
+                margin-right: 15px;
+                z-index: 1001;
+                position: relative;
+                min-width: 44px;
+                min-height: 44px;
+            }
+            
+            /* Force visibility on mobile */
+            .sidebar-toggle.d-md-none {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+            
+            .sidebar-toggle:hover {
+                background: #e9ecef;
+            }
+            
+            .sidebar-toggle:focus {
+                outline: none;
+                box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+            }
+            
+            /* Prevent body scroll when sidebar is open */
+            body.sidebar-open {
+                overflow: hidden;
+                position: fixed;
+                width: 100%;
+            }
+            
+            /* Ensure content is properly positioned */
+            .content {
+                padding: 1rem;
+            }
+        }
+        
+        /* Desktop sidebar behavior */
+        @media (min-width: 768px) {
+            .main-sidebar {
+                transform: translateX(0);
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100vh;
+                width: 250px;
+            }
+            
+            .content-wrapper {
+                margin-left: 250px;
+            }
+            
+            .sidebar-toggle {
+                display: none !important;
+            }
+        }
+        
+        /* Override any admin.css conflicts */
+        .main-header .sidebar-toggle.d-md-none {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            position: relative !important;
+            z-index: 1001 !important;
+        }
+        
+        /* Ensure toggle button is always visible on mobile */
+        @media (max-width: 767.98px) {
+            .main-header .sidebar-toggle,
+            .sidebar-toggle,
+            .sidebar-toggle.d-md-none {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                position: relative !important;
+                z-index: 1001 !important;
+                pointer-events: auto !important;
+            }
+        }
     </style>
     <link rel="stylesheet" href="/assets/css/custom.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
 </head>
 <body class="">
     <div class="wrapper">
+        <!-- Sidebar Overlay for Mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        
         <!-- Sidebar -->
-        <aside class="main-sidebar">
+        <aside class="main-sidebar" id="mainSidebar">
             <!-- Brand Logo -->
             <a href="dashboard.php" class="brand-link">
                 <div class="brand-image">
@@ -146,6 +374,11 @@ require_once '../config/database.php';
                 </div>
                 <span class="brand-text">TC Panel</span>
             </a>
+            
+            <!-- Mobile Close Button -->
+            <button class="sidebar-close d-md-none" type="button" aria-label="Close sidebar">
+                <i class="fas fa-times"></i>
+            </button>
 
             <!-- Sidebar Menu -->
             <nav class="mt-2">
@@ -190,7 +423,8 @@ require_once '../config/database.php';
             <nav class="main-header">
                 <div class="navbar">
                     <div class="navbar-brand">
-                        <button class="sidebar-toggle d-md-none" type="button" aria-label="Toggle sidebar">
+                        <!-- Only show sidebar toggle on mobile, not inside profile dropdown -->
+                        <button class="sidebar-toggle d-md-none" id="mainSidebarToggle" type="button" aria-label="Toggle sidebar" style="display: block !important; visibility: visible !important; opacity: 1 !important; position: relative !important; z-index: 1001 !important;">
                             <i class="fas fa-bars"></i>
                         </button>
                         <?php echo isset($pageTitle) ? $pageTitle : 'TC Panel'; ?>
@@ -198,7 +432,7 @@ require_once '../config/database.php';
                     
                     <ul class="navbar-nav">
                         <li class="nav-item dropdown">
-                            <button class="dropdown-toggle" type="button">
+                            <button class="dropdown-toggle profile-dropdown-toggle" type="button" aria-label="Profile menu">
                                 <i class="fas fa-graduation-cap"></i>
                                 <?php echo htmlspecialchars($current_user['tc_id']); ?>
                                 <i class="fas fa-caret-down ml-1"></i>
@@ -220,13 +454,10 @@ require_once '../config/database.php';
                 </div>
             </nav>
 
-
-
             <!-- Content -->
             <div class="content">
                 <?php if (isset($pageTitle)): ?>
                 <div class="content-header">
-
                     <?php if (isset($breadcrumbs)): ?>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
@@ -251,3 +482,6 @@ require_once '../config/database.php';
                     echo displayFlashMessages(); 
                 }
                 ?>
+            </div>
+        </div>
+    </div>
