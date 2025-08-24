@@ -449,7 +449,7 @@ if ($selected_batch_id && !empty($beneficiaries)) {
                             <i class="fas fa-mobile-alt"></i> 
                             <strong>Mobile View:</strong> Batch and Status columns are hidden for better mobile experience. 
                             Mark Attendance column is positioned second for easy access.
-                            <button type="button" class="btn btn-sm btn-outline-info ml-2" onclick="toggleMobileColumns()">
+                            <button type="button" class="btn btn-sm btn-outline-info ml-2 d-inline-block d-md-none" onclick="toggleMobileColumns()">
                                 <i class="fas fa-eye"></i> Show All Columns
                             </button>
                         </div>

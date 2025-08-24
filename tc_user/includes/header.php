@@ -423,7 +423,8 @@ require_once '../config/database.php';
             <nav class="main-header">
                 <div class="navbar">
                     <div class="navbar-brand">
-                        <button class="sidebar-toggle d-md-none" type="button" aria-label="Toggle sidebar" style="display: block !important; visibility: visible !important; opacity: 1 !important; position: relative !important; z-index: 1001 !important;">
+                        <!-- Only show sidebar toggle on mobile, not inside profile dropdown -->
+                        <button class="sidebar-toggle d-md-none" id="mainSidebarToggle" type="button" aria-label="Toggle sidebar" style="display: block !important; visibility: visible !important; opacity: 1 !important; position: relative !important; z-index: 1001 !important;">
                             <i class="fas fa-bars"></i>
                         </button>
                         <?php echo isset($pageTitle) ? $pageTitle : 'TC Panel'; ?>
@@ -431,7 +432,7 @@ require_once '../config/database.php';
                     
                     <ul class="navbar-nav">
                         <li class="nav-item dropdown">
-                            <button class="dropdown-toggle" type="button">
+                            <button class="dropdown-toggle profile-dropdown-toggle" type="button" aria-label="Profile menu">
                                 <i class="fas fa-graduation-cap"></i>
                                 <?php echo htmlspecialchars($current_user['tc_id']); ?>
                                 <i class="fas fa-caret-down ml-1"></i>
