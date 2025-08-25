@@ -50,6 +50,7 @@ try {
         c.name as constituency_name,
         m.name as mandal_name,
         COUNT(b.id) as total_beneficiaries,
+        COUNT(CASE WHEN b.status = 'active' THEN 1 END) as active_beneficiaries,
         COUNT(a.id) as marked_attendance,
         SUM(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END) as present_count,
         SUM(CASE WHEN a.status = 'absent' THEN 1 ELSE 0 END) as absent_count,
@@ -61,7 +62,7 @@ try {
     FROM batches bt
     LEFT JOIN mandals m ON bt.mandal_id = m.id
     LEFT JOIN constituencies c ON m.constituency_id = c.id
-    LEFT JOIN beneficiaries b ON bt.id = b.batch_id AND b.status = 'active'
+    LEFT JOIN beneficiaries b ON bt.id = b.batch_id
     LEFT JOIN attendance a ON b.id = a.beneficiary_id AND a.attendance_date = CURDATE()
     WHERE bt.status = 'active'
     GROUP BY bt.id, bt.name, c.name, m.name
@@ -242,6 +243,8 @@ try {
                                 <th>Sl. No.</th>
                                 <th>Mandal</th>
                                 <th>Batch Name</th>
+                                <th>Total Students</th>
+                                <th>Active Students</th>
                                 <th>Total Marked</th>
                                 <th>Present</th>
                                 <th>Absent</th>
@@ -258,6 +261,14 @@ try {
                                     <strong><?php echo htmlspecialchars($batch['mandal_name'] ?? 'N/A'); ?></strong>
                                 </td>
                                 <td><?php echo htmlspecialchars($batch['batch_name']); ?></td>
+                                <td>
+                                    <span class="badge badge-info">
+                                        <?php echo number_format($batch['total_beneficiaries']); ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-success"><?php echo number_format($batch['active_beneficiaries']); ?></span>
+                                </td>
                                 <td>
                                     <span class="badge badge-info">
                                         <?php echo number_format($batch['marked_attendance']); ?>/<?php echo number_format($batch['total_beneficiaries']); ?>

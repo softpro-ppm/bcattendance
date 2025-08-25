@@ -35,6 +35,12 @@ if (!isset($_SESSION['admin_user_id'])) {
     exit();
 }
 
+// Check and mark completed batches automatically
+$batchCompletionResult = checkAndMarkCompletedBatches();
+if ($batchCompletionResult['success'] && $batchCompletionResult['count'] > 0) {
+    $success = $batchCompletionResult['message'];
+}
+
 $pageTitle = 'Student Management';
 $error = '';
 $success = '';

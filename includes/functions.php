@@ -477,4 +477,72 @@ function removeHoliday($date) {
         return false;
     }
 }
+
+// Check and mark completed batches
+function checkAndMarkCompletedBatches() {
+    try {
+        $conn = getDBConnection();
+        
+        // Get batches that have ended but are still marked as active
+        $query = "SELECT id, name, end_date FROM batches 
+                  WHERE status = 'active' AND end_date < CURDATE()";
+        
+        $stmt = $conn->prepare($query);
+        if (!$stmt) {
+            throw new Exception("Prepare failed: " . $conn->error);
+        }
+        
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $completedBatches = [];
+        
+        while ($row = $result->fetch_assoc()) {
+            $completedBatches[] = $row;
+        }
+        $stmt->close();
+        
+        if (empty($completedBatches)) {
+            return ['success' => true, 'message' => 'No batches to mark as completed', 'count' => 0];
+        }
+        
+        $updatedBatches = 0;
+        $updatedBeneficiaries = 0;
+        
+        foreach ($completedBatches as $batch) {
+            // Mark batch as completed
+            $updateBatchQuery = "UPDATE batches SET status = 'completed', updated_at = NOW() WHERE id = ?";
+            $batchStmt = $conn->prepare($updateBatchQuery);
+            $batchStmt->bind_param('i', $batch['id']);
+            
+            if ($batchStmt->execute()) {
+                $updatedBatches++;
+                
+                // Mark all beneficiaries in this batch as completed
+                $updateBeneficiariesQuery = "UPDATE beneficiaries SET status = 'completed', updated_at = NOW() WHERE batch_id = ? AND status = 'active'";
+                $beneficiariesStmt = $conn->prepare($updateBeneficiariesQuery);
+                $beneficiariesStmt->bind_param('i', $batch['id']);
+                
+                if ($beneficiariesStmt->execute()) {
+                    $updatedBeneficiaries += $beneficiariesStmt->affected_rows;
+                }
+                $beneficiariesStmt->close();
+            }
+            $batchStmt->close();
+        }
+        
+        return [
+            'success' => true, 
+            'message' => "Marked $updatedBatches batches and $updatedBeneficiaries beneficiaries as completed",
+            'count' => $updatedBatches
+        ];
+        
+    } catch (Exception $e) {
+        error_log("Error marking completed batches: " . $e->getMessage());
+        return [
+            'success' => false, 
+            'message' => 'Error marking completed batches: ' . $e->getMessage(),
+            'count' => 0
+        ];
+    }
+}
 ?>

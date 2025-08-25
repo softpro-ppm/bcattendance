@@ -7,6 +7,9 @@ $breadcrumbs = [
 
 require_once '../includes/header.php';
 
+// Check and mark completed batches automatically
+$batchCompletionResult = checkAndMarkCompletedBatches();
+
 // Handle attendance marking
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['mark_attendance'])) {
     $attendanceDate = $_POST['attendance_date'];
@@ -192,6 +195,15 @@ $beneficiaries = fetchAll($query, $allParams, $allTypes);
         </div>
     </div>
     <div class="card-body">
+        <!-- Batch Completion Notifications -->
+        <?php if (isset($batchCompletionResult) && $batchCompletionResult['success'] && $batchCompletionResult['count'] > 0): ?>
+        <div class="alert alert-info alert-dismissible fade show mb-3" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Batch Update:</strong> <?php echo htmlspecialchars($batchCompletionResult['message']); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <?php endif; ?>
+        
         <!-- Date Validation Alert -->
         <?php 
         $dateValidation = isValidAttendanceDate($selectedDate, $selectedBatch);

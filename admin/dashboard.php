@@ -8,6 +8,9 @@ $breadcrumbs = [
 
 require_once '../includes/header.php';
 
+// Check and mark completed batches automatically
+$batchCompletionResult = checkAndMarkCompletedBatches();
+
 // Get dashboard statistics
 $stats = getDashboardStats();
 
@@ -19,6 +22,7 @@ $batchMarkingStatus = fetchAll("
         c.name as constituency_name,
         m.name as mandal_name,
         COUNT(b.id) as total_beneficiaries,
+        COUNT(CASE WHEN b.status = 'active' THEN 1 END) as active_beneficiaries,
         COUNT(a.id) as marked_attendance,
         SUM(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END) as present_count,
         SUM(CASE WHEN a.status = 'absent' THEN 1 ELSE 0 END) as absent_count,
@@ -30,7 +34,7 @@ $batchMarkingStatus = fetchAll("
     FROM batches bt
     LEFT JOIN mandals m ON bt.mandal_id = m.id
     LEFT JOIN constituencies c ON m.constituency_id = c.id
-    LEFT JOIN beneficiaries b ON bt.id = b.batch_id AND b.status = 'active'
+    LEFT JOIN beneficiaries b ON bt.id = b.batch_id
     LEFT JOIN attendance a ON b.id = a.beneficiary_id AND a.attendance_date = CURDATE()
     WHERE bt.status = 'active'
     GROUP BY bt.id, bt.name, c.name, m.name
@@ -93,6 +97,19 @@ $batchMarkingStatus = fetchAll("
         </div>
     </div>
 </div>
+
+<!-- Batch Completion Notifications -->
+<?php if (isset($batchCompletionResult) && $batchCompletionResult['success'] && $batchCompletionResult['count'] > 0): ?>
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Batch Update:</strong> <?php echo htmlspecialchars($batchCompletionResult['message']); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
 
 <div class="row">
     <!-- Today's Attendance -->
@@ -207,6 +224,8 @@ $batchMarkingStatus = fetchAll("
                                 <th>Sl. No.</th>
                                 <th>Mandal</th>
                                 <th>Batch Name</th>
+                                <th>Total Students</th>
+                                <th>Active Students</th>
                                 <th>Total Marked</th>
                                 <th>Present</th>
                                 <th>Absent</th>
@@ -223,6 +242,16 @@ $batchMarkingStatus = fetchAll("
                                     <strong><?php echo htmlspecialchars($batch['mandal_name'] ?? 'N/A'); ?></strong>
                                 </td>
                                 <td><?php echo htmlspecialchars($batch['batch_name']); ?></td>
+                                <td>
+                                    <span class="badge badge-info">
+                                        <?php echo number_format($batch['total_beneficiaries']); ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-success">
+                                        <?php echo number_format($batch['active_beneficiaries']); ?>
+                                    </span>
+                                </td>
                                 <td>
                                     <span class="badge badge-info">
                                         <?php echo number_format($batch['marked_attendance']); ?>/<?php echo number_format($batch['total_beneficiaries']); ?>
