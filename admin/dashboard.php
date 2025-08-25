@@ -91,11 +91,8 @@ $batchMarkingStatus = fetchAll("
                 <div class="stats-icon">
                     <i class="fas fa-layer-group"></i>
                 </div>
-                <div class="stats-number" data-stat="total_batches"><?php echo number_format($stats['total_batches']); ?></div>
-                <div class="stats-label">Total Batches</div>
-                <div class="stats-subtext" style="font-size: 0.85em; color: #6c757d; margin-top: 5px;">
-                    <?php echo number_format($stats['active_batches']); ?> Active
-                </div>
+                <div class="stats-number" data-stat="total_batches"><?php echo number_format($stats['active_batches']); ?>/<?php echo number_format($stats['total_batches']); ?></div>
+                <div class="stats-label">Active/Total Batches</div>
             </div>
         </div>
     </div>
