@@ -88,16 +88,29 @@ require_once 'includes/header.php';
 
 /* Mobile responsive styles for attendance table */
 @media (max-width: 768px) {
-    /* Keep all columns visible but optimize for mobile */
+    /* Mobile-first layout - stack information vertically */
     .attendance-table {
         font-size: 0.9rem;
-        min-width: 600px; /* Ensure minimum width to prevent column squashing */
+        width: 100%; /* Full width on mobile */
+        min-width: auto; /* Remove minimum width constraint */
     }
     
     .attendance-table th,
     .attendance-table td {
         padding: 8px 6px;
-        white-space: nowrap; /* Prevent text wrapping */
+        white-space: normal; /* Allow text wrapping on mobile */
+    }
+    
+    /* Hide Batch and Current Status column headers on mobile */
+    .attendance-table th:nth-child(4),
+    .attendance-table th:nth-child(5) {
+        display: none;
+    }
+    
+    /* Hide Batch and Current Status column cells on mobile */
+    .attendance-table td:nth-child(4),
+    .attendance-table td:nth-child(5) {
+        display: none;
     }
     
     /* Make attendance buttons more touch-friendly */
@@ -107,10 +120,10 @@ require_once 'includes/header.php';
         min-width: 70px;
     }
     
-    /* Optimize student details column */
+    /* Optimize student details column for mobile */
     .attendance-table td:nth-child(3) {
-        min-width: 140px;
-        max-width: 180px;
+        min-width: auto;
+        max-width: none;
     }
     
     .attendance-table td:nth-child(3) strong {
@@ -122,60 +135,60 @@ require_once 'includes/header.php';
         font-size: 0.8rem;
     }
     
-    /* Ensure Batch and Current Status columns are visible on mobile */
-    .attendance-table th:nth-child(4),
-    .attendance-table td:nth-child(4),
-    .attendance-table th:nth-child(5),
-    .attendance-table td:nth-child(5) {
-        display: table-cell !important;
+    /* Add mobile-specific information display */
+    .mobile-info {
+        display: block;
+        margin-top: 8px;
+        padding: 6px 8px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        border-left: 3px solid #007bff;
     }
     
-    /* Optimize Batch column for mobile */
-    .attendance-table td:nth-child(4) .badge {
+    .mobile-info .batch-info {
+        display: inline-block;
+        margin-right: 15px;
+        font-size: 0.8rem;
+    }
+    
+    .mobile-info .status-info {
+        display: inline-block;
+        font-size: 0.8rem;
+    }
+    
+    .mobile-info .batch-info .badge {
         font-size: 0.75rem;
-        padding: 4px 6px;
+        padding: 3px 6px;
+        margin-left: 5px;
     }
     
-    /* Optimize Current Status column for mobile */
-    .attendance-table td:nth-child(5) .badge {
+    .mobile-info .status-info .badge {
         font-size: 0.75rem;
-        padding: 4px 6px;
+        padding: 3px 6px;
+        margin-left: 5px;
     }
     
-    .attendance-table td:nth-child(5) small {
-        font-size: 0.7rem;
-    }
-    
-    /* Ensure table container allows horizontal scrolling */
+    /* Ensure table container doesn't scroll horizontally */
     .table-responsive {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
+        overflow-x: hidden;
+        border: none;
+        border-radius: 0;
     }
     
     /* Optimize column widths for mobile */
     .attendance-table th:nth-child(1),
     .attendance-table td:nth-child(1) {
-        width: 60px; /* S.No column */
+        width: 50px; /* S.No column - smaller on mobile */
     }
     
     .attendance-table th:nth-child(2),
     .attendance-table td:nth-child(2) {
-        width: 160px; /* Mark Attendance column */
+        width: 140px; /* Mark Attendance column */
     }
     
     .attendance-table th:nth-child(3),
     .attendance-table td:nth-child(3) {
-        width: 180px; /* Student Details column */
-    }
-    
-    .attendance-table th:nth-child(4),
-    .attendance-table td:nth-child(4) {
-        width: 100px; /* Batch column */
-    }
-    
-    .attendance-table th:nth-child(5),
-    .attendance-table td:nth-child(5) {
-        width: 120px; /* Current Status column */
+        width: auto; /* Student Details column - flexible width */
     }
 }
 
@@ -183,13 +196,14 @@ require_once 'includes/header.php';
     /* Extra small devices */
     .attendance-table {
         font-size: 0.8rem;
-        min-width: 550px; /* Slightly smaller minimum width */
+        width: 100%;
+        min-width: auto;
     }
     
     .attendance-table th,
     .attendance-table td {
         padding: 6px 4px;
-        white-space: nowrap;
+        white-space: normal;
     }
     
     .status-buttons .btn {
@@ -199,15 +213,14 @@ require_once 'includes/header.php';
     }
     
     .attendance-table td:nth-child(3) {
-        min-width: 120px;
-        max-width: 160px;
+        min-width: auto;
+        max-width: none;
     }
     
     /* Ensure proper spacing on very small screens */
     .table-responsive {
         margin: 0 -15px;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
+        overflow-x: hidden;
     }
     
     .attendance-table {
@@ -218,13 +231,26 @@ require_once 'includes/header.php';
     /* Optimize badges for very small screens */
     .badge {
         font-size: 0.7rem !important;
-        padding: 3px 5px !important;
+        padding: 2px 4px !important;
     }
     
     /* Ensure all columns remain visible */
     .attendance-table th,
     .attendance-table td {
         display: table-cell !important;
+    }
+    
+    /* Mobile info styling for very small screens */
+    .mobile-info {
+        padding: 4px 6px;
+        margin-top: 6px;
+    }
+    
+    .mobile-info .batch-info,
+    .mobile-info .status-info {
+        display: block;
+        margin-bottom: 4px;
+        margin-right: 0;
     }
 }
 
@@ -234,19 +260,6 @@ require_once 'includes/header.php';
     .table-responsive {
         border: none;
         border-radius: 0;
-    }
-    
-    /* Add visual indicator for mobile scrolling */
-    .table-responsive::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        width: 20px;
-        background: linear-gradient(to right, transparent, rgba(0,0,0,0.1));
-        pointer-events: none;
-        z-index: 1;
     }
     
     /* Optimize table header for mobile */
@@ -298,6 +311,55 @@ require_once 'includes/header.php';
     .alert-info {
         font-size: 0.8rem;
         padding: 8px 12px;
+    }
+}
+
+/* Mobile info display styling */
+.mobile-info {
+    display: none; /* Hidden by default on desktop */
+    margin-top: 8px;
+    padding: 8px 10px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border-left: 3px solid #007bff;
+    font-size: 0.85rem;
+}
+
+.mobile-info .batch-info {
+    display: inline-block;
+    margin-right: 20px;
+    margin-bottom: 4px;
+}
+
+.mobile-info .status-info {
+    display: inline-block;
+    margin-bottom: 4px;
+}
+
+.mobile-info .batch-info .badge,
+.mobile-info .status-info .badge {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    margin-left: 6px;
+    font-weight: 500;
+}
+
+.mobile-info i {
+    color: #6c757d;
+    margin-right: 4px;
+}
+
+/* Desktop: Hide mobile info */
+@media (min-width: 769px) {
+    .mobile-info {
+        display: none !important;
+    }
+}
+
+/* Mobile: Show mobile info */
+@media (max-width: 768px) {
+    .mobile-info {
+        display: block !important;
     }
 }
 </style>
@@ -579,8 +641,8 @@ if ($selected_batch_id && !empty($beneficiaries)) {
                         <!-- Mobile-responsive attendance table - Batch and Status columns hidden on mobile -->
                         <div class="d-block d-md-none alert alert-info alert-sm mb-2">
                             <i class="fas fa-mobile-alt"></i> 
-                            <strong>Mobile View:</strong> All columns are now visible on mobile for complete information. 
-                            Table is optimized for touch interaction.
+                            <strong>Mobile View:</strong> Batch and Status information is now displayed below each student's details for easy viewing. 
+                            No horizontal scrolling required!
                         </div>
                         <table class="attendance-table table-striped table-bordered">
                             <thead>
@@ -632,6 +694,32 @@ if ($selected_batch_id && !empty($beneficiaries)) {
                                         <small class="text-muted">
                                             <i class="fas fa-phone"></i> <?php echo htmlspecialchars($beneficiary['mobile_number']); ?>
                                         </small>
+                                        
+                                        <!-- Mobile-friendly information display -->
+                                        <div class="mobile-info d-block d-md-none">
+                                            <div class="batch-info">
+                                                <i class="fas fa-graduation-cap"></i> Batch: 
+                                                <span class="badge badge-primary"><?php echo htmlspecialchars($beneficiary['batch_name']); ?></span>
+                                            </div>
+                                            <div class="status-info">
+                                                <i class="fas fa-clock"></i> Status: 
+                                                <?php if (!empty($beneficiary['attendance_status'])): ?>
+                                                    <span class="badge badge-<?php 
+                                                        echo $beneficiary['attendance_status'] == 'present' ? 'success' : 
+                                                             ($beneficiary['attendance_status'] == 'absent' ? 'danger' : 'warning'); 
+                                                    ?>">
+                                                        <?php echo ucfirst($beneficiary['attendance_status']); ?>
+                                                    </span>
+                                                    <?php if ($beneficiary['check_in_time']): ?>
+                                                        <br><small class="text-muted">
+                                                            <i class="fas fa-clock"></i> <?php echo date('h:i A', strtotime($beneficiary['check_in_time'])); ?>
+                                                        </small>
+                                                    <?php endif; ?>
+                                                <?php else: ?>
+                                                    <span class="badge badge-secondary">Not Marked</span>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
                                     </td>
                                     <td>
                                         <span class="badge badge-primary"><?php echo htmlspecialchars($beneficiary['batch_name']); ?></span>
@@ -883,14 +971,13 @@ $(document).ready(function() {
     if (window.innerWidth <= 768) {
         console.log('📱 Mobile device detected - applying optimizations');
         
-        // Ensure table is scrollable horizontally
+        // Ensure table doesn't scroll horizontally
         $('.table-responsive').css({
-            'overflow-x': 'auto',
-            '-webkit-overflow-scrolling': 'touch'
+            'overflow-x': 'hidden'
         });
         
-        // Add touch-friendly scrolling indicator
-        $('.table-responsive').append('<div class="text-center text-muted mt-2"><small><i class="fas fa-arrows-alt-h"></i> Swipe left/right to see all columns</small></div>');
+        // Add mobile-friendly indicator
+        $('.table-responsive').append('<div class="text-center text-muted mt-2"><small><i class="fas fa-mobile-alt"></i> Mobile-optimized layout - all information visible without scrolling</small></div>');
         
         // Optimize button sizes for touch
         $('.status-buttons .btn').css({
