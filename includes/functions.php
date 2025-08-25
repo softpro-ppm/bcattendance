@@ -294,8 +294,8 @@ function formatStatusDisplay($status) {
 function getDashboardStats() {
     $stats = [];
     
-    // Total beneficiaries
-    $result = fetchRow("SELECT COUNT(*) as total FROM beneficiaries WHERE status = 'active'");
+    // Total beneficiaries (all statuses)
+    $result = fetchRow("SELECT COUNT(*) as total FROM beneficiaries");
     $stats['total_beneficiaries'] = $result ? $result['total'] : 0;
     
     // Total constituencies
@@ -310,7 +310,11 @@ function getDashboardStats() {
     $result = fetchRow("SELECT COUNT(*) as total FROM batches WHERE status = 'active'");
     $stats['total_batches'] = $result ? $result['total'] : 0;
     
-    // Today's attendance
+    // Active students today (only active status)
+    $result = fetchRow("SELECT COUNT(*) as total FROM beneficiaries WHERE status = 'active'");
+    $stats['active_students_today'] = $result ? $result['total'] : 0;
+    
+    // Today's attendance (total marked)
     $result = fetchRow("SELECT COUNT(*) as total FROM attendance WHERE attendance_date = CURDATE()");
     $stats['today_attendance'] = $result ? $result['total'] : 0;
     

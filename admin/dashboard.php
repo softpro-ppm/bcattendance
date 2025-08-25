@@ -162,39 +162,56 @@ $batchMarkingStatus = fetchAll("
             </div>
             <div class="card-body">
                 <?php
-                // Calculate today's percentages
-                $todayTotal = $stats['today_attendance'];
+                // Calculate today's percentages based on ACTIVE students only
+                $activeStudentsToday = $stats['active_students_today'] ?? 0;
                 $todayPresent = $stats['present_today'];
                 $todayAbsent = $stats['absent_today'];
                 
-                $presentPercentage = $todayTotal > 0 ? round(($todayPresent / $todayTotal) * 100, 1) : 0;
-                $absentPercentage = $todayTotal > 0 ? round(($todayAbsent / $todayTotal) * 100, 1) : 0;
+                // Calculate percentages based on active students (not total marked)
+                $presentPercentage = $activeStudentsToday > 0 ? round(($todayPresent / $activeStudentsToday) * 100, 1) : 0;
+                $absentPercentage = $activeStudentsToday > 0 ? round(($todayAbsent / $activeStudentsToday) * 100, 1) : 0;
                 ?>
                 
                 <div class="row text-center">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <div class="text-center">
                             <h3 class="text-success" data-stat="present_percentage"><?php echo $presentPercentage; ?>%</h3>
                             <p class="mb-1">Present</p>
-                            <small class="text-muted"><?php echo number_format($todayPresent); ?> out of <?php echo number_format($todayTotal); ?></small>
+                            <small class="text-muted"><?php echo number_format($todayPresent); ?> out of <?php echo number_format($activeStudentsToday); ?> active</small>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <div class="text-center">
                             <h3 class="text-danger" data-stat="absent_percentage"><?php echo $absentPercentage; ?>%</h3>
                             <p class="mb-1">Absent</p>
-                            <small class="text-muted"><?php echo number_format($todayAbsent); ?> out of <?php echo number_format($todayTotal); ?></small>
+                            <small class="text-muted"><?php echo number_format($todayAbsent); ?> out of <?php echo number_format($activeStudentsToday); ?> active</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <h3 class="text-info" data-stat="total_students"><?php echo number_format($stats['total_beneficiaries']); ?></h3>
+                            <p class="mb-1">Total Students</p>
+                            <small class="text-muted">All students (active + completed + inactive)</small>
                         </div>
                     </div>
                 </div>
                 
-                <?php if ($todayTotal === 0): ?>
+                <?php if ($activeStudentsToday === 0): ?>
                 <div class="text-center mt-3">
                     <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i> No attendance has been marked for today yet.
+                        <i class="fas fa-info-circle"></i> No active students found for today.
                     </div>
                 </div>
                 <?php endif; ?>
+                
+                <!-- Summary Information -->
+                <div class="mt-3 p-2 bg-light rounded">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Note:</strong> Attendance percentages are calculated from <strong>Active Students only</strong>. 
+                        Total Students includes all enrolled students regardless of status.
+                    </small>
+                </div>
             </div>
         </div>
     </div>
@@ -396,9 +413,12 @@ $inlineJS = "
         updateElement('[data-stat=\"absent_today\"]', stats.absent_today);
         updateElement('[data-stat=\"today_attendance\"]', stats.today_attendance);
         
-        // Update percentages
+        // Update percentages based on active students
         updateElement('[data-stat=\"present_percentage\"]', stats.present_percentage + '%');
         updateElement('[data-stat=\"absent_percentage\"]', stats.absent_percentage + '%');
+        
+        // Update total students metric
+        updateElement('[data-stat=\"total_students\"]', stats.total_beneficiaries);
     }
     
     function updateElement(selector, value) {

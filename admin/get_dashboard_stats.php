@@ -45,13 +45,13 @@ try {
         LIMIT 10
     ");
 
-    // Calculate attendance percentages
-    $totalToday = $stats['today_attendance'];
+    // Calculate attendance percentages based on ACTIVE students only
+    $activeStudentsToday = $stats['active_students_today'];
     $presentToday = $stats['present_today'];
     $absentToday = $stats['absent_today'];
     
-    $presentPercentage = $totalToday > 0 ? round(($presentToday / $totalToday) * 100, 1) : 0;
-    $absentPercentage = $totalToday > 0 ? round(($absentToday / $totalToday) * 100, 1) : 0;
+    $presentPercentage = $activeStudentsToday > 0 ? round(($presentToday / $activeStudentsToday) * 100, 1) : 0;
+    $absentPercentage = $activeStudentsToday > 0 ? round(($absentToday / $activeStudentsToday) * 100, 1) : 0;
 
     // Return JSON response
     header('Content-Type: application/json');
@@ -62,9 +62,10 @@ try {
             'total_constituencies' => $stats['total_constituencies'],
             'total_mandals' => $stats['total_mandals'],
             'total_batches' => $stats['total_batches'],
+            'active_students_today' => $activeStudentsToday,
             'present_today' => $presentToday,
             'absent_today' => $absentToday,
-            'today_attendance' => $totalToday,
+            'today_attendance' => $stats['today_attendance'],
             'present_percentage' => $presentPercentage,
             'absent_percentage' => $absentPercentage
         ],
