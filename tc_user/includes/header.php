@@ -132,26 +132,28 @@ require_once '../config/database.php';
             top: 0;
             z-index: 999;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            height: 60px;
-            min-height: 60px;
+            height: 70px;
+            min-height: 70px;
         }
         
         .main-header .navbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0.5rem 1.5rem;
+            padding: 0.75rem 1.5rem;
             height: 100%;
-            min-height: 60px;
+            min-height: 70px;
         }
         
         .main-header .navbar-brand {
-            font-size: 1.25rem;
+            font-size: 1.5rem;
             font-weight: 600;
             color: #495057;
             margin: 0;
             display: flex;
             align-items: center;
+            flex: 1;
+            min-height: 44px;
         }
         
         .main-header .sidebar-toggle {
@@ -161,14 +163,19 @@ require_once '../config/database.php';
             font-size: 1.1rem;
             margin-right: 15px;
             cursor: pointer;
-            padding: 8px 12px;
-            border-radius: 4px;
+            padding: 10px 14px;
+            border-radius: 6px;
             transition: all 0.3s ease;
             display: none;
+            min-width: 44px;
+            min-height: 44px;
+            align-items: center;
+            justify-content: center;
         }
         
         .main-header .sidebar-toggle:hover {
             background: #e9ecef;
+            border-color: #adb5bd;
         }
         
         .main-header .sidebar-toggle:focus {
@@ -176,45 +183,72 @@ require_once '../config/database.php';
             box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
         }
         
+        .main-header .navbar-nav {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+        }
+        
         .main-header .navbar-nav .nav-item .dropdown-toggle {
             background: none;
             border: none;
             color: #495057;
-            padding: 8px 12px;
-            border-radius: 5px;
+            padding: 10px 16px;
+            border-radius: 6px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
             white-space: nowrap;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            min-height: 44px;
+            font-size: 0.95rem;
+            font-weight: 500;
         }
         
         .main-header .navbar-nav .nav-item .dropdown-toggle:hover {
             background-color: #f8f9fa;
+            color: #212529;
         }
         
         .main-header .dropdown-menu {
             position: absolute;
             right: 0;
-            top: calc(100% + 5px);
+            top: calc(100% + 8px);
             background: #fff;
             border: 1px solid #dee2e6;
-            border-radius: 5px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            min-width: 160px;
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            min-width: 180px;
             z-index: 1050;
             display: none;
+            padding: 0.5rem 0;
         }
         
         .main-header .dropdown-item {
-            display: block;
-            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
             color: #495057;
             text-decoration: none;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
         }
         
         .main-header .dropdown-item:hover {
             background-color: #f8f9fa;
+            color: #212529;
+        }
+        
+        .main-header .dropdown-item i {
+            margin-right: 10px;
+            width: 16px;
+            text-align: center;
+        }
+        
+        .main-header .dropdown-divider {
+            margin: 0.5rem 0;
+            border-top: 1px solid #e9ecef;
         }
         
         /* Dropdown visibility */
@@ -232,7 +266,7 @@ require_once '../config/database.php';
                 left: 0;
                 height: 100vh;
                 z-index: 1000;
-                width: 250px;
+                width: 280px;
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
                 will-change: transform;
@@ -273,27 +307,33 @@ require_once '../config/database.php';
             
             /* Ensure sidebar toggle button is visible and styled */
             .sidebar-toggle {
-                display: block !important;
+                display: flex !important;
                 background: #f8f9fa;
                 border: 1px solid #dee2e6;
-                border-radius: 4px;
-                padding: 8px 12px;
+                border-radius: 6px;
+                padding: 10px 14px;
                 margin-right: 15px;
                 z-index: 1001;
                 position: relative;
                 min-width: 44px;
                 min-height: 44px;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             }
             
             /* Force visibility on mobile */
             .sidebar-toggle.d-md-none {
-                display: block !important;
+                display: flex !important;
                 visibility: visible !important;
                 opacity: 1 !important;
             }
             
             .sidebar-toggle:hover {
                 background: #e9ecef;
+                border-color: #adb5bd;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.15);
             }
             
             .sidebar-toggle:focus {
@@ -312,6 +352,36 @@ require_once '../config/database.php';
             .content {
                 padding: 1rem;
             }
+            
+            /* Mobile header optimizations */
+            .main-header {
+                height: 70px;
+                min-height: 70px;
+            }
+            
+            .main-header .navbar {
+                padding: 0.75rem 1rem;
+            }
+            
+            .main-header .navbar-brand {
+                font-size: 1.25rem;
+                margin-left: 0;
+            }
+            
+            /* Mobile dropdown optimizations */
+            .main-header .dropdown-menu {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                width: 100%;
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+                max-height: 300px;
+                overflow-y: auto;
+            }
         }
         
         /* Desktop sidebar behavior */
@@ -322,21 +392,92 @@ require_once '../config/database.php';
                 left: 0;
                 top: 0;
                 height: 100vh;
-                width: 250px;
+                width: 280px;
+                z-index: 1000;
             }
             
             .content-wrapper {
-                margin-left: 250px;
+                margin-left: 280px;
+                transition: margin-left 0.3s ease-in-out;
             }
             
             .sidebar-toggle {
                 display: none !important;
             }
+            
+            /* Desktop content optimizations */
+            .content {
+                padding: 1.5rem;
+                min-height: calc(100vh - 70px);
+            }
+            
+            .content-header {
+                margin-bottom: 1.5rem;
+            }
+        }
+        
+        /* Content wrapper base styles */
+        .content-wrapper {
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            transition: margin-left 0.3s ease-in-out;
+        }
+        
+        /* Content area styling */
+        .content {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin: 1rem;
+            min-height: calc(100vh - 110px);
+        }
+        
+        /* Content header styling */
+        .content-header {
+            padding: 1.5rem 1.5rem 0;
+            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 1.5rem;
+        }
+        
+        .content-header h1,
+        .content-header h2,
+        .content-header h3 {
+            margin: 0;
+            color: #495057;
+            font-weight: 600;
+        }
+        
+        /* Breadcrumb styling */
+        .breadcrumb {
+            background: none;
+            padding: 0;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+        
+        .breadcrumb-item + .breadcrumb-item::before {
+            content: ">";
+            color: #6c757d;
+            margin: 0 0.5rem;
+        }
+        
+        .breadcrumb-item a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        .breadcrumb-item a:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+        
+        .breadcrumb-item.active {
+            color: #6c757d;
         }
         
         /* Override any admin.css conflicts */
         .main-header .sidebar-toggle.d-md-none {
-            display: block !important;
+            display: flex !important;
             visibility: visible !important;
             opacity: 1 !important;
             position: relative !important;
@@ -348,12 +489,297 @@ require_once '../config/database.php';
             .main-header .sidebar-toggle,
             .sidebar-toggle,
             .sidebar-toggle.d-md-none {
-                display: block !important;
+                display: flex !important;
                 visibility: visible !important;
                 opacity: 1 !important;
                 position: relative !important;
                 z-index: 1001 !important;
                 pointer-events: auto !important;
+                background: #f8f9fa !important;
+                border: 1px solid #dee2e6 !important;
+                border-radius: 6px !important;
+                padding: 10px 14px !important;
+                min-width: 44px !important;
+                min-height: 44px !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+        }
+        /* Additional mobile optimizations */
+        @media (max-width: 480px) {
+            .main-header {
+                height: 65px;
+                min-height: 65px;
+            }
+            
+            .main-header .navbar {
+                padding: 0.5rem 0.75rem;
+            }
+            
+            .main-header .navbar-brand {
+                font-size: 1.1rem;
+            }
+            
+            .main-header .sidebar-toggle {
+                padding: 8px 12px;
+                margin-right: 10px;
+            }
+            
+            .content {
+                margin: 0.5rem;
+                padding: 1rem;
+            }
+            
+            .content-header {
+                padding: 1rem 1rem 0;
+                margin-bottom: 1rem;
+            }
+        }
+        
+        /* Ensure proper spacing and alignment */
+        .wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar improvements */
+        .main-sidebar {
+            background: #415E72 !important;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .main-sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .main-sidebar::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .main-sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 3px;
+        }
+        
+        .main-sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.5);
+        }
+        
+        /* Brand link improvements */
+        .brand-link {
+            display: flex;
+            align-items: center;
+            padding: 1.25rem 1rem;
+            color: #415E72;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .brand-link:hover {
+            background-color: rgba(255,255,255,0.05);
+            text-decoration: none;
+            color: #415E72;
+        }
+        
+        .brand-image {
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            margin-right: 15px;
+            font-size: 1.6rem;
+            background: #fff !important;
+            color: #415E72 !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .brand-text {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        /* Navigation improvements */
+        .nav-sidebar {
+            padding: 1rem 0;
+        }
+        
+        .nav-sidebar .nav-item {
+            margin: 0;
+        }
+        
+        .nav-sidebar .nav-link {
+            color: rgba(255,255,255,0.85);
+            padding: 0.875rem 1.25rem;
+            border-radius: 0;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        
+        .nav-sidebar .nav-link:hover,
+        .nav-sidebar .nav-link.active {
+            color: #fff;
+            background-color: rgba(255,255,255,0.1);
+            border-left-color: #fff;
+            transform: translateX(5px);
+        }
+        
+        .nav-sidebar .nav-link i {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+        
+        /* Mobile close button improvements */
+        .sidebar-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            min-width: 40px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .sidebar-close:hover {
+            background-color: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+        
+        /* Final header layout fixes */
+        .main-header {
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            background: #fff !important;
+            border-bottom: 1px solid #dee2e6;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* Ensure proper flexbox layout */
+        .main-header .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        
+        /* Brand area styling */
+        .main-header .navbar-brand {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+        }
+        
+        /* Profile dropdown area */
+        .main-header .navbar-nav {
+            display: flex;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .main-header .navbar-nav .nav-item {
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Ensure dropdown is properly positioned */
+        .main-header .dropdown {
+            position: relative;
+        }
+        
+        .main-header .dropdown-menu {
+            margin-top: 0;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+        
+        /* Fix for very small screens */
+        @media (max-width: 360px) {
+            .main-header .navbar {
+                padding: 0.5rem 0.5rem;
+            }
+            
+            .main-header .navbar-brand {
+                font-size: 1rem;
+            }
+            
+            .main-header .sidebar-toggle {
+                padding: 8px 10px;
+                margin-right: 8px;
+                min-width: 40px;
+                min-height: 40px;
+            }
+            
+            .main-header .dropdown-toggle {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+        }
+        
+        /* Ensure proper spacing on all devices */
+        .main-header .navbar-brand,
+        .main-header .sidebar-toggle,
+        .main-header .dropdown-toggle {
+            line-height: 1;
+            vertical-align: middle;
+        }
+        
+        /* Fix for iOS Safari */
+        @supports (-webkit-touch-callout: none) {
+            .main-header {
+                position: -webkit-sticky;
+                position: sticky;
+            }
+            
+            .main-sidebar {
+                -webkit-transform: translateX(-100%);
+                transform: translateX(-100%);
+            }
+            
+            .main-sidebar.show {
+                -webkit-transform: translateX(0);
+                transform: translateX(0);
+            }
+        }
+        
+        /* Ensure proper touch targets on mobile */
+        @media (max-width: 767.98px) {
+            .main-header .sidebar-toggle,
+            .main-header .dropdown-toggle {
+                min-height: 44px;
+                min-width: 44px;
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .main-header .navbar-brand {
+                min-height: 44px;
+                display: flex;
+                align-items: center;
             }
         }
     </style>
