@@ -135,6 +135,28 @@
             }
         });
         
+        // Alternative sidebar toggle binding for better compatibility
+        $('#mainSidebarToggle').on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Main sidebar toggle clicked via ID!');
+            
+            $('#mainSidebar').toggleClass('show');
+            $('#sidebarOverlay').toggleClass('show');
+            $('body').toggleClass('sidebar-open');
+        });
+        
+        // Ensure sidebar toggle works on all mobile devices
+        $(document).on('click', '.sidebar-toggle', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Sidebar toggle clicked via document delegation!');
+            
+            $('#mainSidebar').toggleClass('show');
+            $('#sidebarOverlay').toggleClass('show');
+            $('body').toggleClass('sidebar-open');
+        });
+        
         // Close sidebar when clicking overlay
         $('#sidebarOverlay').on('click', function() {
             $('#mainSidebar').removeClass('show');
@@ -147,6 +169,44 @@
             $('#mainSidebar').removeClass('show');
             $('#sidebarOverlay').removeClass('show');
             $('body').removeClass('sidebar-open');
+        });
+        
+        // Close sidebar when clicking on navigation links (MOBILE FIX)
+        $('.nav-sidebar .nav-link').on('click', function(e) {
+            // Only close sidebar on mobile devices
+            if ($(window).width() <= 767.98) {
+                console.log('Navigation link clicked, closing sidebar...');
+                
+                // Close the sidebar
+                $('#mainSidebar').removeClass('show');
+                $('#sidebarOverlay').removeClass('show');
+                $('body').removeClass('sidebar-open');
+                
+                // Add a small delay to ensure smooth transition
+                setTimeout(function() {
+                    // Allow the link to proceed normally
+                    console.log('Sidebar closed, allowing navigation...');
+                }, 300);
+            }
+        });
+        
+        // Ensure all sidebar links work properly
+        $('.nav-sidebar a').on('click', function(e) {
+            // Check if the link is valid
+            var href = $(this).attr('href');
+            if (href && href !== '#' && href !== 'javascript:void(0)') {
+                console.log('Navigating to:', href);
+                
+                // On mobile, close sidebar first
+                if ($(window).width() <= 767.98) {
+                    $('#mainSidebar').removeClass('show');
+                    $('#sidebarOverlay').removeClass('show');
+                    $('body').removeClass('sidebar-open');
+                }
+                
+                // Allow normal navigation
+                return true;
+            }
         });
         
         // Close sidebar when clicking outside on mobile
