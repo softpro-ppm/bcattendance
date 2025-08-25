@@ -273,7 +273,7 @@ if (!isset($_SESSION['csrf_token'])) {
         </div>
 
         <div class="login-footer">
-            <p>&copy; <?php echo date('Y'); ?> SOFTPRO-BC Attendance System. All rights reserved.</p>
+            <p>&copy; <?php echo date('Y'); ?>BC Attendance System. All rights reserved.</p>
         </div>
     </div>
 

@@ -52,7 +52,7 @@ $batchMarkingStatus = fetchAll("
                     <i class="fas fa-users"></i>
                 </div>
                 <div class="stats-number" data-stat="total_beneficiaries"><?php echo number_format($stats['total_beneficiaries']); ?></div>
-                <div class="stats-label">Total Students s</div>
+                <div class="stats-label">Total Students</div>
             </div>
         </div>
     </div>
@@ -101,7 +101,7 @@ $batchMarkingStatus = fetchAll("
             <div class="card-header">
                 <h3 class="card-title">
                     <i class="fas fa-calendar-check"></i>
-                    Today's Attendance 1
+                    Today's Attendance
                 </h3>
             </div>
             <div class="card-body">
