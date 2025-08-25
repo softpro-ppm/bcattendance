@@ -306,9 +306,13 @@ function getDashboardStats() {
     $result = fetchRow("SELECT COUNT(*) as total FROM mandals WHERE status = 'active'");
     $stats['total_mandals'] = $result ? $result['total'] : 0;
     
-    // Total batches
-    $result = fetchRow("SELECT COUNT(*) as total FROM batches WHERE status = 'active'");
+    // Total batches (all statuses)
+    $result = fetchRow("SELECT COUNT(*) as total FROM batches");
     $stats['total_batches'] = $result ? $result['total'] : 0;
+    
+    // Active batches only
+    $result = fetchRow("SELECT COUNT(*) as total FROM batches WHERE status = 'active'");
+    $stats['active_batches'] = $result ? $result['total'] : 0;
     
     // Active students today (only active status)
     $result = fetchRow("SELECT COUNT(*) as total FROM beneficiaries WHERE status = 'active'");
