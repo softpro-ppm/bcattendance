@@ -623,9 +623,6 @@ require_once '../config/database.php';
             border-left: 3px solid transparent;
             font-weight: 500;
             font-size: 0.95rem;
-            text-decoration: none;
-            display: block;
-            width: 100%;
         }
         
         .nav-sidebar .nav-link:hover,
@@ -634,7 +631,6 @@ require_once '../config/database.php';
             background-color: rgba(255,255,255,0.1);
             border-left-color: #fff;
             transform: translateX(5px);
-            text-decoration: none;
         }
         
         .nav-sidebar .nav-link i {
@@ -642,6 +638,16 @@ require_once '../config/database.php';
             width: 20px;
             text-align: center;
             font-size: 1.1rem;
+        }
+        
+        /* Ensure navigation links are properly clickable */
+        .nav-sidebar .nav-link {
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: rgba(255,255,255,0.1);
         }
         
         /* Mobile navigation link improvements */
@@ -652,28 +658,49 @@ require_once '../config/database.php';
                 border-left-width: 4px;
                 position: relative;
                 overflow: hidden;
-            }
-            
-            .nav-sidebar .nav-link:before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(255,255,255,0.05);
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-            }
-            
-            .nav-sidebar .nav-link:hover:before,
-            .nav-sidebar .nav-link.active:before {
-                transform: translateX(0);
+                min-height: 44px;
+                display: flex;
+                align-items: center;
             }
             
             .nav-sidebar .nav-link:active {
                 background-color: rgba(255,255,255,0.15);
                 transform: translateX(3px);
+            }
+            
+            /* Ensure sidebar closes properly on mobile */
+            .main-sidebar {
+                transition: transform 0.3s ease-in-out;
+            }
+            
+            .main-sidebar.show {
+                transform: translateX(0) !important;
+            }
+            
+            /* Prevent body scroll when sidebar is open */
+            body.sidebar-open {
+                overflow: hidden;
+                position: fixed;
+                width: 100%;
+            }
+            
+            /* Ensure overlay works properly */
+            .sidebar-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease-in-out;
+            }
+            
+            .sidebar-overlay.show {
+                opacity: 1;
+                visibility: visible;
             }
         }
         
@@ -818,53 +845,6 @@ require_once '../config/database.php';
                 min-height: 44px;
                 display: flex;
                 align-items: center;
-            }
-            
-            /* Ensure sidebar closes properly on mobile */
-            .main-sidebar {
-                transition: transform 0.3s ease-in-out;
-            }
-            
-            .main-sidebar.show {
-                transform: translateX(0) !important;
-            }
-            
-            /* Ensure navigation links are clickable */
-            .nav-sidebar .nav-link {
-                cursor: pointer;
-                user-select: none;
-                -webkit-tap-highlight-color: rgba(255,255,255,0.1);
-            }
-            
-            .nav-sidebar .nav-link:active {
-                background-color: rgba(255,255,255,0.2);
-                transform: translateX(3px);
-            }
-            
-            /* Prevent body scroll when sidebar is open */
-            body.sidebar-open {
-                overflow: hidden;
-                position: fixed;
-                width: 100%;
-            }
-            
-            /* Ensure overlay works properly */
-            .sidebar-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.5);
-                z-index: 999;
-                opacity: 0;
-                visibility: hidden;
-                transition: all 0.3s ease-in-out;
-            }
-            
-            .sidebar-overlay.show {
-                opacity: 1;
-                visibility: visible;
             }
         }
     </style>
