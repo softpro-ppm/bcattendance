@@ -65,10 +65,10 @@ $batchMarkingStatus = fetchAll("
         <div class="card stats-card">
             <div class="card-body">
                 <div class="stats-icon">
-                    <i class="fas fa-map-marker-alt"></i>
+                    <i class="fas fa-user-graduate"></i>
                 </div>
-                <div class="stats-number" data-stat="total_constituencies"><?php echo number_format($stats['total_constituencies']); ?></div>
-                <div class="stats-label">Constituencies</div>
+                <div class="stats-number" data-stat="ongoing_students"><?php echo number_format($stats['ongoing_students']); ?></div>
+                <div class="stats-label">Ongoing Students</div>
             </div>
         </div>
     </div>
