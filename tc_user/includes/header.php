@@ -505,6 +505,7 @@ require_once '../config/database.php';
                 justify-content: center !important;
             }
         }
+        
         /* Additional mobile optimizations */
         @media (max-width: 480px) {
             .main-header {
@@ -837,6 +838,12 @@ require_once '../config/database.php';
                         <a href="reports.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'reports.php') ? 'active' : ''; ?>">
                             <i class="nav-icon fas fa-chart-bar"></i>
                             <span>Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="profile.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'profile.php') ? 'active' : ''; ?>">
+                            <i class="nav-icon fas fa-user"></i>
+                            <span>Profile</span>
                         </a>
                     </li>
                 </ul>
