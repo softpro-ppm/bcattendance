@@ -236,6 +236,7 @@ function validateBeneficiaryRecord($data, $row_number) {
         $mobile_number = convertScientificNotation(trim($data[6]));
         $aadhar_number = convertScientificNotation(trim($data[7]));
         $full_name = trim($data[8]);
+        $status = isset($data[9]) ? trim($data[9]) : 'active'; // Default to active if status not provided
         
         $result['data'] = [
             'constituency' => $constituency_name,
@@ -246,12 +247,19 @@ function validateBeneficiaryRecord($data, $row_number) {
             'batch_end_date' => $batch_end_date,
             'mobile_number' => $mobile_number,
             'aadhar_number' => $aadhar_number,
-            'full_name' => $full_name
+            'full_name' => $full_name,
+            'status' => $status
         ];
         
         // Validate required fields
         if (empty($constituency_name) || empty($mandal_name) || empty($tc_id) || empty($batch_name) || empty($aadhar_number) || empty($full_name)) {
             throw new Exception("Missing required fields");
+        }
+        
+        // Validate status
+        $validStatuses = ['active', 'inactive'];
+        if (!in_array(strtolower($status), $validStatuses)) {
+            throw new Exception("Invalid status '$status'. Allowed values: active, inactive");
         }
         
         // Validate phone number
@@ -322,6 +330,7 @@ function processBeneficiaryRecord($data, $row_number) {
     $mobile_number = convertScientificNotation(trim($data[6])); // Fix scientific notation
     $aadhar_number = convertScientificNotation(trim($data[7])); // Fix scientific notation
     $full_name = trim($data[8]);
+    $status = isset($data[9]) ? trim($data[9]) : 'active'; // Default to active if status not provided
     
     // Validate required fields
     if (empty($constituency_name) || empty($mandal_name) || empty($tc_id) || empty($batch_name) || empty($aadhar_number) || empty($full_name)) {
@@ -373,13 +382,13 @@ function processBeneficiaryRecord($data, $row_number) {
     // Insert beneficiary using direct mysqli (like in beneficiaries.php)
     try {
         $conn = getDBConnection();
-        $stmt = $conn->prepare("INSERT INTO beneficiaries (beneficiary_id, constituency_id, mandal_id, tc_id, batch_id, mobile_number, aadhar_number, full_name, batch_start_date, batch_end_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO beneficiaries (beneficiary_id, constituency_id, mandal_id, tc_id, batch_id, mobile_number, aadhar_number, full_name, batch_start_date, batch_end_date, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         
         if (!$stmt) {
             throw new Exception("Prepare failed: " . $conn->error);
         }
         
-        $stmt->bind_param('siiiisssss', $beneficiary_id, $constituency['id'], $mandal['id'], $training_center['id'], $batch['id'], $mobile_number, $aadhar_number, $full_name, $start_date, $end_date);
+        $stmt->bind_param('siiiissssss', $beneficiary_id, $constituency['id'], $mandal['id'], $training_center['id'], $batch['id'], $mobile_number, $aadhar_number, $full_name, $start_date, $end_date, strtolower($status));
         
         $result = $stmt->execute();
         $stmt->close();
@@ -581,12 +590,13 @@ if (!isset($_SESSION['csrf_token'])) {
                 <h4><i class="fas fa-info-circle"></i> CSV File Format Requirements</h4>
                 <p>Your CSV file must have exactly these columns in this order:</p>
                 <div class="sample-format">
-constituency | mandal | tc_id | batch | batch_start_date | batch_end_date | mobile_number | aadhar_number | full_name
+constituency | mandal | tc_id | batch | batch_start_date | batch_end_date | mobile_number | aadhar_number | full_name | status
                 </div>
                 <p><strong>Example:</strong></p>
                 <div class="sample-format">
-PARVATHIPURAM | BALIJIPETA | TTC7430652 | BATCH 1 | 16/06/25 | 30/09/25 | 7799773656 | 975422335686 | RAJESH GULLA
+PARVATHIPURAM | BALIJIPETA | TTC7430652 | BATCH 1 | 16/06/25 | 30/09/25 | 7799773656 | 975422335686 | RAJESH GULLA | active
                 </div>
+                <p><strong>Status Options:</strong> <code>active</code> or <code>inactive</code> (defaults to <code>active</code> if not specified)</p>
                 <a href="download_sample.php" class="btn-download-sample">
                     <i class="fas fa-download"></i> Download Sample CSV File
                 </a>
@@ -730,7 +740,7 @@ PARVATHIPURAM | BALIJIPETA | TTC7430652 | BATCH 1 | 16/06/25 | 30/09/25 | 779977
                                     <thead class="thead-light">
                                         <tr>
                                             <th>Row</th>
-                                            <th>Status</th>
+                                            <th>Valid</th>
                                             <th>Name</th>
                                             <th>Aadhar</th>
                                             <th>Mobile</th>
@@ -738,6 +748,7 @@ PARVATHIPURAM | BALIJIPETA | TTC7430652 | BATCH 1 | 16/06/25 | 30/09/25 | 779977
                                             <th>Mandal</th>
                                             <th>TC ID</th>
                                             <th>Batch</th>
+                                            <th>Status</th>
                                             <th>Error</th>
                                         </tr>
                                     </thead>
@@ -764,6 +775,11 @@ PARVATHIPURAM | BALIJIPETA | TTC7430652 | BATCH 1 | 16/06/25 | 30/09/25 | 779977
                                             <td><?php echo htmlspecialchars($row['data']['mandal']); ?></td>
                                             <td><?php echo htmlspecialchars($row['data']['tc_id']); ?></td>
                                             <td><?php echo htmlspecialchars($row['data']['batch']); ?></td>
+                                            <td>
+                                                <span class="badge badge-<?php echo strtolower($row['data']['status']) === 'active' ? 'success' : 'warning'; ?>">
+                                                    <?php echo ucfirst(htmlspecialchars($row['data']['status'])); ?>
+                                                </span>
+                                            </td>
                                             <td>
                                                 <?php if (!$row['valid']): ?>
                                                     <small class="text-danger"><?php echo htmlspecialchars($row['error']); ?></small>
