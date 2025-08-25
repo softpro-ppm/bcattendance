@@ -180,18 +180,8 @@ $beneficiaries = fetchAll($query, $allParams, $allTypes);
         <h3 class="card-title">
             <i class="fas fa-calendar-check"></i>
             Daily Attendance - <?php echo formatDate($selectedDate, 'l, F j, Y'); ?>
-            <span class="badge badge-info ml-2" style="font-size: 0.8em;">NEW: Status column moved to 3rd position</span>
         </h3>
         <div class="card-tools">
-            <span class="badge badge-info">
-                <?php 
-                if ($showAll || $totalPages <= 1) {
-                    echo "Showing all $totalRecords Beneficiaries";
-                } else {
-                    echo count($beneficiaries) . ' of ' . $totalRecords . ' Beneficiaries (Page ' . $page . ' of ' . $totalPages . ')';
-                }
-                ?>
-            </span>
         </div>
     </div>
     <div class="card-body">
