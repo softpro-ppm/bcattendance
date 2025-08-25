@@ -94,11 +94,30 @@ This update implements automatic batch completion functionality and enhanced das
 └─────────────┴──────────────┴──────────────┴─────────────────┘
 ```
 
+#### **Today's Attendance Section (Left Side)**
+```
+┌─────────────┬──────────────┬──────────────┐
+│ Present     │ Absent       │ Total Marked │
+├─────────────┼──────────────┼──────────────┤
+│ 0           │ 833          │ 833          │
+│ (Active     │ (Active      │ (Active      │
+│ Students    │ Students     │ Students     │
+│ Only)       │ Only)        │ Only)        │
+└─────────────┴──────────────┴──────────────┘
+```
+
 #### **Key Changes in Attendance Summary**:
 - **Present/Absent Percentages**: Now calculated from **Active Students only** (not total marked)
 - **Total Students**: New metric showing all enrolled students regardless of status
 - **Active Students**: Only students with `status = 'active'` are counted for attendance
 - **Clear Distinction**: Shows difference between current active students and total program reach
+
+#### **Key Changes in Today's Attendance**:
+- **All Counts**: Now show attendance only for **Active Students** (not all students)
+- **Present Count**: Only active students marked as present
+- **Absent Count**: Only active students marked as absent  
+- **Total Marked**: Only attendance records from active students
+- **Consistent Logic**: Both sections now use the same active student base
 
 #### **Interpretation**:
 - **Batch A**: 50 total students, 45 active (5 completed/inactive), 45 marked attendance

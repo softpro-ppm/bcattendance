@@ -147,6 +147,14 @@ $batchMarkingStatus = fetchAll("
                         <i class="fas fa-plus"></i> Daily Attendance
                     </a>
                 </div>
+                
+                <!-- Attendance Information Note -->
+                <div class="mt-2 p-2 bg-light rounded">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Note:</strong> These counts show attendance only for <strong>Active Students</strong> (students currently enrolled in active batches).
+                    </small>
+                </div>
             </div>
         </div>
     </div>

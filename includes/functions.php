@@ -314,16 +314,35 @@ function getDashboardStats() {
     $result = fetchRow("SELECT COUNT(*) as total FROM beneficiaries WHERE status = 'active'");
     $stats['active_students_today'] = $result ? $result['total'] : 0;
     
-    // Today's attendance (total marked)
-    $result = fetchRow("SELECT COUNT(*) as total FROM attendance WHERE attendance_date = CURDATE()");
+    // Today's attendance (only from active students)
+    $result = fetchRow("
+        SELECT COUNT(*) as total 
+        FROM attendance a 
+        INNER JOIN beneficiaries b ON a.beneficiary_id = b.id 
+        WHERE a.attendance_date = CURDATE() AND b.status = 'active'
+    ");
     $stats['today_attendance'] = $result ? $result['total'] : 0;
     
-    // Present today
-    $result = fetchRow("SELECT COUNT(*) as total FROM attendance WHERE attendance_date = CURDATE() AND (status = 'present' OR status = 'P')");
+    // Present today (only from active students)
+    $result = fetchRow("
+        SELECT COUNT(*) as total 
+        FROM attendance a 
+        INNER JOIN beneficiaries b ON a.beneficiary_id = b.id 
+        WHERE a.attendance_date = CURDATE() 
+        AND b.status = 'active' 
+        AND (a.status = 'present' OR a.status = 'P')
+    ");
     $stats['present_today'] = $result ? $result['total'] : 0;
     
-    // Absent today
-    $result = fetchRow("SELECT COUNT(*) as total FROM attendance WHERE attendance_date = CURDATE() AND (status = 'absent' OR status = 'A')");
+    // Absent today (only from active students)
+    $result = fetchRow("
+        SELECT COUNT(*) as total 
+        FROM attendance a 
+        INNER JOIN beneficiaries b ON a.beneficiary_id = b.id 
+        WHERE a.attendance_date = CURDATE() 
+        AND b.status = 'active' 
+        AND (a.status = 'absent' OR a.status = 'A')
+    ");
     $stats['absent_today'] = $result ? $result['total'] : 0;
     
     return $stats;
