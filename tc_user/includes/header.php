@@ -482,6 +482,3 @@ require_once '../config/database.php';
                     echo displayFlashMessages(); 
                 }
                 ?>
-            </div>
-        </div>
-    </div>
