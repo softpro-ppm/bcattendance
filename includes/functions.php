@@ -298,12 +298,23 @@ function getDashboardStats() {
     $result = fetchRow("SELECT COUNT(*) as total FROM beneficiaries");
     $stats['total_beneficiaries'] = $result ? $result['total'] : 0;
     
-    // Ongoing students (only active students, excluding completed and inactive)
-    $result = fetchRow("SELECT COUNT(*) as total FROM beneficiaries WHERE status = 'active'");
+    // Ongoing students (All Students - Completed Students)
+    // This includes both active and inactive students who are NOT in completed batches
+    $result = fetchRow("
+        SELECT COUNT(*) as total 
+        FROM beneficiaries b
+        INNER JOIN batches bt ON b.batch_id = bt.id
+        WHERE bt.end_date >= CURDATE()
+    ");
     $stats['ongoing_students'] = $result ? $result['total'] : 0;
     
-    // Completed students (students in completed batches)
-    $result = fetchRow("SELECT COUNT(*) as total FROM beneficiaries WHERE status = 'completed'");
+    // Completed students (students in batches where end_date < current_date)
+    $result = fetchRow("
+        SELECT COUNT(*) as total 
+        FROM beneficiaries b
+        INNER JOIN batches bt ON b.batch_id = bt.id
+        WHERE bt.end_date < CURDATE()
+    ");
     $stats['completed_students'] = $result ? $result['total'] : 0;
     
     // Total constituencies
@@ -322,37 +333,45 @@ function getDashboardStats() {
     $result = fetchRow("SELECT COUNT(*) as total FROM batches WHERE status = 'active'");
     $stats['active_batches'] = $result ? $result['total'] : 0;
     
-    // Active students today (only active status)
-    $result = fetchRow("SELECT COUNT(*) as total FROM beneficiaries WHERE status = 'active'");
+    // Active students today (students in active batches - end_date >= current_date)
+    $result = fetchRow("
+        SELECT COUNT(*) as total 
+        FROM beneficiaries b
+        INNER JOIN batches bt ON b.batch_id = bt.id
+        WHERE bt.end_date >= CURDATE()
+    ");
     $stats['active_students_today'] = $result ? $result['total'] : 0;
     
-    // Today's attendance (only from active students)
+    // Today's attendance (only from students in active batches)
     $result = fetchRow("
         SELECT COUNT(*) as total 
         FROM attendance a 
         INNER JOIN beneficiaries b ON a.beneficiary_id = b.id 
-        WHERE a.attendance_date = CURDATE() AND b.status = 'active'
+        INNER JOIN batches bt ON b.batch_id = bt.id
+        WHERE a.attendance_date = CURDATE() AND bt.end_date >= CURDATE()
     ");
     $stats['today_attendance'] = $result ? $result['total'] : 0;
     
-    // Present today (only from active students)
+    // Present today (only from students in active batches)
     $result = fetchRow("
         SELECT COUNT(*) as total 
         FROM attendance a 
         INNER JOIN beneficiaries b ON a.beneficiary_id = b.id 
+        INNER JOIN batches bt ON b.batch_id = bt.id
         WHERE a.attendance_date = CURDATE() 
-        AND b.status = 'active' 
+        AND bt.end_date >= CURDATE()
         AND (a.status = 'present' OR a.status = 'P')
     ");
     $stats['present_today'] = $result ? $result['total'] : 0;
     
-    // Absent today (only from active students)
+    // Absent today (only from students in active batches)
     $result = fetchRow("
         SELECT COUNT(*) as total 
         FROM attendance a 
         INNER JOIN beneficiaries b ON a.beneficiary_id = b.id 
+        INNER JOIN batches bt ON b.batch_id = bt.id
         WHERE a.attendance_date = CURDATE() 
-        AND b.status = 'active' 
+        AND bt.end_date >= CURDATE()
         AND (a.status = 'absent' OR a.status = 'A')
     ");
     $stats['absent_today'] = $result ? $result['total'] : 0;
