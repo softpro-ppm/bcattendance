@@ -172,12 +172,12 @@ function getBatchStats() {
     
     $where_clause = !empty($where_conditions) ? "WHERE " . implode(" AND ", $where_conditions) : "";
     
-    // Get statistics
+    // Get statistics - Using the same logic as dashboard (based on batch end_date, not beneficiary status)
     $stats_query = "
         SELECT 
             COUNT(DISTINCT b.id) as total_students,
-            COUNT(DISTINCT CASE WHEN b.status = 'active' THEN b.id END) as active_students,
-            COUNT(DISTINCT CASE WHEN b.status = 'completed' THEN b.id END) as completed_students,
+            COUNT(DISTINCT CASE WHEN bt.end_date >= CURDATE() THEN b.id END) as active_students,
+            COUNT(DISTINCT CASE WHEN bt.end_date < CURDATE() THEN b.id END) as completed_students,
             COUNT(DISTINCT CASE WHEN b.status = 'dropped' THEN b.id END) as dropped_students,
             COUNT(DISTINCT bt.id) as total_batches,
             COUNT(DISTINCT CASE WHEN bt.status = 'active' THEN bt.id END) as active_batches,
