@@ -10,17 +10,18 @@ if (!isset($_SESSION['admin_user_id'])) {
 }
 
 // Check if constituency_id is provided
-if (!isset($_GET['constituency_id']) || empty($_GET['constituency_id'])) {
-    echo json_encode(['error' => 'Constituency ID is required']);
-    exit();
-}
-
-$constituencyId = (int)$_GET['constituency_id'];
+$constituencyId = isset($_GET['constituency_id']) && !empty($_GET['constituency_id']) ? (int)$_GET['constituency_id'] : null;
 
 try {
-    // Get mandals for the selected constituency
-    $query = "SELECT id, name FROM mandals WHERE constituency_id = ? AND status = 'active' ORDER BY name";
-    $mandals = fetchAll($query, [$constituencyId], 'i');
+    if ($constituencyId) {
+        // Get mandals for the selected constituency
+        $query = "SELECT id, name FROM mandals WHERE constituency_id = ? AND status = 'active' ORDER BY name";
+        $mandals = fetchAll($query, [$constituencyId], 'i');
+    } else {
+        // Get all mandals
+        $query = "SELECT id, name FROM mandals WHERE status = 'active' ORDER BY name";
+        $mandals = fetchAll($query);
+    }
     
     // Format response
     $response = [

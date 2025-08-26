@@ -329,6 +329,11 @@ let currentFilters = {};
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
     setupEventListeners();
+    
+    // Initialize dropdowns
+    loadMandals();
+    loadBatches();
+    
     // Load initial data with a small delay to ensure DOM is ready
     setTimeout(() => {
         loadData();
@@ -339,13 +344,44 @@ function setupEventListeners() {
     // Filter change events
     document.getElementById('constituency_filter').addEventListener('change', function() {
         currentFilters.constituency = this.value;
+        currentFilters.mandal = ''; // Reset mandal when constituency changes
+        currentFilters.batch = ''; // Reset batch when constituency changes
         currentPage = 1;
+        
+        // Reset mandal and batch dropdowns
+        document.getElementById('mandal_filter').value = '';
+        document.getElementById('batch_filter').value = '';
+        
+        // Load mandals for selected constituency
+        if (this.value) {
+            loadMandals(this.value);
+        } else {
+            // Reset mandal dropdown to show all
+            loadMandals();
+        }
+        
+        // Reset batch dropdown to show all
+        loadBatches();
+        
         loadData();
     });
     
     document.getElementById('mandal_filter').addEventListener('change', function() {
         currentFilters.mandal = this.value;
+        currentFilters.batch = ''; // Reset batch when mandal changes
         currentPage = 1;
+        
+        // Reset batch dropdown
+        document.getElementById('batch_filter').value = '';
+        
+        // Load batches for selected mandal
+        if (this.value) {
+            loadBatches(this.value);
+        } else {
+            // Reset batch dropdown to show all
+            loadBatches();
+        }
+        
         loadData();
     });
     
@@ -645,6 +681,70 @@ function getStatusBadgeClass(status) {
         case 'dropped': return 'badge-danger';
         case 'inactive': return 'badge-secondary';
         default: return 'badge-secondary';
+    }
+}
+
+function loadMandals(constituencyId = '') {
+    const mandalSelect = document.getElementById('mandal_filter');
+    
+    if (!constituencyId) {
+        // Load all mandals
+        fetch('get_mandals.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                mandalSelect.innerHTML = '<option value="">All Mandals</option>';
+                data.mandals.forEach(mandal => {
+                    mandalSelect.innerHTML += `<option value="${mandal.id}">${mandal.name}</option>`;
+                });
+            }
+        })
+        .catch(error => console.error('Error loading mandals:', error));
+    } else {
+        // Load mandals for specific constituency
+        fetch(`get_mandals.php?constituency_id=${constituencyId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                mandalSelect.innerHTML = '<option value="">All Mandals</option>';
+                data.mandals.forEach(mandal => {
+                    mandalSelect.innerHTML += `<option value="${mandal.id}">${mandal.name}</option>`;
+                });
+            }
+        })
+        .catch(error => console.error('Error loading mandals:', error));
+    }
+}
+
+function loadBatches(mandalId = '') {
+    const batchSelect = document.getElementById('batch_filter');
+    
+    if (!mandalId) {
+        // Load all batches
+        fetch('get_batches.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                batchSelect.innerHTML = '<option value="">All Batches</option>';
+                data.batches.forEach(batch => {
+                    batchSelect.innerHTML += `<option value="${batch.id}">${batch.name} (${batch.code})</option>`;
+                });
+            }
+        })
+        .catch(error => console.error('Error loading batches:', error));
+    } else {
+        // Load batches for specific mandal
+        fetch(`get_batches.php?mandal_id=${mandalId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                batchSelect.innerHTML = '<option value="">All Batches</option>';
+                data.batches.forEach(batch => {
+                    batchSelect.innerHTML += `<option value="${batch.id}">${batch.name} (${batch.code})</option>`;
+                });
+            }
+        })
+        .catch(error => console.error('Error loading batches:', error));
     }
 }
 </script>

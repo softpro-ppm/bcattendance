@@ -10,17 +10,18 @@ if (!isset($_SESSION['admin_user_id'])) {
 }
 
 // Check if mandal_id is provided
-if (!isset($_GET['mandal_id']) || empty($_GET['mandal_id'])) {
-    echo json_encode(['error' => 'Mandal ID is required']);
-    exit();
-}
-
-$mandalId = (int)$_GET['mandal_id'];
+$mandalId = isset($_GET['mandal_id']) && !empty($_GET['mandal_id']) ? (int)$_GET['mandal_id'] : null;
 
 try {
-    // Get batches for the selected mandal
-    $query = "SELECT id, name FROM batches WHERE mandal_id = ? AND status IN ('active', 'completed') ORDER BY status DESC, name";
-    $batches = fetchAll($query, [$mandalId], 'i');
+    if ($mandalId) {
+        // Get batches for the selected mandal
+        $query = "SELECT id, name, code FROM batches WHERE mandal_id = ? AND status IN ('active', 'completed') ORDER BY status DESC, name";
+        $batches = fetchAll($query, [$mandalId], 'i');
+    } else {
+        // Get all batches
+        $query = "SELECT id, name, code FROM batches WHERE status IN ('active', 'completed') ORDER BY status DESC, name";
+        $batches = fetchAll($query);
+    }
     
     // Format response
     $response = [
