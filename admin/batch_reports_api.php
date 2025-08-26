@@ -120,11 +120,14 @@ function getBatchData() {
         JOIN training_centers tc ON bt.tc_id = tc.id
         LEFT JOIN (
             SELECT 
-                beneficiary_id,
-                COUNT(CASE WHEN status = 'present' THEN 1 END) as present_days,
+                a.beneficiary_id,
+                COUNT(CASE WHEN a.status = 'present' THEN 1 END) as present_days,
                 COUNT(*) as total_days
-            FROM attendance 
-            GROUP BY beneficiary_id
+            FROM attendance a
+            JOIN beneficiaries b2 ON a.beneficiary_id = b2.id
+            JOIN batches bt2 ON b2.batch_id = bt2.id
+            WHERE a.attendance_date BETWEEN bt2.start_date AND bt2.end_date
+            GROUP BY a.beneficiary_id
         ) att ON b.id = att.beneficiary_id
         $where_clause
         ORDER BY $sort_by $sort_order
@@ -189,11 +192,14 @@ function getBatchStats() {
         JOIN constituencies c ON m.constituency_id = c.id
         LEFT JOIN (
             SELECT 
-                beneficiary_id,
-                COUNT(CASE WHEN status = 'present' THEN 1 END) as present_days,
+                a.beneficiary_id,
+                COUNT(CASE WHEN a.status = 'present' THEN 1 END) as present_days,
                 COUNT(*) as total_days
-            FROM attendance 
-            GROUP BY beneficiary_id
+            FROM attendance a
+            JOIN beneficiaries b2 ON a.beneficiary_id = b2.id
+            JOIN batches bt2 ON b2.batch_id = bt2.id
+            WHERE a.attendance_date BETWEEN bt2.start_date AND bt2.end_date
+            GROUP BY a.beneficiary_id
         ) att ON b.id = att.beneficiary_id
         $where_clause
     ";

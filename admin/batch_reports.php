@@ -169,11 +169,12 @@ require_once '../includes/header.php';
                                         <table class="table table-bordered table-striped" id="students_table">
                                             <thead>
                                                 <tr>
+                                                    <th>Sr. No.</th>
                                                     <th data-sort="b.full_name" style="cursor: pointer;">
                                                         Student Name <i class="fas fa-sort"></i>
                                                     </th>
-                                                    <th data-sort="b.beneficiary_id" style="cursor: pointer;">
-                                                        Student ID <i class="fas fa-sort"></i>
+                                                    <th data-sort="b.aadhar_number" style="cursor: pointer;">
+                                                        Aadhar Number <i class="fas fa-sort"></i>
                                                     </th>
                                                     <th data-sort="b.mobile_number" style="cursor: pointer;">
                                                         Mobile <i class="fas fa-sort"></i>
@@ -197,7 +198,7 @@ require_once '../includes/header.php';
                                             </thead>
                                             <tbody id="table_body">
                                                 <tr>
-                                                    <td colspan="8" class="text-center">Loading...</td>
+                                                    <td colspan="9" class="text-center">Loading...</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -504,19 +505,23 @@ function displayData(data) {
     const tbody = document.getElementById('table_body');
     
     if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" class="text-center">No students found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center">No students found</td></tr>';
         return;
     }
     
     let html = '';
-    data.forEach(student => {
+    data.forEach((student, index) => {
         const attendanceClass = student.attendance_percentage >= 80 ? 'text-success' : 
                               student.attendance_percentage >= 60 ? 'text-warning' : 'text-danger';
         
+        // Calculate serial number based on current page and rows per page
+        const serialNumber = ((currentPage - 1) * document.getElementById('rows_per_page').value) + index + 1;
+        
         html += `
             <tr>
+                <td class="text-center"><strong>${serialNumber}</strong></td>
                 <td><strong>${escapeHtml(student.full_name)}</strong></td>
-                <td><span class="badge badge-info">${escapeHtml(student.beneficiary_id)}</span></td>
+                <td><span class="badge badge-info">${escapeHtml(student.aadhar_number || 'N/A')}</span></td>
                 <td>${escapeHtml(student.mobile_number || 'N/A')}</td>
                 <td>
                     <span class="badge badge-primary">${escapeHtml(student.batch_name)}</span><br>
@@ -637,10 +642,11 @@ function exportToExcel() {
 
 function generateExcel(data) {
     // Create CSV content
-    let csv = 'Student Name,Student ID,Mobile,Batch,Batch Code,Mandal,Constituency,Attendance %,Present Days,Total Days,Status\n';
+    let csv = 'Sr. No.,Student Name,Aadhar Number,Mobile,Batch,Batch Code,Mandal,Constituency,Attendance %,Present Days,Total Days,Status\n';
     
-    data.forEach(student => {
-        csv += `"${student.full_name}","${student.beneficiary_id}","${student.mobile_number || ''}","${student.batch_name}","${student.batch_code}","${student.mandal_name}","${student.constituency_name}","${student.attendance_percentage}%","${student.present_days}","${student.total_days}","${student.beneficiary_status}"\n`;
+    data.forEach((student, index) => {
+        const serialNumber = index + 1;
+        csv += `"${serialNumber}","${student.full_name}","${student.aadhar_number || ''}","${student.mobile_number || ''}","${student.batch_name}","${student.batch_code}","${student.mandal_name}","${student.constituency_name}","${student.attendance_percentage}%","${student.present_days}","${student.total_days}","${student.beneficiary_status}"\n`;
     });
     
     // Create and download file
