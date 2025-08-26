@@ -21,7 +21,7 @@ $breadcrumbs = [
 // Get filter options
 $constituencies = fetchAll("SELECT id, name FROM constituencies WHERE status = 'active' ORDER BY name");
 $mandals = fetchAll("SELECT id, name FROM mandals WHERE status = 'active' ORDER BY name");
-$batches = fetchAll("SELECT id, name, code FROM batches WHERE status = 'active' ORDER BY name");
+$batches = fetchAll("SELECT id, name, code FROM batches WHERE status IN ('active', 'completed') ORDER BY status DESC, name");
 
 require_once '../includes/header.php';
 ?>

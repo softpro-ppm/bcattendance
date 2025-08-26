@@ -177,7 +177,7 @@ try {
 }
 
 // Get batches for selection
-$batches = fetchAll("SELECT id, name, mandal_id FROM batches WHERE status = 'active' ORDER BY name");
+$batches = fetchAll("SELECT id, name, mandal_id FROM batches WHERE status IN ('active', 'completed') ORDER BY status DESC, name");
 
 // Get mandals for grouping
 $mandals = fetchAll("SELECT id, name FROM mandals WHERE status = 'active' ORDER BY name");

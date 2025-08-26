@@ -36,7 +36,7 @@ try {
         LEFT JOIN constituencies c ON m.constituency_id = c.id
         LEFT JOIN beneficiaries b ON bt.id = b.batch_id
         LEFT JOIN attendance a ON b.id = a.beneficiary_id AND a.attendance_date = CURDATE()
-        WHERE bt.status = 'active'
+        WHERE bt.status IN ('active', 'completed')
         GROUP BY bt.id, bt.name, c.name, m.name
         ORDER BY 
             CASE WHEN COUNT(a.id) > 0 THEN 0 ELSE 1 END,

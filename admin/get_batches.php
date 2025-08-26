@@ -19,7 +19,7 @@ $mandalId = (int)$_GET['mandal_id'];
 
 try {
     // Get batches for the selected mandal
-    $query = "SELECT id, name FROM batches WHERE mandal_id = ? AND status = 'active' ORDER BY name";
+    $query = "SELECT id, name FROM batches WHERE mandal_id = ? AND status IN ('active', 'completed') ORDER BY status DESC, name";
     $batches = fetchAll($query, [$mandalId], 'i');
     
     // Format response

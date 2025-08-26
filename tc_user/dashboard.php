@@ -269,7 +269,7 @@ try {
                                        FROM batches b
                                        LEFT JOIN beneficiaries ben ON b.id = ben.batch_id AND ben.status = 'active'
                                        LEFT JOIN attendance a ON ben.id = a.beneficiary_id AND a.attendance_date = ?
-                                       WHERE b.tc_id = ? AND b.status = 'active'
+                                       WHERE b.tc_id = ? AND b.status IN ('active', 'completed')
                                        GROUP BY b.id, b.name
                                        ORDER BY 
                                            CASE WHEN COUNT(a.id) > 0 THEN 0 ELSE 1 END,

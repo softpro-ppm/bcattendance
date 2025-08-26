@@ -455,8 +455,8 @@ $batches_with_details = fetchAll("
     JOIN mandals m ON b.mandal_id = m.id
     JOIN constituencies c ON m.constituency_id = c.id
     JOIN training_centers tc ON b.tc_id = tc.id
-    WHERE b.status = 'active'
-    ORDER BY c.name, m.name, b.name
+    WHERE b.status IN ('active', 'completed')
+    ORDER BY b.status DESC, c.name, m.name, b.name
 ");
 
 // Get filter data for dropdowns
@@ -468,8 +468,8 @@ $filter_batches = fetchAll("
     FROM batches b 
     JOIN mandals m ON b.mandal_id = m.id 
     JOIN training_centers tc ON b.tc_id = tc.id
-    WHERE b.status = 'active' 
-    ORDER BY b.name
+    WHERE b.status IN ('active', 'completed') 
+    ORDER BY b.status DESC, b.name
 ");
 
 // Generate CSRF token

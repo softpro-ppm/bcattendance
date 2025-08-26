@@ -97,7 +97,7 @@ if (!empty($selectedConstituency)) {
 }
 
 if (!empty($selectedMandal)) {
-    $batches = fetchAll("SELECT id, name FROM batches WHERE mandal_id = ? AND status = 'active' ORDER BY name", [$selectedMandal], 'i');
+    $batches = fetchAll("SELECT id, name FROM batches WHERE mandal_id = ? AND status IN ('active', 'completed') ORDER BY status DESC, name", [$selectedMandal], 'i');
 }
 
 // Build query for beneficiaries

@@ -622,7 +622,7 @@ function exportAttendanceToCSV($beneficiaries, $dateRange, $attendanceByBenefici
 // Get filter options
 $constituencies = fetchAll("SELECT id, name FROM constituencies WHERE status = 'active' ORDER BY name");
 $mandals = fetchAll("SELECT id, name, constituency_id FROM mandals WHERE status = 'active' ORDER BY name");
-$batches = fetchAll("SELECT id, name, mandal_id FROM batches WHERE status = 'active' ORDER BY name");
+$batches = fetchAll("SELECT id, name, mandal_id FROM batches WHERE status IN ('active', 'completed') ORDER BY status DESC, name");
 
 // Get form filters
 $startDate = $_GET['start_date'] ?? date('Y-m-d'); // Current date
