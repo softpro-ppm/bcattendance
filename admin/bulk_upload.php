@@ -357,19 +357,28 @@ function validateBeneficiaryRecord($data, $row_number) {
         $all_batches = fetchAll("SELECT id, name, mandal_id, tc_id FROM batches WHERE mandal_id = ? AND tc_id = ?", [$mandal['id'], $training_center['id']], 'ii');
         error_log("DEBUG: Available batches for this mandal/TC: " . print_r($all_batches, true));
         
+        // Try exact match first, then try with hyphen conversion
         $batch = fetchRow("SELECT id FROM batches WHERE name = ? AND mandal_id = ? AND tc_id = ?", [$batch_name, $mandal['id'], $training_center['id']], 'sii');
+        
+        // If not found, try converting "BATCH 1" to "Batch-1"
+        if (!$batch) {
+            $converted_batch_name = str_replace('BATCH ', 'Batch-', $batch_name);
+            error_log("DEBUG: Trying converted batch name: '$converted_batch_name'");
+            $batch = fetchRow("SELECT id FROM batches WHERE name = ? AND mandal_id = ? AND tc_id = ?", [$converted_batch_name, $mandal['id'], $training_center['id']], 'sii');
+        }
+        
         if (!$batch) {
             throw new Exception("Batch '$batch_name' not found for training center '$tc_id' in mandal '$mandal_name'. Available batches: " . implode(', ', array_column($all_batches, 'name')));
         }
         
         // Get batch dates from the batch record (no need to validate individual dates)
-        $batch_record = fetchRow("SELECT batch_start_date, batch_end_date FROM batches WHERE id = ?", [$batch['id']], 'i');
+        $batch_record = fetchRow("SELECT start_date, end_date FROM batches WHERE id = ?", [$batch['id']], 'i');
         if (!$batch_record) {
             throw new Exception("Could not retrieve batch dates for batch '$batch_name'");
         }
         
-        $start_date = $batch_record['batch_start_date'];
-        $end_date = $batch_record['batch_end_date'];
+        $start_date = $batch_record['start_date'];
+        $end_date = $batch_record['end_date'];
         
         // Check if beneficiary already exists
         $existing = fetchRow("SELECT id FROM beneficiaries WHERE aadhar_number = ?", [$aadhar_number], 's');
@@ -450,19 +459,27 @@ function processBeneficiaryRecord($data, $row_number) {
     }
     
     // Get batch ID
+    // Try exact match first, then try with hyphen conversion
     $batch = fetchRow("SELECT id FROM batches WHERE name = ? AND mandal_id = ? AND tc_id = ?", [$batch_name, $mandal['id'], $training_center['id']], 'sii');
+    
+    // If not found, try converting "BATCH 1" to "Batch-1"
+    if (!$batch) {
+        $converted_batch_name = str_replace('BATCH ', 'Batch-', $batch_name);
+        $batch = fetchRow("SELECT id FROM batches WHERE name = ? AND mandal_id = ? AND tc_id = ?", [$converted_batch_name, $mandal['id'], $training_center['id']], 'sii');
+    }
+    
     if (!$batch) {
         throw new Exception("Batch '$batch_name' not found for training center '$tc_id'");
     }
     
     // Get batch dates from the batch record (no need to validate individual dates)
-    $batch_record = fetchRow("SELECT batch_start_date, batch_end_date FROM batches WHERE id = ?", [$batch['id']], 'i');
+    $batch_record = fetchRow("SELECT start_date, end_date FROM batches WHERE id = ?", [$batch['id']], 'i');
     if (!$batch_record) {
         throw new Exception("Could not retrieve batch dates for batch '$batch_name'");
     }
     
-    $start_date = $batch_record['batch_start_date'];
-    $end_date = $batch_record['batch_end_date'];
+    $start_date = $batch_record['start_date'];
+    $end_date = $batch_record['end_date'];
     
     // Check if beneficiary already exists
     $existing = fetchRow("SELECT id FROM beneficiaries WHERE aadhar_number = ?", [$aadhar_number], 's');
