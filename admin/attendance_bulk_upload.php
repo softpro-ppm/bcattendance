@@ -351,10 +351,10 @@ if (!isset($_SESSION['csrf_token'])) {
                                     <hr>
                                     <small>
                                         <strong>CSV Format Requirements:</strong><br>
-                                        • <strong>Required columns:</strong> aadhar_number, full_name, status<br>
+                                        • <strong>Required columns:</strong> aadhar_number, full_name<br>
                                         • <strong>Date columns:</strong> Daily attendance (DD/MM/YY format)<br>
-                                        • <strong>Status codes:</strong> P (Present), A (Absent), H (Holiday)<br>
-                                        • <strong>Status values:</strong> active, inactive (for beneficiary status)<br>
+                                        • <strong>Attendance codes:</strong> P (Present), A (Absent), H (Holiday)<br>
+                                        • <strong>Note:</strong> Only active students can have attendance records<br>
                                         • <strong>Auto-matching:</strong> System finds beneficiary by Aadhar number<br>
                                         • <strong>Multiple beneficiaries</strong> from different batches supported
                                     </small>
