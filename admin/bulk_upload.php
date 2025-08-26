@@ -531,28 +531,7 @@ if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// Debug function to show available data
-function showAvailableData() {
-    $data = [];
-    
-    // Get constituencies
-    $constituencies = fetchAll("SELECT id, name FROM constituencies ORDER BY name");
-    $data['constituencies'] = $constituencies;
-    
-    // Get mandals
-    $mandals = fetchAll("SELECT id, name, constituency_id FROM mandals ORDER BY name");
-    $data['mandals'] = $mandals;
-    
-    // Get training centers
-    $training_centers = fetchAll("SELECT id, tc_id, mandal_id, name FROM training_centers ORDER BY tc_id");
-    $data['training_centers'] = $training_centers;
-    
-    // Get batches
-    $batches = fetchAll("SELECT id, name, mandal_id, tc_id FROM batches ORDER BY name");
-    $data['batches'] = $batches;
-    
-    return $data;
-}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -720,10 +699,7 @@ function showAvailableData() {
         <div class="upload-container">
             <h2><i class="fas fa-users-cog"></i> Student Data Import</h2>
             
-                         <?php 
-             // Debug: Show available data for troubleshooting
-             $available_data = showAvailableData();
-             ?>
+            
              
              <div class="format-info">
                  <h4><i class="fas fa-info-circle"></i> CSV File Format Requirements</h4>
@@ -756,42 +732,7 @@ PARVATHIPURAM | BALIJIPETA | TTC7430652 | BATCH 1 | 7799773656 | 975422335686 | 
                     </div>
                 </div>
                 
-                <!-- Debug Section - Available Data -->
-                <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px;">
-                    <h5><i class="fas fa-bug"></i> Debug Info - Available Data in Database</h5>
-                    <div style="font-size: 0.9em;">
-                        <p><strong>Constituencies:</strong> <?php echo count($available_data['constituencies']); ?> found</p>
-                        <p><strong>Mandals:</strong> <?php echo count($available_data['mandals']); ?> found</p>
-                        <p><strong>Training Centers:</strong> <?php echo count($available_data['training_centers']); ?> found</p>
-                        <p><strong>Batches:</strong> <?php echo count($available_data['batches']); ?> found</p>
-                        
-                        <details style="margin-top: 10px;">
-                            <summary><strong>View Details</strong></summary>
-                            <div style="margin-top: 10px; font-family: monospace; font-size: 0.8em;">
-                                <p><strong>Constituencies:</strong></p>
-                                <ul style="margin: 5px 0; padding-left: 20px;">
-                                    <?php foreach ($available_data['constituencies'] as $c): ?>
-                                        <li><?php echo htmlspecialchars($c['name']); ?> (ID: <?php echo $c['id']; ?>)</li>
-                                    <?php endforeach; ?>
-                                </ul>
-                                
-                                <p><strong>Training Centers:</strong></p>
-                                <ul style="margin: 5px 0; padding-left: 20px;">
-                                    <?php foreach ($available_data['training_centers'] as $tc): ?>
-                                        <li><?php echo htmlspecialchars($tc['tc_id']); ?> (ID: <?php echo $tc['id']; ?>) - Mandal ID: <?php echo $tc['mandal_id']; ?></li>
-                                    <?php endforeach; ?>
-                                </ul>
-                                
-                                <p><strong>Batches:</strong></p>
-                                <ul style="margin: 5px 0; padding-left: 20px;">
-                                    <?php foreach ($available_data['batches'] as $b): ?>
-                                        <li><?php echo htmlspecialchars($b['name']); ?> (ID: <?php echo $b['id']; ?>) - Mandal ID: <?php echo $b['mandal_id']; ?>, TC ID: <?php echo $b['tc_id']; ?></li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            </div>
-                        </details>
-                    </div>
-                </div>
+
             </div>
             
             <?php if (!empty($error)): ?>
