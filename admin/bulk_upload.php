@@ -333,21 +333,33 @@ function validateBeneficiaryRecord($data, $row_number) {
         error_log("DEBUG: Found constituency ID: " . $constituency['id']);
         
         // Get mandal ID
+        error_log("DEBUG: Looking for mandal - Name: '$mandal_name', Constituency ID: " . $constituency['id']);
         $mandal = fetchRow("SELECT id FROM mandals WHERE name = ? AND constituency_id = ?", [$mandal_name, $constituency['id']], 'si');
         if (!$mandal) {
+            error_log("DEBUG: Mandal not found: '$mandal_name' in constituency '$constituency_name'");
             throw new Exception("Mandal '$mandal_name' not found in constituency '$constituency_name'");
         }
+        error_log("DEBUG: Found mandal ID: " . $mandal['id']);
         
         // Get training center ID
+        error_log("DEBUG: Looking for training center - TC ID: '$tc_id', Mandal ID: " . $mandal['id']);
         $training_center = fetchRow("SELECT id FROM training_centers WHERE tc_id = ? AND mandal_id = ?", [$tc_id, $mandal['id']], 'si');
         if (!$training_center) {
+            error_log("DEBUG: Training center not found: '$tc_id' in mandal '$mandal_name'");
             throw new Exception("Training center '$tc_id' not found in mandal '$mandal_name'");
         }
+        error_log("DEBUG: Found training center ID: " . $training_center['id']);
         
         // Get batch ID
+        error_log("DEBUG: Looking for batch - Name: '$batch_name', Mandal ID: " . $mandal['id'] . ", TC ID: " . $training_center['id']);
+        
+        // First, let's see what batches exist for this mandal and TC
+        $all_batches = fetchAll("SELECT id, name, mandal_id, tc_id FROM batches WHERE mandal_id = ? AND tc_id = ?", [$mandal['id'], $training_center['id']], 'ii');
+        error_log("DEBUG: Available batches for this mandal/TC: " . print_r($all_batches, true));
+        
         $batch = fetchRow("SELECT id FROM batches WHERE name = ? AND mandal_id = ? AND tc_id = ?", [$batch_name, $mandal['id'], $training_center['id']], 'sii');
         if (!$batch) {
-            throw new Exception("Batch '$batch_name' not found for training center '$tc_id'");
+            throw new Exception("Batch '$batch_name' not found for training center '$tc_id' in mandal '$mandal_name'. Available batches: " . implode(', ', array_column($all_batches, 'name')));
         }
         
         // Get batch dates from the batch record (no need to validate individual dates)
@@ -500,6 +512,29 @@ function logBulkUpload($filename, $results) {
 // Generate CSRF token
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+// Debug function to show available data
+function showAvailableData() {
+    $data = [];
+    
+    // Get constituencies
+    $constituencies = fetchAll("SELECT id, name FROM constituencies ORDER BY name");
+    $data['constituencies'] = $constituencies;
+    
+    // Get mandals
+    $mandals = fetchAll("SELECT id, name, constituency_id FROM mandals ORDER BY name");
+    $data['mandals'] = $mandals;
+    
+    // Get training centers
+    $training_centers = fetchAll("SELECT id, tc_id, mandal_id, name FROM training_centers ORDER BY tc_id");
+    $data['training_centers'] = $training_centers;
+    
+    // Get batches
+    $batches = fetchAll("SELECT id, name, mandal_id, tc_id FROM batches ORDER BY name");
+    $data['batches'] = $batches;
+    
+    return $data;
 }
 ?>
 <!DOCTYPE html>
@@ -668,8 +703,13 @@ if (!isset($_SESSION['csrf_token'])) {
         <div class="upload-container">
             <h2><i class="fas fa-users-cog"></i> Student Data Import</h2>
             
-            <div class="format-info">
-                <h4><i class="fas fa-info-circle"></i> CSV File Format Requirements</h4>
+                         <?php 
+             // Debug: Show available data for troubleshooting
+             $available_data = showAvailableData();
+             ?>
+             
+             <div class="format-info">
+                 <h4><i class="fas fa-info-circle"></i> CSV File Format Requirements</h4>
                 <p>Your CSV file must have exactly these columns in this order:</p>
                 <div class="sample-format">
 constituency | mandal | tc_id | batch | mobile_number | aadhar_number | full_name | status
@@ -696,6 +736,43 @@ PARVATHIPURAM | BALIJIPETA | TTC7430652 | BATCH 1 | 7799773656 | 975422335686 | 
                     </ol>
                     <div style="background: #fff3cd; padding: 8px; border-radius: 3px; margin-top: 10px;">
                         <strong>💡 Tip:</strong> The system automatically fixes scientific notation (9.68E+11) in Aadhar numbers, but formatting as TEXT prevents this issue.
+                    </div>
+                </div>
+                
+                <!-- Debug Section - Available Data -->
+                <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px;">
+                    <h5><i class="fas fa-bug"></i> Debug Info - Available Data in Database</h5>
+                    <div style="font-size: 0.9em;">
+                        <p><strong>Constituencies:</strong> <?php echo count($available_data['constituencies']); ?> found</p>
+                        <p><strong>Mandals:</strong> <?php echo count($available_data['mandals']); ?> found</p>
+                        <p><strong>Training Centers:</strong> <?php echo count($available_data['training_centers']); ?> found</p>
+                        <p><strong>Batches:</strong> <?php echo count($available_data['batches']); ?> found</p>
+                        
+                        <details style="margin-top: 10px;">
+                            <summary><strong>View Details</strong></summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 0.8em;">
+                                <p><strong>Constituencies:</strong></p>
+                                <ul style="margin: 5px 0; padding-left: 20px;">
+                                    <?php foreach ($available_data['constituencies'] as $c): ?>
+                                        <li><?php echo htmlspecialchars($c['name']); ?> (ID: <?php echo $c['id']; ?>)</li>
+                                    <?php endforeach; ?>
+                                </ul>
+                                
+                                <p><strong>Training Centers:</strong></p>
+                                <ul style="margin: 5px 0; padding-left: 20px;">
+                                    <?php foreach ($available_data['training_centers'] as $tc): ?>
+                                        <li><?php echo htmlspecialchars($tc['tc_id']); ?> (ID: <?php echo $tc['id']; ?>) - Mandal ID: <?php echo $tc['mandal_id']; ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                                
+                                <p><strong>Batches:</strong></p>
+                                <ul style="margin: 5px 0; padding-left: 20px;">
+                                    <?php foreach ($available_data['batches'] as $b): ?>
+                                        <li><?php echo htmlspecialchars($b['name']); ?> (ID: <?php echo $b['id']; ?>) - Mandal ID: <?php echo $b['mandal_id']; ?>, TC ID: <?php echo $b['tc_id']; ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        </details>
                     </div>
                 </div>
             </div>
