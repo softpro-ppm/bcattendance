@@ -188,9 +188,10 @@ require_once '../includes/header.php';
                                                     <th data-sort="c.name" style="cursor: pointer;">
                                                         Constituency <i class="fas fa-sort"></i>
                                                     </th>
-                                                    <th data-sort="attendance_percentage" style="cursor: pointer;">
-                                                        Attendance % <i class="fas fa-sort"></i>
-                                                    </th>
+                                                                                                    <th data-sort="attendance_percentage" style="cursor: pointer;">
+                                                    Attendance % <i class="fas fa-sort"></i><br>
+                                                    <small class="text-muted">(Working Days)</small>
+                                                </th>
                                                     <th data-sort="b.status" style="cursor: pointer;">
                                                         Status <i class="fas fa-sort"></i>
                                                     </th>
@@ -533,7 +534,7 @@ function displayData(data) {
                     <span class="${attendanceClass} font-weight-bold">
                         ${student.attendance_percentage}%
                     </span><br>
-                    <small class="text-muted">${student.present_days}/${student.total_days} days</small>
+                    <small class="text-muted">${student.present_days}/${student.total_days} working days</small>
                 </td>
                 <td>
                     <span class="badge ${getStatusBadgeClass(student.beneficiary_status)}">
@@ -642,7 +643,7 @@ function exportToExcel() {
 
 function generateExcel(data) {
     // Create CSV content
-    let csv = 'Sr. No.,Student Name,Aadhar Number,Mobile,Batch,Batch Code,Mandal,Constituency,Attendance %,Present Days,Total Days,Status\n';
+    let csv = 'Sr. No.,Student Name,Aadhar Number,Mobile,Batch,Batch Code,Mandal,Constituency,Attendance %,Present Days,Working Days,Status\n';
     
     data.forEach((student, index) => {
         const serialNumber = index + 1;

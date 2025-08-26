@@ -122,7 +122,7 @@ function getBatchData() {
             SELECT 
                 a.beneficiary_id,
                 COUNT(CASE WHEN a.status = 'present' THEN 1 END) as present_days,
-                COUNT(*) as total_days
+                COUNT(CASE WHEN a.status IN ('present', 'absent') THEN 1 END) as total_days
             FROM attendance a
             JOIN beneficiaries b2 ON a.beneficiary_id = b2.id
             JOIN batches bt2 ON b2.batch_id = bt2.id
@@ -194,11 +194,10 @@ function getBatchStats() {
             SELECT 
                 a.beneficiary_id,
                 COUNT(CASE WHEN a.status = 'present' THEN 1 END) as present_days,
-                COUNT(*) as total_days
+                COUNT(CASE WHEN a.status IN ('present', 'absent') THEN 1 END) as total_days
             FROM attendance a
             JOIN beneficiaries b2 ON a.beneficiary_id = b2.id
             JOIN batches bt2 ON b2.batch_id = bt2.id
-            WHERE a.attendance_date BETWEEN bt2.start_date AND bt2.end_date
             GROUP BY a.beneficiary_id
         ) att ON b.id = att.beneficiary_id
         $where_clause
