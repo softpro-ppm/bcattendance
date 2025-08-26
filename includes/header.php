@@ -81,6 +81,12 @@ $currentUser = getCurrentUser();
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="../admin/batch_reports.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'batch_reports.php') ? 'active' : ''; ?>">
+                            <i class="nav-icon fas fa-chart-bar"></i>
+                            <span>Batch Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="../admin/bulk_upload.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'bulk_upload.php') ? 'active' : ''; ?>">
                             <i class="nav-icon fas fa-users-cog"></i>
                             <span>Student Data Import</span>
