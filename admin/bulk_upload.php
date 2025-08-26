@@ -72,6 +72,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['excel_file'])) {
                 $filepath = $upload_dir . $filename;
                 
                 if (move_uploaded_file($file['tmp_name'], $filepath)) {
+                    // Debug: Show file content for troubleshooting
+                    $file_content = file_get_contents($filepath);
+                    error_log("DEBUG: File content (first 500 chars): " . substr($file_content, 0, 500));
+                    
                     // First, validate the CSV and show preview
                     $preview_results = processBulkUpload($filepath, $filename, false); // false = validation only
                     $preview_data = $preview_results;
@@ -107,20 +111,38 @@ function processBulkUpload($filepath, $filename, $actually_insert = false) {
     
     try {
         if ($file_extension == 'csv') {
+            // Debug: Check if file exists and is readable
+            error_log("DEBUG: Processing file: $filepath");
+            error_log("DEBUG: File exists: " . (file_exists($filepath) ? 'YES' : 'NO'));
+            error_log("DEBUG: File size: " . (file_exists($filepath) ? filesize($filepath) : 'N/A') . " bytes");
+            
             // Process CSV file
             if (($handle = fopen($filepath, "r")) !== FALSE) {
                 $header = fgetcsv($handle); // Read header row
                 
+                // Debug: Log what we're reading
+                error_log("DEBUG: CSV Header: " . print_r($header, true));
+                error_log("DEBUG: Expected columns: " . print_r($expected_columns, true));
+                
                 // Validate header
                 if (!validateHeaders($header, $expected_columns)) {
                     $results['errors'][] = "Invalid file format. Expected columns: " . implode(', ', $expected_columns);
+                    $results['errors'][] = "Actual columns: " . implode(', ', $header);
+                    error_log("DEBUG: Header validation failed");
                     return $results;
                 }
+                
+                error_log("DEBUG: Header validation passed");
                 
                 $row_number = 1;
                 while (($data = fgetcsv($handle)) !== FALSE) {
                     $row_number++;
                     $results['total_count']++;
+                    
+                    // Debug: Log first few rows
+                    if ($row_number <= 3) {
+                        error_log("DEBUG: Row $row_number data: " . print_r($data, true));
+                    }
                     
                     try {
                         if ($actually_insert) {
@@ -226,6 +248,10 @@ function validateBeneficiaryRecord($data, $row_number) {
     ];
     
     try {
+        // Debug: Log what we're trying to extract
+        error_log("DEBUG: Validating row $row_number with " . count($data) . " columns");
+        error_log("DEBUG: Raw data: " . print_r($data, true));
+        
         // Extract data
         $constituency_name = trim($data[0]);
         $mandal_name = trim($data[1]);
@@ -235,6 +261,8 @@ function validateBeneficiaryRecord($data, $row_number) {
         $aadhar_number = convertScientificNotation(trim($data[5]));
         $full_name = trim($data[6]);
         $status = isset($data[7]) ? trim($data[7]) : 'active'; // Default to active if status not provided
+        
+        error_log("DEBUG: Extracted data - Constituency: '$constituency_name', Mandal: '$mandal_name', TC: '$tc_id', Batch: '$batch_name'");
         
         $result['data'] = [
             'constituency' => $constituency_name,
@@ -279,10 +307,13 @@ function validateBeneficiaryRecord($data, $row_number) {
         }
         
         // Get constituency ID
+        error_log("DEBUG: Looking for constituency: '$constituency_name'");
         $constituency = fetchRow("SELECT id FROM constituencies WHERE name = ?", [$constituency_name], 's');
         if (!$constituency) {
+            error_log("DEBUG: Constituency not found: '$constituency_name'");
             throw new Exception("Constituency '$constituency_name' not found");
         }
+        error_log("DEBUG: Found constituency ID: " . $constituency['id']);
         
         // Get mandal ID
         $mandal = fetchRow("SELECT id FROM mandals WHERE name = ? AND constituency_id = ?", [$mandal_name, $constituency['id']], 'si');
