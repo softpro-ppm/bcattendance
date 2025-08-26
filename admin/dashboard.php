@@ -7,23 +7,6 @@ $breadcrumbs = [
 // No additional JS needed for simple percentage cards
 
 require_once '../includes/header.php';
-?>
-<style>
-/* Custom column width for 5 cards */
-.col-md-2-4 {
-    flex: 0 0 20%;
-    max-width: 20%;
-}
-
-@media (max-width: 768px) {
-    .col-md-2-4 {
-        flex: 0 0 100%;
-        max-width: 100%;
-        margin-bottom: 1rem;
-    }
-}
-</style>
-<?php
 
 // Check and mark completed batches automatically
 $batchCompletionResult = checkAndMarkCompletedBatches();
@@ -66,7 +49,7 @@ $batchMarkingStatus = fetchAll("
 
 <div class="row">
     <!-- Statistics Cards -->
-    <div class="col-md-2-4">
+    <div class="col-md-3">
         <div class="card stats-card">
             <div class="card-body">
                 <div class="stats-icon">
@@ -78,7 +61,7 @@ $batchMarkingStatus = fetchAll("
         </div>
     </div>
 
-    <div class="col-md-2-4">
+    <div class="col-md-3">
         <div class="card stats-card">
             <div class="card-body">
                 <div class="stats-icon">
@@ -90,7 +73,7 @@ $batchMarkingStatus = fetchAll("
         </div>
     </div>
 
-    <div class="col-md-2-4">
+    <div class="col-md-3">
         <div class="card stats-card">
             <div class="card-body">
                 <div class="stats-icon">
@@ -102,19 +85,7 @@ $batchMarkingStatus = fetchAll("
         </div>
     </div>
 
-    <div class="col-md-2-4">
-        <div class="card stats-card">
-            <div class="card-body">
-                <div class="stats-icon">
-                    <i class="fas fa-building"></i>
-                </div>
-                <div class="stats-number" data-stat="total_mandals"><?php echo number_format($stats['total_mandals']); ?></div>
-                <div class="stats-label">Mandals</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-2-4">
+    <div class="col-md-3">
         <div class="card stats-card">
             <div class="card-body">
                 <div class="stats-icon">
