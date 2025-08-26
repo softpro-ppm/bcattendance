@@ -298,9 +298,13 @@ function getDashboardStats() {
     $result = fetchRow("SELECT COUNT(*) as total FROM beneficiaries");
     $stats['total_beneficiaries'] = $result ? $result['total'] : 0;
     
-    // Ongoing students (total - completed, including inactive in batches)
-    $result = fetchRow("SELECT COUNT(*) as total FROM beneficiaries WHERE status != 'completed'");
+    // Ongoing students (only active students, excluding completed and inactive)
+    $result = fetchRow("SELECT COUNT(*) as total FROM beneficiaries WHERE status = 'active'");
     $stats['ongoing_students'] = $result ? $result['total'] : 0;
+    
+    // Completed students (students in completed batches)
+    $result = fetchRow("SELECT COUNT(*) as total FROM beneficiaries WHERE status = 'completed'");
+    $stats['completed_students'] = $result ? $result['total'] : 0;
     
     // Total constituencies
     $result = fetchRow("SELECT COUNT(*) as total FROM constituencies WHERE status = 'active'");
