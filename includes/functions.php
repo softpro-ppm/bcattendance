@@ -532,16 +532,19 @@ function removeHoliday($date) {
     }
 }
 
-// Check and mark completed batches
+// Check and mark completed batches OR reactivate extended batches
 function checkAndMarkCompletedBatches() {
     try {
         $conn = getDBConnection();
         
-        // Get batches that have ended but are still marked as active
-        $query = "SELECT id, name, end_date FROM batches 
-                  WHERE status = 'active' AND end_date < CURDATE()";
+        $messages = [];
+        $totalChanges = 0;
         
-        $stmt = $conn->prepare($query);
+        // 1. Get batches that have ended but are still marked as active
+        $completedQuery = "SELECT id, name, end_date FROM batches 
+                          WHERE status = 'active' AND end_date < CURDATE()";
+        
+        $stmt = $conn->prepare($completedQuery);
         if (!$stmt) {
             throw new Exception("Prepare failed: " . $conn->error);
         }
@@ -555,46 +558,105 @@ function checkAndMarkCompletedBatches() {
         }
         $stmt->close();
         
-        if (empty($completedBatches)) {
-            return ['success' => true, 'message' => 'No batches to mark as completed', 'count' => 0];
+        // 2. Get batches that have been extended and should be reactivated
+        $reactivateQuery = "SELECT id, name, end_date FROM batches 
+                           WHERE status = 'completed' AND end_date >= CURDATE()";
+        
+        $stmt = $conn->prepare($reactivateQuery);
+        if (!$stmt) {
+            throw new Exception("Prepare failed: " . $conn->error);
         }
         
-        $updatedBatches = 0;
-        $updatedBeneficiaries = 0;
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $reactivateBatches = [];
         
-        foreach ($completedBatches as $batch) {
-            // Mark batch as completed
-            $updateBatchQuery = "UPDATE batches SET status = 'completed', updated_at = NOW() WHERE id = ?";
-            $batchStmt = $conn->prepare($updateBatchQuery);
-            $batchStmt->bind_param('i', $batch['id']);
+        while ($row = $result->fetch_assoc()) {
+            $reactivateBatches[] = $row;
+        }
+        $stmt->close();
+        
+        // Process completed batches
+        if (!empty($completedBatches)) {
+            $updatedBatches = 0;
+            $updatedBeneficiaries = 0;
             
-            if ($batchStmt->execute()) {
-                $updatedBatches++;
+            foreach ($completedBatches as $batch) {
+                // Mark batch as completed
+                $updateBatchQuery = "UPDATE batches SET status = 'completed', updated_at = NOW() WHERE id = ?";
+                $batchStmt = $conn->prepare($updateBatchQuery);
+                $batchStmt->bind_param('i', $batch['id']);
                 
-                // Mark all beneficiaries in this batch as completed
-                $updateBeneficiariesQuery = "UPDATE beneficiaries SET status = 'completed', updated_at = NOW() WHERE batch_id = ? AND status = 'active'";
-                $beneficiariesStmt = $conn->prepare($updateBeneficiariesQuery);
-                $beneficiariesStmt->bind_param('i', $batch['id']);
-                
-                if ($beneficiariesStmt->execute()) {
-                    $updatedBeneficiaries += $beneficiariesStmt->affected_rows;
+                if ($batchStmt->execute()) {
+                    $updatedBatches++;
+                    
+                    // Mark all beneficiaries in this batch as completed
+                    $updateBeneficiariesQuery = "UPDATE beneficiaries SET status = 'completed', updated_at = NOW() WHERE batch_id = ? AND status = 'active'";
+                    $beneficiariesStmt = $conn->prepare($updateBeneficiariesQuery);
+                    $beneficiariesStmt->bind_param('i', $batch['id']);
+                    
+                    if ($beneficiariesStmt->execute()) {
+                        $updatedBeneficiaries += $beneficiariesStmt->affected_rows;
+                    }
+                    $beneficiariesStmt->close();
                 }
-                $beneficiariesStmt->close();
+                $batchStmt->close();
             }
-            $batchStmt->close();
+            
+            if ($updatedBatches > 0) {
+                $messages[] = "Marked $updatedBatches batches and $updatedBeneficiaries beneficiaries as completed";
+                $totalChanges += $updatedBatches;
+            }
+        }
+        
+        // Process reactivated batches
+        if (!empty($reactivateBatches)) {
+            $reactivatedBatches = 0;
+            $reactivatedBeneficiaries = 0;
+            
+            foreach ($reactivateBatches as $batch) {
+                // Mark batch as active
+                $updateBatchQuery = "UPDATE batches SET status = 'active', updated_at = NOW() WHERE id = ?";
+                $batchStmt = $conn->prepare($updateBatchQuery);
+                $batchStmt->bind_param('i', $batch['id']);
+                
+                if ($batchStmt->execute()) {
+                    $reactivatedBatches++;
+                    
+                    // Mark all beneficiaries in this batch as active
+                    $updateBeneficiariesQuery = "UPDATE beneficiaries SET status = 'active', updated_at = NOW() WHERE batch_id = ? AND status = 'completed'";
+                    $beneficiariesStmt = $conn->prepare($updateBeneficiariesQuery);
+                    $beneficiariesStmt->bind_param('i', $batch['id']);
+                    
+                    if ($beneficiariesStmt->execute()) {
+                        $reactivatedBeneficiaries += $beneficiariesStmt->affected_rows;
+                    }
+                    $beneficiariesStmt->close();
+                }
+                $batchStmt->close();
+            }
+            
+            if ($reactivatedBatches > 0) {
+                $messages[] = "Reactivated $reactivatedBatches batches and $reactivatedBeneficiaries beneficiaries";
+                $totalChanges += $reactivatedBatches;
+            }
+        }
+        
+        if ($totalChanges == 0) {
+            return ['success' => true, 'message' => 'No batch status changes needed', 'count' => 0];
         }
         
         return [
             'success' => true, 
-            'message' => "Marked $updatedBatches batches and $updatedBeneficiaries beneficiaries as completed",
-            'count' => $updatedBatches
+            'message' => implode('; ', $messages),
+            'count' => $totalChanges
         ];
         
     } catch (Exception $e) {
-        error_log("Error marking completed batches: " . $e->getMessage());
+        error_log("Error updating batch statuses: " . $e->getMessage());
         return [
             'success' => false, 
-            'message' => 'Error marking completed batches: ' . $e->getMessage(),
+            'message' => 'Error updating batch statuses: ' . $e->getMessage(),
             'count' => 0
         ];
     }
