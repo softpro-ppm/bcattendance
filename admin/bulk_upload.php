@@ -264,7 +264,22 @@ function validateBeneficiaryRecord($data, $row_number) {
         
         // Validate phone number
         if (!empty($mobile_number) && (!ctype_digit($mobile_number) || strlen($mobile_number) !== 10)) {
-            throw new Exception("Phone number must be exactly 10 digits");
+            throw new Exception("Phone number must be exactly 10 digits. Got: '$mobile_number'");
+        }
+        
+        // Validate Aadhar number
+        if (empty($aadhar_number)) {
+            throw new Exception("Aadhar number is required");
+        }
+        
+        // Check if Aadhar is in scientific notation
+        if (stripos($aadhar_number, 'e') !== false) {
+            throw new Exception("Aadhar number is in scientific notation. Please format the Aadhar column as TEXT in Excel. Got: '$aadhar_number'");
+        }
+        
+        // Check if Aadhar is exactly 12 digits
+        if (!ctype_digit($aadhar_number) || strlen($aadhar_number) !== 12) {
+            throw new Exception("Aadhar number must be exactly 12 digits. Got: '$aadhar_number' (length: " . strlen($aadhar_number) . ")");
         }
         
         // Get constituency ID
@@ -291,9 +306,25 @@ function validateBeneficiaryRecord($data, $row_number) {
             throw new Exception("Batch '$batch_name' not found for training center '$tc_id'");
         }
         
-        // Validate dates
-        $start_date = date('Y-m-d', strtotime($batch_start_date));
-        $end_date = date('Y-m-d', strtotime($batch_end_date));
+        // Validate dates - accept both DD/MM/YY and DD-MM-YY formats
+        $date_formats = ['d/m/y', 'd-m-y', 'd/m/Y', 'd-m-Y'];
+        $start_date = null;
+        $end_date = null;
+        
+        foreach ($date_formats as $format) {
+            $parsed_start = DateTime::createFromFormat($format, $batch_start_date);
+            $parsed_end = DateTime::createFromFormat($format, $batch_end_date);
+            
+            if ($parsed_start && $parsed_end) {
+                $start_date = $parsed_start->format('Y-m-d');
+                $end_date = $parsed_end->format('Y-m-d');
+                break;
+            }
+        }
+        
+        if (!$start_date || !$end_date) {
+            throw new Exception("Invalid date format. Expected DD/MM/YY or DD-MM-YY. Got: Start='$batch_start_date', End='$batch_end_date'");
+        }
         
         // Check if beneficiary already exists
         $existing = fetchRow("SELECT id FROM beneficiaries WHERE aadhar_number = ?", [$aadhar_number], 's');
@@ -339,7 +370,22 @@ function processBeneficiaryRecord($data, $row_number) {
     
     // Validate phone number (must be exactly 10 digits)
     if (!empty($mobile_number) && (!ctype_digit($mobile_number) || strlen($mobile_number) !== 10)) {
-        throw new Exception("Phone number must be exactly 10 digits");
+        throw new Exception("Phone number must be exactly 10 digits. Got: '$mobile_number'");
+    }
+    
+    // Validate Aadhar number
+    if (empty($aadhar_number)) {
+        throw new Exception("Aadhar number is required");
+    }
+    
+    // Check if Aadhar is in scientific notation
+    if (stripos($aadhar_number, 'e') !== false) {
+        throw new Exception("Aadhar number is in scientific notation. Please format the Aadhar column as TEXT in Excel. Got: '$aadhar_number'");
+    }
+    
+    // Check if Aadhar is exactly 12 digits
+    if (!ctype_digit($aadhar_number) || strlen($aadhar_number) !== 12) {
+        throw new Exception("Aadhar number must be exactly 12 digits. Got: '$aadhar_number' (length: " . strlen($aadhar_number) . ")");
     }
     
     // Get constituency ID
@@ -366,9 +412,25 @@ function processBeneficiaryRecord($data, $row_number) {
         throw new Exception("Batch '$batch_name' not found for training center '$tc_id'");
     }
     
-    // Validate dates
-    $start_date = date('Y-m-d', strtotime($batch_start_date));
-    $end_date = date('Y-m-d', strtotime($batch_end_date));
+    // Validate dates - accept both DD/MM/YY and DD-MM-YY formats
+    $date_formats = ['d/m/y', 'd-m-y', 'd/m/Y', 'd-m-Y'];
+    $start_date = null;
+    $end_date = null;
+    
+    foreach ($date_formats as $format) {
+        $parsed_start = DateTime::createFromFormat($format, $batch_start_date);
+        $parsed_end = DateTime::createFromFormat($format, $batch_end_date);
+        
+        if ($parsed_start && $parsed_end) {
+            $start_date = $parsed_start->format('Y-m-d');
+            $end_date = $parsed_end->format('Y-m-d');
+            break;
+        }
+    }
+    
+    if (!$start_date || !$end_date) {
+        throw new Exception("Invalid date format. Expected DD/MM/YY or DD-MM-YY. Got: Start='$batch_start_date', End='$batch_end_date'");
+    }
     
     // Check if beneficiary already exists
     $existing = fetchRow("SELECT id FROM beneficiaries WHERE aadhar_number = ?", [$aadhar_number], 's');
@@ -594,8 +656,9 @@ constituency | mandal | tc_id | batch | batch_start_date | batch_end_date | mobi
                 </div>
                 <p><strong>Example:</strong></p>
                 <div class="sample-format">
-PARVATHIPURAM | BALIJIPETA | TTC7430652 | BATCH 1 | 16/06/25 | 30/09/25 | 7799773656 | 975422335686 | RAJESH GULLA | active
+PARVATHIPURAM | BALIJIPETA | TTC7430652 | BATCH 1 | 16-06-25 | 30-09-25 | 7799773656 | 975422335686 | RAJESH GULLA | active
                 </div>
+                <p><strong>Date Format:</strong> <code>DD-MM-YY</code> (e.g., 16-06-25) or <code>DD/MM/YY</code> (e.g., 16/06/25)</p>
                 <p><strong>Status Options:</strong> <code>active</code> or <code>inactive</code> (defaults to <code>active</code> if not specified)</p>
                 <a href="download_sample.php" class="btn-download-sample">
                     <i class="fas fa-download"></i> Download Sample CSV File
