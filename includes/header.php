@@ -69,7 +69,7 @@ $currentUser = getCurrentUser();
                     </li>
 
                     <li class="nav-item">
-                        <a href="/v2bc_attendance/admin/attendance_bulk_upload.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'attendance_bulk_upload.php') ? 'active' : ''; ?>">
+                        <a href="../admin/attendance_bulk_upload.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'attendance_bulk_upload.php') ? 'active' : ''; ?>">
                             <i class="nav-icon fas fa-history"></i>
                             <span>Historical Data Import</span>
                         </a>
