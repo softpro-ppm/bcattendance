@@ -340,16 +340,21 @@ if (!isset($_SESSION['csrf_token'])) {
                                 </div>
                                 <div class="card-body">
                                     <p>Download the sample template to see the required format:</p>
-                                    <a href="attendance_sample_template.csv" class="btn btn-success btn-sm" download>
+                                    <a href="download_attendance_sample.php" class="btn btn-success btn-sm">
                                         <i class="fas fa-download"></i> Download Sample CSV
                                     </a>
                                     
+                                    <div style="margin-top: 10px; padding: 8px; background: #fff3cd; border-radius: 3px; font-size: 0.85em;">
+                                        <strong>💡 Tip:</strong> For Excel files, save as CSV format before uploading. Format Aadhar column as TEXT to avoid scientific notation.
+                                    </div>
+                                    
                                     <hr>
                                     <small>
-                                        <strong>New Simplified Format:</strong><br>
-                                        • <strong>Only 2 columns required:</strong> aadhar_number, full_name<br>
+                                        <strong>CSV Format Requirements:</strong><br>
+                                        • <strong>Required columns:</strong> aadhar_number, full_name, status<br>
                                         • <strong>Date columns:</strong> Daily attendance (DD/MM/YY format)<br>
                                         • <strong>Status codes:</strong> P (Present), A (Absent), H (Holiday)<br>
+                                        • <strong>Status values:</strong> active, inactive (for beneficiary status)<br>
                                         • <strong>Auto-matching:</strong> System finds beneficiary by Aadhar number<br>
                                         • <strong>Multiple beneficiaries</strong> from different batches supported
                                     </small>
