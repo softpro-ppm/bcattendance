@@ -100,7 +100,7 @@ function processBulkUpload($filepath, $filename, $actually_insert = false) {
         'filename' => $filename
     ];
     
-    $expected_columns = ['constituency', 'mandal', 'tc_id', 'batch', 'batch_start_date', 'batch_end_date', 'mobile_number', 'aadhar_number', 'full_name'];
+    $expected_columns = ['constituency', 'mandal', 'tc_id', 'batch', 'mobile_number', 'aadhar_number', 'full_name', 'status'];
     
     // Get file extension to determine processing method
     $file_extension = strtolower(pathinfo($filepath, PATHINFO_EXTENSION));
@@ -231,20 +231,16 @@ function validateBeneficiaryRecord($data, $row_number) {
         $mandal_name = trim($data[1]);
         $tc_id = trim($data[2]);
         $batch_name = trim($data[3]);
-        $batch_start_date = trim($data[4]);
-        $batch_end_date = trim($data[5]);
-        $mobile_number = convertScientificNotation(trim($data[6]));
-        $aadhar_number = convertScientificNotation(trim($data[7]));
-        $full_name = trim($data[8]);
-        $status = isset($data[9]) ? trim($data[9]) : 'active'; // Default to active if status not provided
+        $mobile_number = convertScientificNotation(trim($data[4]));
+        $aadhar_number = convertScientificNotation(trim($data[5]));
+        $full_name = trim($data[6]);
+        $status = isset($data[7]) ? trim($data[7]) : 'active'; // Default to active if status not provided
         
         $result['data'] = [
             'constituency' => $constituency_name,
             'mandal' => $mandal_name,
             'tc_id' => $tc_id,
             'batch' => $batch_name,
-            'batch_start_date' => $batch_start_date,
-            'batch_end_date' => $batch_end_date,
             'mobile_number' => $mobile_number,
             'aadhar_number' => $aadhar_number,
             'full_name' => $full_name,
@@ -306,25 +302,14 @@ function validateBeneficiaryRecord($data, $row_number) {
             throw new Exception("Batch '$batch_name' not found for training center '$tc_id'");
         }
         
-        // Validate dates - accept both DD/MM/YY and DD-MM-YY formats
-        $date_formats = ['d/m/y', 'd-m-y', 'd/m/Y', 'd-m-Y'];
-        $start_date = null;
-        $end_date = null;
-        
-        foreach ($date_formats as $format) {
-            $parsed_start = DateTime::createFromFormat($format, $batch_start_date);
-            $parsed_end = DateTime::createFromFormat($format, $batch_end_date);
-            
-            if ($parsed_start && $parsed_end) {
-                $start_date = $parsed_start->format('Y-m-d');
-                $end_date = $parsed_end->format('Y-m-d');
-                break;
-            }
+        // Get batch dates from the batch record (no need to validate individual dates)
+        $batch_record = fetchRow("SELECT batch_start_date, batch_end_date FROM batches WHERE id = ?", [$batch['id']], 'i');
+        if (!$batch_record) {
+            throw new Exception("Could not retrieve batch dates for batch '$batch_name'");
         }
         
-        if (!$start_date || !$end_date) {
-            throw new Exception("Invalid date format. Expected DD/MM/YY or DD-MM-YY. Got: Start='$batch_start_date', End='$batch_end_date'");
-        }
+        $start_date = $batch_record['batch_start_date'];
+        $end_date = $batch_record['batch_end_date'];
         
         // Check if beneficiary already exists
         $existing = fetchRow("SELECT id FROM beneficiaries WHERE aadhar_number = ?", [$aadhar_number], 's');
@@ -356,12 +341,10 @@ function processBeneficiaryRecord($data, $row_number) {
     $mandal_name = trim($data[1]);
     $tc_id = trim($data[2]);
     $batch_name = trim($data[3]);
-    $batch_start_date = trim($data[4]);
-    $batch_end_date = trim($data[5]);
-    $mobile_number = convertScientificNotation(trim($data[6])); // Fix scientific notation
-    $aadhar_number = convertScientificNotation(trim($data[7])); // Fix scientific notation
-    $full_name = trim($data[8]);
-    $status = isset($data[9]) ? trim($data[9]) : 'active'; // Default to active if status not provided
+    $mobile_number = convertScientificNotation(trim($data[4])); // Fix scientific notation
+    $aadhar_number = convertScientificNotation(trim($data[5])); // Fix scientific notation
+    $full_name = trim($data[6]);
+    $status = isset($data[7]) ? trim($data[7]) : 'active'; // Default to active if status not provided
     
     // Validate required fields
     if (empty($constituency_name) || empty($mandal_name) || empty($tc_id) || empty($batch_name) || empty($aadhar_number) || empty($full_name)) {
@@ -412,25 +395,14 @@ function processBeneficiaryRecord($data, $row_number) {
         throw new Exception("Batch '$batch_name' not found for training center '$tc_id'");
     }
     
-    // Validate dates - accept both DD/MM/YY and DD-MM-YY formats
-    $date_formats = ['d/m/y', 'd-m-y', 'd/m/Y', 'd-m-Y'];
-    $start_date = null;
-    $end_date = null;
-    
-    foreach ($date_formats as $format) {
-        $parsed_start = DateTime::createFromFormat($format, $batch_start_date);
-        $parsed_end = DateTime::createFromFormat($format, $batch_end_date);
-        
-        if ($parsed_start && $parsed_end) {
-            $start_date = $parsed_start->format('Y-m-d');
-            $end_date = $parsed_end->format('Y-m-d');
-            break;
-        }
+    // Get batch dates from the batch record (no need to validate individual dates)
+    $batch_record = fetchRow("SELECT batch_start_date, batch_end_date FROM batches WHERE id = ?", [$batch['id']], 'i');
+    if (!$batch_record) {
+        throw new Exception("Could not retrieve batch dates for batch '$batch_name'");
     }
     
-    if (!$start_date || !$end_date) {
-        throw new Exception("Invalid date format. Expected DD/MM/YY or DD-MM-YY. Got: Start='$batch_start_date', End='$batch_end_date'");
-    }
+    $start_date = $batch_record['batch_start_date'];
+    $end_date = $batch_record['batch_end_date'];
     
     // Check if beneficiary already exists
     $existing = fetchRow("SELECT id FROM beneficiaries WHERE aadhar_number = ?", [$aadhar_number], 's');
@@ -652,13 +624,13 @@ if (!isset($_SESSION['csrf_token'])) {
                 <h4><i class="fas fa-info-circle"></i> CSV File Format Requirements</h4>
                 <p>Your CSV file must have exactly these columns in this order:</p>
                 <div class="sample-format">
-constituency | mandal | tc_id | batch | batch_start_date | batch_end_date | mobile_number | aadhar_number | full_name | status
+constituency | mandal | tc_id | batch | mobile_number | aadhar_number | full_name | status
                 </div>
                 <p><strong>Example:</strong></p>
                 <div class="sample-format">
-PARVATHIPURAM | BALIJIPETA | TTC7430652 | BATCH 1 | 16-06-25 | 30-09-25 | 7799773656 | 975422335686 | RAJESH GULLA | active
+PARVATHIPURAM | BALIJIPETA | TTC7430652 | BATCH 1 | 7799773656 | 975422335686 | RAJESH GULLA | active
                 </div>
-                <p><strong>Date Format:</strong> <code>DD-MM-YY</code> (e.g., 16-06-25) or <code>DD/MM/YY</code> (e.g., 16/06/25)</p>
+                <p><strong>Note:</strong> Batch dates are automatically taken from the existing batch records</p>
                 <p><strong>Status Options:</strong> <code>active</code> or <code>inactive</code> (defaults to <code>active</code> if not specified)</p>
                 <a href="download_sample.php" class="btn-download-sample">
                     <i class="fas fa-download"></i> Download Sample CSV File
