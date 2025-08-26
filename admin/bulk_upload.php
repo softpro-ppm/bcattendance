@@ -58,9 +58,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['excel_file'])) {
         $file = $_FILES['excel_file'];
         
         if ($file['error'] == UPLOAD_ERR_OK) {
+            // Debug: Log file upload details
+            error_log("DEBUG: File upload details - Name: " . $file['name'] . ", Size: " . $file['size'] . ", Type: " . $file['type']);
+            
             $allowed_types = ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv'];
             $file_type = $file['type'];
             $file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            
+            error_log("DEBUG: File extension: " . $file_extension . ", File type: " . $file_type);
             
             if (in_array($file_extension, ['csv'])) {
                 $upload_dir = '../uploads/';
@@ -80,6 +85,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['excel_file'])) {
                     $preview_results = processBulkUpload($filepath, $filename, false); // false = validation only
                     $preview_data = $preview_results;
                     $show_preview = true;
+                    
+                    // If there are errors, show them immediately
+                    if (!empty($preview_results['errors'])) {
+                        $error = "CSV Validation Errors:\n" . implode("\n", $preview_results['errors']);
+                    }
                 } else {
                     $error = 'Failed to upload file.';
                 }
@@ -123,6 +133,13 @@ function processBulkUpload($filepath, $filename, $actually_insert = false) {
                 // Debug: Log what we're reading
                 error_log("DEBUG: CSV Header: " . print_r($header, true));
                 error_log("DEBUG: Expected columns: " . print_r($expected_columns, true));
+                
+                // Check if header is empty or null
+                if (empty($header) || $header === false) {
+                    $results['errors'][] = "Could not read CSV header. File might be empty or corrupted.";
+                    error_log("DEBUG: Header is empty or null");
+                    return $results;
+                }
                 
                 // Validate header
                 if (!validateHeaders($header, $expected_columns)) {
