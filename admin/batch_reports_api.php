@@ -337,7 +337,9 @@ function generateCalendarData($month, $year, $attendanceData, $holidays, $studen
             'date' => $day,
             'class' => $attendanceInfo['class'],
             'tooltip' => $attendanceInfo['tooltip'],
-            'statusIcon' => $attendanceInfo['statusIcon']
+            'statusIcon' => $attendanceInfo['statusIcon'],
+            'status' => $attendanceInfo['status'],
+            'holidayName' => $attendanceInfo['holidayName'] ?? null
         ];
     }
     
@@ -362,7 +364,8 @@ function getAttendanceStatus($date, $attendanceData, $holidays, $student) {
             'status' => 'holiday',
             'tooltip' => $holidays[$dateStr]['description'],
             'class' => 'holiday-cell',
-            'statusIcon' => '<i class="fas fa-star text-warning"></i>'
+            'statusIcon' => '<i class="fas fa-star text-warning"></i>',
+            'holidayName' => $holidays[$dateStr]['description']
         ];
     }
     
@@ -372,7 +375,8 @@ function getAttendanceStatus($date, $attendanceData, $holidays, $student) {
             'status' => 'sunday',
             'tooltip' => 'Sunday Holiday',
             'class' => 'sunday-cell',
-            'statusIcon' => '<i class="fas fa-church text-info"></i>'
+            'statusIcon' => '<i class="fas fa-church text-info"></i>',
+            'holidayName' => null
         ];
     }
     
@@ -385,7 +389,8 @@ function getAttendanceStatus($date, $attendanceData, $holidays, $student) {
             'status' => 'outside_batch',
             'tooltip' => 'Outside batch period',
             'class' => 'outside-batch-cell',
-            'statusIcon' => ''
+            'statusIcon' => '',
+            'holidayName' => null
         ];
     }
     
@@ -397,21 +402,24 @@ function getAttendanceStatus($date, $attendanceData, $holidays, $student) {
                 'status' => 'present',
                 'tooltip' => 'Present',
                 'class' => 'present-cell',
-                'statusIcon' => '<i class="fas fa-check text-success"></i>'
+                'statusIcon' => '<i class="fas fa-check text-success"></i>',
+                'holidayName' => null
             ];
         } elseif ($status === 'absent') {
             return [
                 'status' => 'absent',
                 'tooltip' => 'Absent',
                 'class' => 'absent-cell',
-                'statusIcon' => '<i class="fas fa-times text-danger"></i>'
+                'statusIcon' => '<i class="fas fa-times text-danger"></i>',
+                'holidayName' => null
             ];
         } elseif ($status === 'holiday') {
             return [
                 'status' => 'holiday',
                 'tooltip' => 'Holiday',
                 'class' => 'holiday-cell',
-                'statusIcon' => '<i class="fas fa-star text-warning"></i>'
+                'statusIcon' => '<i class="fas fa-star text-warning"></i>',
+                'holidayName' => 'Holiday'
             ];
         }
     }
@@ -421,7 +429,8 @@ function getAttendanceStatus($date, $attendanceData, $holidays, $student) {
         'status' => 'not_marked',
         'tooltip' => 'No attendance marked',
         'class' => 'not-marked-cell',
-        'statusIcon' => ''
+        'statusIcon' => '',
+        'holidayName' => null
     ];
 }
 

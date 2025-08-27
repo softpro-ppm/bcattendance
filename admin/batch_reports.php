@@ -234,13 +234,13 @@ require_once '../includes/header.php';
 
 <!-- Student Calendar Modal -->
 <div class="modal fade" id="studentCalendarModal" tabindex="-1" role="dialog" aria-labelledby="studentCalendarModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="studentCalendarModalLabel">
                     <i class="fas fa-calendar-alt"></i> Student Attendance Calendar
                 </h5>
-                <button type="button" class="class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -366,7 +366,7 @@ require_once '../includes/header.php';
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -490,7 +490,7 @@ require_once '../includes/header.php';
 
 .calendar-cell {
     flex: 1;
-    min-height: 60px;
+    min-height: 70px;
     padding: 6px;
     border-right: 1px solid #dee2e6;
     display: flex;
@@ -513,6 +513,19 @@ require_once '../includes/header.php';
     text-align: center;
     margin-top: auto;
     font-size: 10px;
+}
+
+.holiday-name {
+    font-size: 8px;
+    text-align: center;
+    margin-top: 2px;
+    color: #856404;
+    font-weight: bold;
+    line-height: 1.2;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* Cell Colors */
@@ -619,18 +632,22 @@ require_once '../includes/header.php';
 }
 
 /* Modal specific styles */
-.modal-xl {
-    max-width: 95%;
+.modal-lg {
+    max-width: 800px;
 }
 
 @media (max-width: 768px) {
     .calendar-cell {
-        min-height: 50px;
+        min-height: 60px;
         padding: 4px;
     }
     
     .date-number {
         font-size: 10px;
+    }
+    
+    .holiday-name {
+        font-size: 7px;
     }
     
     .legend-item {
@@ -1152,6 +1169,7 @@ function displayCalendar(calendarData) {
                     <div class="calendar-cell ${day.class}" data-toggle="tooltip" title="${day.tooltip}">
                         <div class="date-number">${day.date}</div>
                         ${day.statusIcon ? `<div class="status-indicator">${day.statusIcon}</div>` : ''}
+                        ${day.holidayName && day.status !== 'sunday' ? `<div class="holiday-name">${day.holidayName}</div>` : ''}
                     </div>
                 `;
             } else {
