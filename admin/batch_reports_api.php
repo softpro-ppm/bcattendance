@@ -127,6 +127,13 @@ function getBatchData() {
             JOIN beneficiaries b2 ON a.beneficiary_id = b2.id
             JOIN batches bt2 ON b2.batch_id = bt2.id
             WHERE a.attendance_date BETWEEN bt2.start_date AND bt2.end_date
+            AND a.status != 'holiday'  -- Exclude holidays from working days calculation
+            AND NOT EXISTS (
+                -- Exclude dates that are holidays for this specific batch
+                SELECT 1 FROM batch_holidays bh 
+                WHERE bh.batch_id = bt2.id 
+                AND bh.holiday_date = a.attendance_date
+            )
             GROUP BY a.beneficiary_id
         ) att ON b.id = att.beneficiary_id
         $where_clause
@@ -198,6 +205,14 @@ function getBatchStats() {
             FROM attendance a
             JOIN beneficiaries b2 ON a.beneficiary_id = b2.id
             JOIN batches bt2 ON b2.batch_id = bt2.id
+            WHERE a.attendance_date BETWEEN bt2.start_date AND bt2.end_date
+            AND a.status != 'holiday'  -- Exclude holidays from working days calculation
+            AND NOT EXISTS (
+                -- Exclude dates that are holidays for this specific batch
+                SELECT 1 FROM batch_holidays bh 
+                WHERE bh.batch_id = bt2.id 
+                AND bh.holiday_date = a.attendance_date
+            )
             GROUP BY a.beneficiary_id
         ) att ON b.id = att.beneficiary_id
         $where_clause

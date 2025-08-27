@@ -59,14 +59,31 @@ function addHoliday() {
             throw new Exception("Failed to insert holiday into database");
         }
         
+        $holidayId = $conn->insert_id; // Get the inserted holiday ID
+        
+        // Store batch selections in batch_holidays table
+        if (!$isAllBatches && !empty($batchIds)) {
+            foreach ($batchIds as $batchId) {
+                $batchHolidayQuery = "INSERT INTO batch_holidays (holiday_id, batch_id, holiday_date, holiday_name, description, created_by) 
+                                     VALUES (?, ?, ?, ?, ?, ?)";
+                $batchHolidayResult = executeQuery($batchHolidayQuery, [
+                    $holidayId, $batchId, $date, $description, $type, $_SESSION['admin_user_id']
+                ]);
+                
+                if (!$batchHolidayResult) {
+                    throw new Exception("Failed to store batch holiday relationship");
+                }
+            }
+        }
+        
         // Mark attendance as holiday
         if ($isAllBatches) {
             // Mark all active beneficiaries as holiday for this date
             $attendanceQuery = "INSERT INTO attendance (beneficiary_id, attendance_date, status, created_at) 
-                               SELECT b.id, ?, 'H', NOW() 
+                               SELECT b.id, ?, 'holiday', NOW() 
                                FROM beneficiaries b 
                                WHERE b.status = 'active'
-                               ON DUPLICATE KEY UPDATE status = 'H'";
+                               ON DUPLICATE KEY UPDATE status = 'holiday'";
             $attendanceResult = executeQuery($attendanceQuery, [$date]);
             
             if (!$attendanceResult) {
@@ -77,10 +94,10 @@ function addHoliday() {
             if (!empty($batchIds)) {
                 $placeholders = str_repeat('?,', count($batchIds) - 1) . '?';
                 $attendanceQuery = "INSERT INTO attendance (beneficiary_id, attendance_date, status, created_at) 
-                                   SELECT b.id, ?, 'H', NOW() 
+                                   SELECT b.id, ?, 'holiday', NOW() 
                                    FROM beneficiaries b 
                                    WHERE b.status = 'active' AND b.batch_id IN ($placeholders)
-                                   ON DUPLICATE KEY UPDATE status = 'H'";
+                                   ON DUPLICATE KEY UPDATE status = 'holiday'";
                 $params = array_merge([$date], $batchIds);
                 $attendanceResult = executeQuery($attendanceQuery, $params);
                 
@@ -111,11 +128,14 @@ function deleteHoliday() {
     $date = $_POST['date'];
     
     try {
+        // Delete batch holiday relationships first
+        executeQuery("DELETE FROM batch_holidays WHERE holiday_id = ?", [$holidayId]);
+        
         // Delete from holidays table
         executeQuery("DELETE FROM holidays WHERE id = ?", [$holidayId]);
         
         // Remove holiday status from attendance records (set back to absent)
-        executeQuery("UPDATE attendance SET status = 'absent' WHERE attendance_date = ? AND status = 'H'", [$date]);
+        executeQuery("UPDATE attendance SET status = 'absent' WHERE attendance_date = ? AND status = 'holiday'", [$date]);
         
         $_SESSION['success'] = "Holiday deleted successfully!";
     } catch (Exception $e) {
@@ -142,29 +162,31 @@ try {
         $_SESSION['error'] = "Holidays table does not exist. Please check your database setup.";
         $holidays = [];
     } else {
-        // Get existing holidays with mandal information (excluding Sunday holidays)
+        // Get existing holidays with proper batch and mandal information
         $holidays = fetchAll("
             SELECT 
                 h.*,
                 CASE 
-                    WHEN h.description LIKE '%Sunday%' THEN 'All Mandals'
                     WHEN h.type = 'national' THEN 'All Mandals'
-                    WHEN (
-                        SELECT COUNT(DISTINCT m.id) 
-                        FROM attendance a 
-                        JOIN beneficiaries b ON a.beneficiary_id = b.id 
-                        JOIN mandals m ON b.mandal_id = m.id
-                        WHERE a.attendance_date = h.date AND a.status = 'H'
-                    ) >= (
-                        SELECT COUNT(*) FROM mandals WHERE status = 'active'
-                    ) THEN 'All Mandals'
-                    ELSE 'Specific Mandals'
+                    WHEN EXISTS (
+                        SELECT 1 FROM batch_holidays bh WHERE bh.holiday_id = h.id
+                    ) THEN 'Specific Batches'
+                    ELSE 'All Mandals'
                 END as mandal_coverage,
-                GROUP_CONCAT(DISTINCT m.name ORDER BY m.name SEPARATOR ', ') as mandal_names
+                GROUP_CONCAT(
+                    DISTINCT CONCAT(m.name, ' - ', bt.name, ' (', bt.code, ')') 
+                    ORDER BY m.name, bt.name 
+                    SEPARATOR ', '
+                ) as batch_details,
+                GROUP_CONCAT(
+                    DISTINCT m.name 
+                    ORDER BY m.name 
+                    SEPARATOR ', '
+                ) as mandal_names
             FROM holidays h
-            LEFT JOIN attendance a ON h.date = a.attendance_date AND a.status = 'H'
-            LEFT JOIN beneficiaries b ON a.beneficiary_id = b.id
-            LEFT JOIN mandals m ON b.mandal_id = m.id
+            LEFT JOIN batch_holidays bh ON h.id = bh.holiday_id
+            LEFT JOIN batches bt ON bh.batch_id = bt.id
+            LEFT JOIN mandals m ON bt.mandal_id = m.id
             WHERE h.description != 'Sunday Holiday'
             GROUP BY h.id, h.date, h.description, h.type, h.status, h.created_at, h.updated_at
             ORDER BY h.date DESC
@@ -311,7 +333,7 @@ foreach ($batches as $batch) {
             <i class="fas fa-info-circle"></i>
             <strong>Note:</strong> Sunday holidays are automatically managed by the system and are not displayed here. 
             This table shows only custom holidays you've added (local festivals, national holidays, etc.).
-            <br><strong>Mandals Column:</strong> Shows whether the holiday applies to all mandals or specific mandals only.
+            <br><strong>Coverage Column:</strong> Shows whether the holiday applies to all mandals or specific batches with detailed information.
         </div>
         <?php if (!empty($holidays)): ?>
         <div class="table-responsive">
@@ -322,7 +344,7 @@ foreach ($batches as $batch) {
                         <th>Day</th>
                         <th>Description</th>
                         <th>Type</th>
-                        <th>Mandals</th>
+                        <th>Coverage</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -344,19 +366,11 @@ foreach ($batches as $batch) {
                                 </span>
                                 <br><small class="text-muted">Applies to all active mandals</small>
                             <?php else: ?>
-                                <span class="badge badge-info" title="<?php echo htmlspecialchars($holiday['mandal_names'] ?? 'No mandals specified'); ?>">
-                                    <i class="fas fa-map-marker-alt"></i> 
-                                    <?php 
-                                    if (!empty($holiday['mandal_names'])) {
-                                        $mandalCount = count(explode(', ', $holiday['mandal_names']));
-                                        echo $mandalCount . ' Mandal' . ($mandalCount > 1 ? 's' : '');
-                                    } else {
-                                        echo 'Specific Mandals';
-                                    }
-                                    ?>
+                                <span class="badge badge-info" title="<?php echo htmlspecialchars($holiday['batch_details'] ?? 'No batches specified'); ?>">
+                                    <i class="fas fa-map-marker-alt"></i> Specific Batches
                                 </span>
-                                <?php if (!empty($holiday['mandal_names'])): ?>
-                                    <br><small class="text-muted"><?php echo htmlspecialchars($holiday['mandal_names']); ?></small>
+                                <?php if (!empty($holiday['batch_details'])): ?>
+                                    <br><small class="text-muted"><?php echo htmlspecialchars($holiday['batch_details']); ?></small>
                                 <?php endif; ?>
                             <?php endif; ?>
                         </td>

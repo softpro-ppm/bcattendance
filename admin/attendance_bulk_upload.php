@@ -203,9 +203,9 @@ function processAttendanceForBeneficiary($beneficiaryData, $attendanceData, $dat
         }
         
         // Validate and standardize status
-        $validStatuses = ['P', 'A', 'H', 'present', 'absent'];
+        $validStatuses = ['P', 'A', 'H', 'present', 'absent', 'holiday'];
         if (!in_array($status, $validStatuses)) {
-            $errors[] = "Row $rowNumber: Invalid status '$status' for date $dateStr. Allowed values: P, A, H, present, absent.";
+            $errors[] = "Row $rowNumber: Invalid status '$status' for date $dateStr. Allowed values: P, A, H, present, absent, holiday.";
             continue;
         }
         
@@ -216,10 +216,12 @@ function processAttendanceForBeneficiary($beneficiaryData, $attendanceData, $dat
                 $standardizedStatus = 'present';
                 break;
             case 'A':
-            case 'H':
                 $standardizedStatus = 'absent';
                 break;
-            // 'present' and 'absent' remain as-is
+            case 'H':
+                $standardizedStatus = 'holiday';  // Convert H to holiday (non-working day)
+                break;
+            // 'present', 'absent', and 'holiday' remain as-is
         }
         
         // Parse date
@@ -508,3 +510,4 @@ if (!isset($_SESSION['csrf_token'])) {
 <?php endif; ?>
 
 <?php include '../includes/footer.php'; ?>
+
