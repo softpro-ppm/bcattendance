@@ -430,7 +430,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_attendance'])) 
 }
 
 // Get batches for this training center
-$batches_query = "SELECT * FROM batches WHERE tc_id = ? AND status = 'active' ORDER BY name";
+$batches_query = "SELECT * FROM batches WHERE tc_id = ? AND status IN ('active', 'completed') ORDER BY status DESC, name";
 $batches = fetchAll($batches_query, [$tc_id], 'i') ?: [];
 
 // Get selected batch (default to first batch)
@@ -450,7 +450,7 @@ if ($selected_batch_id) {
                            FROM beneficiaries ben
                            LEFT JOIN batches b ON ben.batch_id = b.id
                            LEFT JOIN attendance a ON ben.id = a.beneficiary_id AND a.attendance_date = ?
-                           WHERE ben.batch_id = ? AND ben.status = 'active' AND b.status = 'active'
+                           WHERE ben.batch_id = ? AND ben.status = 'active' AND b.status IN ('active', 'completed')
                            ORDER BY ben.full_name";
     $beneficiaries = fetchAll($beneficiaries_query, [$current_date, $selected_batch_id], 'si') ?: [];
     
