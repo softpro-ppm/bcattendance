@@ -198,13 +198,8 @@ function isValidAttendanceDate($date, $batchId = null) {
             ];
         }
         
-        // Check if date is after batch end date
-        if (strtotime($date) > strtotime($batch['end_date'])) {
-            return [
-                'valid' => false,
-                'reason' => "Attendance cannot be marked after batch end date (" . formatDate($batch['end_date'], 'd/m/Y') . ")"
-            ];
-        }
+        // Note: Batch end date restriction removed to allow attendance marking after batch completion
+        // This enables administrative corrections and late submissions
         
         // Check if date is a batch-specific holiday
         $holiday = fetchRow("SELECT holiday_name FROM batch_holidays WHERE batch_id = ? AND holiday_date = ?", [$batchId, $date], 'is');
