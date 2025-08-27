@@ -181,7 +181,7 @@ function isValidAttendanceDate($date, $batchId = null) {
     
     // If batch ID is provided, check batch-specific restrictions
     if ($batchId) {
-        $batch = fetchRow("SELECT start_date, end_date, name FROM batches WHERE id = ? AND status = 'active'", [$batchId], 'i');
+        $batch = fetchRow("SELECT start_date, end_date, name FROM batches WHERE id = ? AND status IN ('active', 'completed')", [$batchId], 'i');
         
         if (!$batch) {
             return [
