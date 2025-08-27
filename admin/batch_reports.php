@@ -195,11 +195,12 @@ require_once '../includes/header.php';
                                                     <th data-sort="b.status" style="cursor: pointer;">
                                                         Status <i class="fas fa-sort"></i>
                                                     </th>
+                                                    <th>Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="table_body">
                                                 <tr>
-                                                    <td colspan="9" class="text-center">Loading...</td>
+                                                    <td colspan="10" class="text-center">Loading...</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -228,6 +229,146 @@ require_once '../includes/header.php';
 <div id="loading_overlay" class="loading-overlay" style="display: none;">
     <div class="spinner-border text-primary" role="status">
         <span class="sr-only">Loading...</span>
+    </div>
+</div>
+
+<!-- Student Calendar Modal -->
+<div class="modal fade" id="studentCalendarModal" tabindex="-1" role="dialog" aria-labelledby="studentCalendarModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="studentCalendarModalLabel">
+                    <i class="fas fa-calendar-alt"></i> Student Attendance Calendar
+                </h5>
+                <button type="button" class="class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Student Info -->
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <h6 id="modalStudentName"></h6>
+                            <p class="mb-1" id="modalStudentBatch"></p>
+                            <p class="mb-0" id="modalStudentPeriod"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Month Navigation -->
+                <div class="row mb-3">
+                    <div class="col-12 text-center">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-primary" onclick="previousMonth()">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </button>
+                            <button type="button" class="btn btn-primary" id="currentMonthDisplay">
+                                Loading...
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" onclick="nextMonth()">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Calendar Legend -->
+                <div class="calendar-legend mb-3">
+                    <div class="d-flex justify-content-center flex-wrap">
+                        <div class="legend-item mr-3">
+                            <span class="legend-color present-cell"></span>
+                            <span>Present</span>
+                        </div>
+                        <div class="legend-item mr-3">
+                            <span class="legend-color absent-cell"></span>
+                            <span>Absent</span>
+                        </div>
+                        <div class="legend-item mr-3">
+                            <span class="legend-color holiday-cell"></span>
+                            <span>Holiday</span>
+                        </div>
+                        <div class="legend-item mr-3">
+                            <span class="legend-color sunday-cell"></span>
+                            <span>Sunday</span>
+                        </div>
+                        <div class="legend-item mr-3">
+                            <span class="legend-color not-marked-cell"></span>
+                            <span>Not Marked</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color outside-batch-cell"></span>
+                            <span>Outside Batch Period</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Calendar Grid -->
+                <div id="calendarContainer">
+                    <!-- Calendar will be loaded here -->
+                </div>
+                
+                <!-- Monthly Summary -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">Monthly Summary</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <div class="summary-item">
+                                            <div class="summary-number text-success" id="modalPresentCount">0</div>
+                                            <div class="summary-label">Present</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="summary-item">
+                                            <div class="summary-number text-danger" id="modalAbsentCount">0</div>
+                                            <div class="summary-label">Absent</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="summary-item">
+                                            <div class="summary-number text-warning" id="modalHolidayCount">0</div>
+                                            <div class="summary-label">Holidays</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mt-3">
+                                    <div class="col-6">
+                                        <strong>Working Days:</strong> <span id="modalWorkingDays">0</span>
+                                    </div>
+                                    <div class="col-6">
+                                        <strong>Attendance %:</strong> <span id="modalAttendancePercentage">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">Quick Actions</h6>
+                            </div>
+                            <div class="card-body">
+                                <button class="btn btn-success btn-sm mr-2" onclick="printCalendar()">
+                                    <i class="fas fa-print"></i> Print
+                                </button>
+                                <button class="btn btn-info btn-sm" onclick="exportCalendarData()">
+                                    <i class="fas fa-download"></i> Export
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -319,6 +460,182 @@ require_once '../includes/header.php';
 .spinner-border {
     width: 3rem;
     height: 3rem;
+}
+
+/* Calendar Styles */
+.calendar-container {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.calendar-grid {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.calendar-row {
+    display: flex;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.calendar-row:last-child {
+    border-bottom: none;
+}
+
+.calendar-header {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.calendar-cell {
+    flex: 1;
+    min-height: 60px;
+    padding: 6px;
+    border-right: 1px solid #dee2e6;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    font-size: 12px;
+}
+
+.calendar-cell:last-child {
+    border-right: none;
+}
+
+.date-number {
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.status-indicator {
+    text-align: center;
+    margin-top: auto;
+    font-size: 10px;
+}
+
+/* Cell Colors */
+.present-cell {
+    background-color: #d4edda;
+    border-left: 3px solid #28a745;
+}
+
+.absent-cell {
+    background-color: #f8d7da;
+    border-left: 3px solid #dc3545;
+}
+
+.holiday-cell {
+    background-color: #fff3cd;
+    border-left: 3px solid #ffc107;
+}
+
+.sunday-cell {
+    background-color: #e2e3e5;
+    border-left: 3px solid #6c757d;
+}
+
+.not-marked-cell {
+    background-color: #f8f9fa;
+    border-left: 3px solid #adb5bd;
+}
+
+.outside-batch-cell {
+    background-color: #f8f9fa;
+    border-left: 3px solid #6c757d;
+    opacity: 0.6;
+}
+
+.empty-cell {
+    background-color: #f8f9fa;
+}
+
+/* Legend */
+.calendar-legend {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    margin-right: 6px;
+    border: 1px solid #dee2e6;
+}
+
+.legend-color.present-cell {
+    background-color: #d4edda;
+    border-color: #28a745;
+}
+
+.legend-color.absent-cell {
+    background-color: #f8d7da;
+    border-color: #dc3545;
+}
+
+.legend-color.holiday-cell {
+    background-color: #fff3cd;
+    border-color: #ffc107;
+}
+
+.legend-color.sunday-cell {
+    background-color: #e2e3e5;
+    border-color: #6c757d;
+}
+
+.legend-color.not-marked-cell {
+    background-color: #f8f9fa;
+    border-color: #adb5bd;
+}
+
+.legend-color.outside-batch-cell {
+    background-color: #f8f9fa;
+    border-color: #6c757d;
+}
+
+/* Summary */
+.summary-item {
+    padding: 8px;
+}
+
+.summary-number {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.summary-label {
+    font-size: 11px;
+    color: #6c757d;
+    text-transform: uppercase;
+}
+
+/* Modal specific styles */
+.modal-xl {
+    max-width: 95%;
+}
+
+@media (max-width: 768px) {
+    .calendar-cell {
+        min-height: 50px;
+        padding: 4px;
+    }
+    
+    .date-number {
+        font-size: 10px;
+    }
+    
+    .legend-item {
+        margin-bottom: 8px;
+    }
 }
 </style>
 
@@ -541,6 +858,11 @@ function displayData(data) {
                         ${escapeHtml(student.beneficiary_status)}
                     </span>
                 </td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-primary btn-sm" onclick="viewStudentCalendar(${student.id}, '${escapeHtml(student.full_name)}', '${escapeHtml(student.batch_name)}', '${student.batch_start}', '${student.batch_end}')">
+                        <i class="fas fa-calendar-alt"></i> View
+                    </button>
+                </td>
             </tr>
         `;
     });
@@ -753,6 +1075,176 @@ function loadBatches(mandalId = '') {
         })
         .catch(error => console.error('Error loading batches:', error));
     }
+}
+
+// Calendar Modal Functions
+let currentStudentId = null;
+let currentCalendarMonth = null;
+let currentCalendarYear = null;
+
+function viewStudentCalendar(studentId, studentName, batchName, batchStartDate, batchEndDate) {
+    currentStudentId = studentId;
+    
+    // Set modal content
+    document.getElementById('modalStudentName').innerHTML = `<i class="fas fa-user"></i> ${studentName}`;
+    document.getElementById('modalStudentBatch').innerHTML = `<strong>Batch:</strong> ${batchName}`;
+    document.getElementById('modalStudentPeriod').innerHTML = `<strong>Period:</strong> ${formatDate(batchStartDate)} to ${formatDate(batchEndDate)}`;
+    
+    // Set initial month to batch start date
+    const startDate = new Date(batchStartDate);
+    currentCalendarMonth = startDate.getMonth();
+    currentCalendarYear = startDate.getFullYear();
+    
+    // Load calendar
+    loadStudentCalendar();
+    
+    // Show modal
+    $('#studentCalendarModal').modal('show');
+}
+
+function loadStudentCalendar() {
+    if (!currentStudentId || currentCalendarMonth === null || currentCalendarYear === null) return;
+    
+    const formData = new FormData();
+    formData.append('action', 'get_student_calendar');
+    formData.append('student_id', currentStudentId);
+    formData.append('month', currentCalendarMonth + 1);
+    formData.append('year', currentCalendarYear);
+    
+    fetch('batch_reports_api.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            displayCalendar(data.calendar);
+            updateModalSummary(data.summary);
+            updateMonthDisplay();
+        } else {
+            showError('Failed to load calendar: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showError('Failed to load calendar');
+    });
+}
+
+function displayCalendar(calendarData) {
+    const container = document.getElementById('calendarContainer');
+    
+    let html = '<div class="calendar-grid">';
+    
+    // Day headers
+    html += '<div class="calendar-row calendar-header">';
+    ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
+        html += `<div class="calendar-cell">${day}</div>`;
+    });
+    html += '</div>';
+    
+    // Calendar rows
+    calendarData.forEach(week => {
+        html += '<div class="calendar-row">';
+        week.forEach(day => {
+            if (day.isCurrentMonth) {
+                html += `
+                    <div class="calendar-cell ${day.class}" data-toggle="tooltip" title="${day.tooltip}">
+                        <div class="date-number">${day.date}</div>
+                        ${day.statusIcon ? `<div class="status-indicator">${day.statusIcon}</div>` : ''}
+                    </div>
+                `;
+            } else {
+                html += '<div class="calendar-cell empty-cell"></div>';
+            }
+        });
+        html += '</div>';
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
+    
+    // Initialize tooltips
+    $('[data-toggle="tooltip"]').tooltip();
+}
+
+function updateModalSummary(summary) {
+    document.getElementById('modalPresentCount').textContent = summary.present || 0;
+    document.getElementById('modalAbsentCount').textContent = summary.absent || 0;
+    document.getElementById('modalHolidayCount').textContent = (summary.holiday || 0) + (summary.sunday || 0);
+    document.getElementById('modalWorkingDays').textContent = summary.workingDays || 0;
+    document.getElementById('modalAttendancePercentage').textContent = (summary.attendancePercentage || 0) + '%';
+}
+
+function updateMonthDisplay() {
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                       'July', 'August', 'September', 'October', 'November', 'December'];
+    document.getElementById('currentMonthDisplay').textContent = 
+        `${monthNames[currentCalendarMonth]} ${currentCalendarYear}`;
+}
+
+function previousMonth() {
+    if (currentCalendarMonth === 0) {
+        currentCalendarMonth = 11;
+        currentCalendarYear--;
+    } else {
+        currentCalendarMonth--;
+    }
+    loadStudentCalendar();
+}
+
+function nextMonth() {
+    if (currentCalendarMonth === 11) {
+        currentCalendarMonth = 0;
+        currentCalendarYear++;
+    } else {
+        currentCalendarMonth++;
+    }
+    loadStudentCalendar();
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+    });
+}
+
+function printCalendar() {
+    const printWindow = window.open('', '_blank');
+    const modalContent = document.querySelector('.modal-body').innerHTML;
+    
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Student Calendar - Print</title>
+                <style>
+                    body { font-family: Arial, sans-serif; }
+                    .calendar-grid { border: 1px solid #000; }
+                    .calendar-row { display: flex; }
+                    .calendar-cell { flex: 1; border: 1px solid #ccc; padding: 5px; text-align: center; }
+                    .calendar-header { background-color: #f0f0f0; font-weight: bold; }
+                </body>
+                </html>
+            </body>
+        </html>
+    `);
+    
+    printWindow.document.close();
+    printWindow.print();
+}
+
+function exportCalendarData() {
+    // Export calendar data as CSV
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                       'July', 'August', 'September', 'October', 'November', 'December'];
+    const monthName = monthNames[currentCalendarMonth];
+    const fileName = `student_calendar_${monthName}_${currentCalendarYear}.csv`;
+    
+    // This would need to be implemented with actual calendar data
+    alert('Export functionality will be implemented here');
 }
 </script>
 

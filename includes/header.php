@@ -86,12 +86,7 @@ $currentUser = getCurrentUser();
                             <span>Batch Reports</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="../admin/attendance_calendar.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'attendance_calendar.php') ? 'active' : ''; ?>">
-                            <i class="nav-icon fas fa-calendar-alt"></i>
-                            <span>Attendance Calendar</span>
-                        </a>
-                    </li>
+
                     <li class="nav-item">
                         <a href="../admin/bulk_upload.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'bulk_upload.php') ? 'active' : ''; ?>">
                             <i class="nav-icon fas fa-users-cog"></i>
@@ -141,12 +136,7 @@ $currentUser = getCurrentUser();
                                     <span>Manage Holidays</span>
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a href="../admin/test_holiday_system.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'test_holiday_system.php') ? 'active' : ''; ?>">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <span>Test Holiday System</span>
-                                </a>
-                            </li>
+
                         </ul>
                     </li>
                 </ul>

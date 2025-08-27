@@ -22,6 +22,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
         case 'get_batch_stats':
             getBatchStats();
             break;
+        case 'get_student_calendar':
+            getStudentCalendar();
+            break;
         default:
             echo json_encode(['success' => false, 'error' => 'Invalid action']);
     }
@@ -224,5 +227,242 @@ function getBatchStats() {
         'success' => true,
         'stats' => $stats
     ]);
+}
+
+function getStudentCalendar() {
+    $studentId = $_POST['student_id'] ?? '';
+    $month = (int)($_POST['month'] ?? date('n'));
+    $year = (int)($_POST['year'] ?? date('Y'));
+    
+    if (empty($studentId)) {
+        echo json_encode(['success' => false, 'error' => 'Student ID is required']);
+        return;
+    }
+    
+    // Get student details
+    $student = fetchRow("
+        SELECT b.*, bt.name as batch_name, bt.start_date, bt.end_date
+        FROM beneficiaries b
+        JOIN batches bt ON b.batch_id = bt.id
+        WHERE b.id = ?
+    ", [$studentId], 'i');
+    
+    if (!$student) {
+        echo json_encode(['success' => false, 'error' => 'Student not found']);
+        return;
+    }
+    
+    // Get attendance data for the month
+    $startDate = date('Y-m-01', strtotime("$year-$month-01"));
+    $endDate = date('Y-m-t', strtotime("$year-$month-01"));
+    
+    $attendanceQuery = "
+        SELECT a.attendance_date, a.status
+        FROM attendance a
+        WHERE a.beneficiary_id = ? 
+        AND a.attendance_date BETWEEN ? AND ?
+        ORDER BY a.attendance_date
+    ";
+    
+    $attendanceData = fetchAll($attendanceQuery, [$studentId, $startDate, $endDate], 'iss');
+    
+    // Convert to associative array for easy lookup
+    $attendanceLookup = [];
+    foreach ($attendanceData as $att) {
+        $attendanceLookup[$att['attendance_date']] = $att['status'];
+    }
+    
+    // Get holidays for the month
+    $holidayQuery = "
+        SELECT h.date, h.description, h.type
+        FROM holidays h
+        WHERE h.date BETWEEN ? AND ?
+        AND (
+            h.type = 'national' 
+            OR EXISTS (
+                SELECT 1 FROM batch_holidays bh 
+                WHERE bh.holiday_id = h.id 
+                AND bh.batch_id = ?
+            )
+        )
+        ORDER BY h.date
+    ";
+    
+    $holidays = fetchAll($holidayQuery, [$startDate, $endDate, $student['batch_id']], 'ssi');
+    
+    // Convert to associative array
+    $holidayLookup = [];
+    foreach ($holidays as $holiday) {
+        $holidayLookup[$holiday['date']] = $holiday;
+    }
+    
+    // Generate calendar data
+    $calendar = generateCalendarData($month, $year, $attendanceLookup, $holidayLookup, $student);
+    
+    // Calculate summary
+    $summary = calculateMonthlySummary($month, $year, $attendanceLookup, $holidayLookup, $student);
+    
+    echo json_encode([
+        'success' => true,
+        'calendar' => $calendar,
+        'summary' => $summary
+    ]);
+}
+
+function generateCalendarData($month, $year, $attendanceData, $holidays, $student) {
+    $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+    $firstDay = date('w', strtotime("$year-$month-01"));
+    
+    $calendar = [];
+    $currentDate = 1;
+    $currentWeek = [];
+    
+    // Add empty cells for days before the first day of the month
+    for ($i = 0; $i < $firstDay; $i++) {
+        $currentWeek[] = ['isCurrentMonth' => false];
+    }
+    
+    // Add days of the month
+    for ($day = 1; $day <= $daysInMonth; $day++) {
+        if (count($currentWeek) == 7) {
+            $calendar[] = $currentWeek;
+            $currentWeek = [];
+        }
+        
+        $date = sprintf('%04d-%02d-%02d', $year, $month, $day);
+        $attendanceInfo = getAttendanceStatus($date, $attendanceData, $holidays, $student);
+        
+        $currentWeek[] = [
+            'isCurrentMonth' => true,
+            'date' => $day,
+            'class' => $attendanceInfo['class'],
+            'tooltip' => $attendanceInfo['tooltip'],
+            'statusIcon' => $attendanceInfo['statusIcon']
+        ];
+    }
+    
+    // Fill the last week with empty cells if needed
+    while (count($currentWeek) < 7) {
+        $currentWeek[] = ['isCurrentMonth' => false];
+    }
+    
+    if (!empty($currentWeek)) {
+        $calendar[] = $currentWeek;
+    }
+    
+    return $calendar;
+}
+
+function getAttendanceStatus($date, $attendanceData, $holidays, $student) {
+    $dateStr = date('Y-m-d', strtotime($date));
+    
+    // Check if it's a holiday
+    if (isset($holidays[$dateStr])) {
+        return [
+            'status' => 'holiday',
+            'tooltip' => $holidays[$dateStr]['description'],
+            'class' => 'holiday-cell',
+            'statusIcon' => '<i class="fas fa-star text-warning"></i>'
+        ];
+    }
+    
+    // Check if it's Sunday
+    if (date('w', strtotime($dateStr)) == 0) {
+        return [
+            'status' => 'sunday',
+            'tooltip' => 'Sunday Holiday',
+            'class' => 'sunday-cell',
+            'statusIcon' => '<i class="fas fa-church text-info"></i>'
+        ];
+    }
+    
+    // Check if it's within batch date range
+    $batchStart = $student['start_date'];
+    $batchEnd = $student['end_date'];
+    
+    if ($dateStr < $batchStart || $dateStr > $batchEnd) {
+        return [
+            'status' => 'outside_batch',
+            'tooltip' => 'Outside batch period',
+            'class' => 'outside-batch-cell',
+            'statusIcon' => ''
+        ];
+    }
+    
+    // Check attendance
+    if (isset($attendanceData[$dateStr])) {
+        $status = $attendanceData[$dateStr];
+        if ($status === 'present') {
+            return [
+                'status' => 'present',
+                'tooltip' => 'Present',
+                'class' => 'present-cell',
+                'statusIcon' => '<i class="fas fa-check text-success"></i>'
+            ];
+        } elseif ($status === 'absent') {
+            return [
+                'status' => 'absent',
+                'tooltip' => 'Absent',
+                'class' => 'absent-cell',
+                'statusIcon' => '<i class="fas fa-times text-danger"></i>'
+            ];
+        } elseif ($status === 'holiday') {
+            return [
+                'status' => 'holiday',
+                'tooltip' => 'Holiday',
+                'class' => 'holiday-cell',
+                'statusIcon' => '<i class="fas fa-star text-warning"></i>'
+            ];
+        }
+    }
+    
+    // No attendance marked
+    return [
+        'status' => 'not_marked',
+        'tooltip' => 'No attendance marked',
+        'class' => 'not-marked-cell',
+        'statusIcon' => ''
+    ];
+}
+
+function calculateMonthlySummary($month, $year, $attendanceData, $holidays, $student) {
+    $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+    
+    $presentCount = 0;
+    $absentCount = 0;
+    $holidayCount = 0;
+    $sundayCount = 0;
+    
+    for ($day = 1; $day <= $daysInMonth; $day++) {
+        $date = sprintf('%04d-%02d-%02d', $year, $month, $day);
+        $attendanceInfo = getAttendanceStatus($date, $attendanceData, $holidays, $student);
+        
+        switch ($attendanceInfo['status']) {
+            case 'present':
+                $presentCount++;
+                break;
+            case 'absent':
+                $absentCount++;
+                break;
+            case 'holiday':
+                $holidayCount++;
+                break;
+            case 'sunday':
+                $sundayCount++;
+                break;
+        }
+    }
+    
+    $workingDays = $presentCount + $absentCount;
+    $attendancePercentage = $workingDays > 0 ? round(($presentCount / $workingDays) * 100, 2) : 0;
+    
+    return [
+        'present' => $presentCount,
+        'absent' => $absentCount,
+        'holiday' => $holidayCount,
+        'sunday' => $sundayCount,
+        'workingDays' => $workingDays,
+        'attendancePercentage' => $attendancePercentage
+    ];
 }
 ?>
