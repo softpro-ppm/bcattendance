@@ -131,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
             LEFT JOIN training_centers tc ON b.tc_id = tc.id
             LEFT JOIN batches batch ON b.batch_id = batch.id
             $whereClause
-            ORDER BY b.created_at DESC
+            ORDER BY m.name ASC, b.full_name ASC
             LIMIT ? OFFSET ?
         ";
         
@@ -413,7 +413,7 @@ $query = "
     LEFT JOIN training_centers tc ON b.tc_id = tc.id
                  LEFT JOIN batches bt ON b.batch_id = bt.id 
                  $whereClause 
-                 ORDER BY b.created_at DESC 
+                 ORDER BY m.name ASC, b.full_name ASC
     LIMIT ? OFFSET ?
 ";
         
