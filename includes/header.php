@@ -69,12 +69,6 @@ $currentUser = getCurrentUser();
                     </li>
 
                     <li class="nav-item">
-                        <a href="../admin/attendance_bulk_upload.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'attendance_bulk_upload.php') ? 'active' : ''; ?>">
-                            <i class="nav-icon fas fa-history"></i>
-                            <span>Historical Data Import</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
                         <a href="../admin/reports.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'reports.php') ? 'active' : ''; ?>">
                             <i class="nav-icon fas fa-chart-line"></i>
                             <span>Attendance Reports</span>
@@ -86,21 +80,14 @@ $currentUser = getCurrentUser();
                             <span>Batch Reports</span>
                         </a>
                     </li>
-
-                    <li class="nav-item">
-                        <a href="../admin/bulk_upload.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'bulk_upload.php') ? 'active' : ''; ?>">
-                            <i class="nav-icon fas fa-users-cog"></i>
-                            <span>Student Data Import</span>
-                        </a>
-                    </li>
                     <li class="nav-item">
                         <a href="../admin/tc_user_tracking.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'tc_user_tracking.php') ? 'active' : ''; ?>">
                             <i class="nav-icon fas fa-graduation-cap"></i>
                             <span>TC User Tracking</span>
                         </a>
                     </li>
-                    <li class="nav-item has-treeview <?php echo in_array(basename($_SERVER['PHP_SELF']), ['settings.php', 'constituencies.php', 'mandals.php', 'batches.php', 'manage_holidays.php']) ? 'menu-open' : ''; ?>">
-                        <a href="#" class="nav-link <?php echo in_array(basename($_SERVER['PHP_SELF']), ['settings.php', 'constituencies.php', 'mandals.php', 'batches.php', 'manage_holidays.php']) ? 'active' : ''; ?>">
+                    <li class="nav-item has-treeview <?php echo in_array(basename($_SERVER['PHP_SELF']), ['settings.php', 'constituencies.php', 'mandals.php', 'batches.php', 'manage_holidays.php', 'attendance_bulk_upload.php', 'bulk_upload.php']) ? 'menu-open' : ''; ?>">
+                        <a href="#" class="nav-link <?php echo in_array(basename($_SERVER['PHP_SELF']), ['settings.php', 'constituencies.php', 'mandals.php', 'batches.php', 'manage_holidays.php', 'attendance_bulk_upload.php', 'bulk_upload.php']) ? 'active' : ''; ?>">
                             <i class="nav-icon fas fa-cogs"></i>
                             <span>System Configuration</span>
                             <i class="right fas fa-angle-left"></i>
@@ -134,6 +121,18 @@ $currentUser = getCurrentUser();
                                 <a href="../admin/manage_holidays.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'manage_holidays.php') ? 'active' : ''; ?>">
                                     <i class="far fa-circle nav-icon"></i>
                                     <span>Manage Holidays</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../admin/attendance_bulk_upload.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'attendance_bulk_upload.php') ? 'active' : ''; ?>">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <span>Historical Data Import</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../admin/bulk_upload.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'bulk_upload.php') ? 'active' : ''; ?>">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <span>Student Data Import</span>
                                 </a>
                             </li>
 
