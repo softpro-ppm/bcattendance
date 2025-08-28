@@ -174,26 +174,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 if ($existing) {
                     setErrorMessage('Batch with this name already exists for this mandal and training center.');
                 } else {
-                    // Get old batch data for comparison
-                    $oldBatch = fetchRow("SELECT start_date, end_date, status FROM batches WHERE id = ?", [$id], 'i');
-                    
                     $query = "UPDATE batches SET mandal_id = ?, tc_id = ?, name = ?, code = ?, description = ?, start_date = ?, end_date = ?, status = ? WHERE id = ?";
                     if (executeQuery($query, [$mandal_id, $tc_id, $name, $code, $description, $start_date, $end_date, $status, $id], 'iissssssi')) {
-                        
-                        // Check if dates were changed and automatically re-evaluate batch status
-                        if ($oldBatch && ($oldBatch['start_date'] != $start_date || $oldBatch['end_date'] != $end_date)) {
-                            // Force re-evaluation of batch status based on new dates
-                            require_once '../includes/functions.php';
-                            $reEvaluationResult = reEvaluateBatchStatus($id);
-                            
-                            if ($reEvaluationResult['success']) {
-                                setSuccessMessage('Batch updated successfully. Status automatically updated based on new dates: ' . $reEvaluationResult['message']);
-                            } else {
-                                setSuccessMessage('Batch updated successfully. Status update: ' . $reEvaluationResult['message']);
-                            }
-                        } else {
-                            setSuccessMessage('Batch updated successfully.');
-                        }
+                        setSuccessMessage('Batch updated successfully.');
                     } else {
                         setErrorMessage('Failed to update batch. Please try again.');
                     }
