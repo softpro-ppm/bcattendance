@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
             LEFT JOIN beneficiaries ben ON b.id = ben.batch_id
             $whereClause
             GROUP BY b.id
-            ORDER BY c.name, m.name, b.name
+            ORDER BY $sort_column $sort_direction
         ";
         
         $batches = fetchAll($query, $params, $types);
@@ -108,6 +108,10 @@ $filter_constituency = isset($_GET['constituency']) ? (int)$_GET['constituency']
 $filter_mandal = isset($_GET['mandal']) ? (int)$_GET['mandal'] : '';
 $filter_tc_id = isset($_GET['tc_id']) ? sanitizeInput($_GET['tc_id']) : '';
 $filter_batch_name = isset($_GET['batch_name']) ? sanitizeInput($_GET['batch_name']) : '';
+
+// Sorting parameters
+$sort_column = isset($_GET['sort']) ? sanitizeInput($_GET['sort']) : 'c.name';
+$sort_direction = isset($_GET['order']) ? sanitizeInput($_GET['order']) : 'ASC';
 
 $offset = ($current_page - 1) * $records_per_page;
 
@@ -277,6 +281,42 @@ if (!empty($filter_constituency)) {
 }
 $training_centers = fetchAll("SELECT tc_id, name FROM training_centers WHERE status = 'active' ORDER BY tc_id");
 
+// Helper functions for sorting
+function buildSortUrl($column) {
+    global $search_term, $filter_constituency, $filter_mandal, $filter_tc_id, $filter_batch_name, $records_per_page, $sort_column, $sort_direction;
+    
+    $params = [];
+    
+    if (!empty($search_term)) $params[] = 'search=' . urlencode($search_term);
+    if (!empty($filter_constituency)) $params[] = 'constituency=' . $filter_constituency;
+    if (!empty($filter_mandal)) $params[] = 'mandal=' . $filter_mandal;
+    if (!empty($filter_tc_id)) $params[] = 'tc_id=' . urlencode($filter_tc_id);
+    if (!empty($filter_batch_name)) $params[] = 'batch_name=' . urlencode($filter_batch_name);
+    if ($records_per_page != 10) $params[] = 'records_per_page=' . $records_per_page;
+    
+    // Determine sort direction
+    $new_direction = ($sort_column == $column && $sort_direction == 'ASC') ? 'DESC' : 'ASC';
+    
+    $params[] = 'sort=' . urlencode($column);
+    $params[] = 'order=' . $new_direction;
+    
+    return implode('&', $params);
+}
+
+function getSortIcon($column) {
+    global $sort_column, $sort_direction;
+    
+    if ($sort_column == $column) {
+        if ($sort_direction == 'ASC') {
+            return '<i class="fas fa-sort-up text-primary ml-1"></i>';
+        } else {
+            return '<i class="fas fa-sort-down text-primary ml-1"></i>';
+        }
+    } else {
+        return '<i class="fas fa-sort text-muted ml-1"></i>';
+    }
+}
+
 // Get all batches with related information (with pagination and search)
 $batches_with_data = fetchAll("
     SELECT 
@@ -293,7 +333,7 @@ $batches_with_data = fetchAll("
     LEFT JOIN beneficiaries ben ON b.id = ben.batch_id
     $search_condition
     GROUP BY b.id
-    ORDER BY c.name, m.name, b.name
+    ORDER BY $sort_column $sort_direction
     LIMIT $offset, $records_per_page
 ", $search_params, $search_types);
 
@@ -303,6 +343,36 @@ if (!isset($_SESSION['csrf_token'])) {
 }
 ?>
 <?php include '../includes/header.php'; ?>
+
+<style>
+.sortable-header {
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+}
+
+.sortable-header:hover {
+    background-color: #f8f9fa;
+    color: #007bff !important;
+}
+
+.sortable-header:hover .fas {
+    color: #007bff !important;
+}
+
+.sortable-header .fas {
+    transition: all 0.2s ease;
+}
+
+.sortable-header.active {
+    color: #007bff !important;
+    font-weight: 600;
+}
+
+.sortable-header.active .fas {
+    color: #007bff !important;
+}
+</style>
 
 <div class="container-fluid">
     <div class="row">
@@ -424,14 +494,54 @@ if (!isset($_SESSION['csrf_token'])) {
                             <thead>
                                 <tr>
                                     <th>S.No</th>
-                                    <th>Constituency</th>
-                                    <th>Mandal</th>
-                                    <th>TC ID</th>
-                                    <th>Batch Name</th>
-                                    <th>Batch Code</th>
-                                    <th>Duration</th>
-                                    <th>Beneficiaries</th>
-                                    <th>Status</th>
+                                    <th>
+                                        <a href="?<?php echo buildSortUrl('c.name'); ?>" class="sortable-header text-dark text-decoration-none <?php echo $sort_column == 'c.name' ? 'active' : ''; ?>">
+                                            Constituency
+                                            <?php echo getSortIcon('c.name'); ?>
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a href="?<?php echo buildSortUrl('m.name'); ?>" class="sortable-header text-dark text-decoration-none <?php echo $sort_column == 'm.name' ? 'active' : ''; ?>">
+                                            Mandal
+                                            <?php echo getSortIcon('m.name'); ?>
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a href="?<?php echo buildSortUrl('tc.tc_id'); ?>" class="sortable-header text-dark text-decoration-none <?php echo $sort_column == 'tc.tc_id' ? 'active' : ''; ?>">
+                                            TC ID
+                                            <?php echo getSortIcon('tc.tc_id'); ?>
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a href="?<?php echo buildSortUrl('b.name'); ?>" class="sortable-header text-dark text-decoration-none <?php echo $sort_column == 'b.name' ? 'active' : ''; ?>">
+                                            Batch Name
+                                            <?php echo getSortIcon('b.name'); ?>
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a href="?<?php echo buildSortUrl('b.code'); ?>" class="sortable-header text-dark text-decoration-none <?php echo $sort_column == 'b.code' ? 'active' : ''; ?>">
+                                            Batch Code
+                                            <?php echo getSortIcon('b.code'); ?>
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a href="?<?php echo buildSortUrl('b.start_date'); ?>" class="sortable-header text-dark text-decoration-none <?php echo $sort_column == 'b.start_date' ? 'active' : ''; ?>">
+                                            Duration
+                                            <?php echo getSortIcon('b.start_date'); ?>
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a href="?<?php echo buildSortUrl('beneficiary_count'); ?>" class="sortable-header text-dark text-decoration-none <?php echo $sort_column == 'beneficiary_count' ? 'active' : ''; ?>">
+                                            Beneficiaries
+                                            <?php echo getSortIcon('beneficiary_count'); ?>
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a href="?<?php echo buildSortUrl('b.status'); ?>" class="sortable-header text-dark text-decoration-none <?php echo $sort_column == 'b.status' ? 'active' : ''; ?>">
+                                            Status
+                                            <?php echo getSortIcon('b.status'); ?>
+                                        </a>
+                                    </th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -501,6 +611,8 @@ if (!isset($_SESSION['csrf_token'])) {
                                 if (!empty($filter_tc_id)) $params[] = 'tc_id=' . urlencode($filter_tc_id);
                                 if (!empty($filter_batch_name)) $params[] = 'batch_name=' . urlencode($filter_batch_name);
                                 if ($records_per_page != 10) $params[] = 'records_per_page=' . $records_per_page;
+                                if ($sort_column != 'c.name') $params[] = 'sort=' . urlencode($sort_column);
+                                if ($sort_direction != 'ASC') $params[] = 'order=' . $sort_direction;
                                 
                                 if (!empty($params)) {
                                     $base_url .= implode('&', $params) . '&';

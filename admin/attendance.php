@@ -101,9 +101,25 @@ if (!empty($selectedMandal)) {
 }
 
 // Build query for beneficiaries
-$whereConditions = ["b.status = 'active'"];
+$whereConditions = [];
 $params = [];
 $types = '';
+
+// Check if selected batch is completed
+$batchStatus = '';
+if (!empty($selectedBatch)) {
+    $batchQuery = "SELECT status FROM batches WHERE id = ?";
+    $batchResult = fetchRow($batchQuery, [$selectedBatch], 'i');
+    $batchStatus = $batchResult ? $batchResult['status'] : 'active';
+}
+
+// If batch is completed, include both active and completed beneficiaries
+// If batch is active, only include active beneficiaries
+if ($batchStatus === 'completed') {
+    $whereConditions[] = "(b.status = 'active' OR b.status = 'completed')";
+} else {
+    $whereConditions[] = "b.status = 'active'";
+}
 
 if (!empty($selectedConstituency)) {
     $whereConditions[] = "b.constituency_id = ?";
@@ -190,6 +206,18 @@ $beneficiaries = fetchAll($query, $allParams, $allTypes);
         <div class="alert alert-info alert-dismissible fade show mb-3" role="alert">
             <i class="fas fa-info-circle me-2"></i>
             <strong>Batch Update:</strong> <?php echo htmlspecialchars($batchCompletionResult['message']); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <?php endif; ?>
+        
+        <!-- Completed Batch Notification -->
+        <?php if (!empty($selectedBatch) && isset($batchStatus) && $batchStatus === 'completed'): ?>
+        <div class="alert alert-warning alert-dismissible fade show mb-3" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>Completed Batch:</strong> This batch has ended on <?php 
+                $batchEndDate = fetchRow("SELECT end_date FROM batches WHERE id = ?", [$selectedBatch], 'i');
+                echo $batchEndDate ? formatDate($batchEndDate['end_date'], 'd M Y') : 'unknown date';
+            ?>. You can still mark attendance for historical records or make-up sessions.
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         <?php endif; ?>
@@ -446,6 +474,9 @@ $beneficiaries = fetchAll($query, $allParams, $allTypes);
                             </td>
                             <td>
                                 <strong><?php echo htmlspecialchars($beneficiary['full_name']); ?></strong>
+                                <?php if (isset($batchStatus) && $batchStatus === 'completed'): ?>
+                                    <br><small><span class="badge badge-warning">Completed Batch</span></small>
+                                <?php endif; ?>
                             </td>
                             <td>
                                 <small><?php echo htmlspecialchars($beneficiary['mobile_number']); ?></small>
