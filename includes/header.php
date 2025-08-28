@@ -135,6 +135,12 @@ $currentUser = getCurrentUser();
                                     <span>Student Data Import</span>
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a href="../admin/batch_status_manager.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'batch_status_manager.php') ? 'active' : ''; ?>">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <span>Batch Status Manager</span>
+                                </a>
+                            </li>
 
                         </ul>
                     </li>
