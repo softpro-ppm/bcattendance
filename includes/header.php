@@ -147,6 +147,12 @@ $currentUser = getCurrentUser();
                                     <span>Phase 1 Setup</span>
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a href="../admin/debug_force_status.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'debug_force_status.php') ? 'active' : ''; ?>">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <span>Debug Force Status</span>
+                                </a>
+                            </li>
 
                         </ul>
                     </li>

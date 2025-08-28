@@ -127,16 +127,16 @@ $statusLog = fetchAll("
                             </form>
                         </div>
                         <div class="col-md-4">
-                            <button type="button" class="btn btn-success btn-lg btn-block" data-bs-toggle="modal" data-bs-target="#batchStatusModal">
-                                <i class="fas fa-edit"></i>
-                                Force Status Change
-                            </button>
+                                            <button type="button" class="btn btn-success btn-lg btn-block" data-toggle="modal" data-target="#batchStatusModal">
+                    <i class="fas fa-edit"></i>
+                    Force Status Change
+                </button>
                         </div>
                         <div class="col-md-4">
-                            <button type="button" class="btn btn-info btn-lg btn-block" data-bs-toggle="modal" data-bs-target="#statusLogModal">
-                                <i class="fas fa-history"></i>
-                                View Status History
-                            </button>
+                                            <button type="button" class="btn btn-info btn-lg btn-block" data-toggle="modal" data-target="#statusLogModal">
+                    <i class="fas fa-history"></i>
+                    View Status History
+                </button>
                         </div>
                     </div>
 
@@ -240,7 +240,7 @@ $statusLog = fetchAll("
                     <i class="fas fa-edit"></i>
                     Force Batch Status Change
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <form method="POST">
                 <div class="modal-body">
@@ -275,7 +275,7 @@ $statusLog = fetchAll("
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to force this status change? This will affect all students in the batch.')">
                         <i class="fas fa-exclamation-triangle"></i>
                         Force Change
@@ -295,7 +295,7 @@ $statusLog = fetchAll("
                     <i class="fas fa-history"></i>
                     Batch Status Change History
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
                 <?php if (!empty($statusLog)): ?>
@@ -344,10 +344,48 @@ $statusLog = fetchAll("
                 <?php endif; ?>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
+
+<!-- JavaScript Debugging -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Batch Status Manager loaded');
+    
+    // Debug modal triggers
+    const forceStatusBtn = document.querySelector('[data-target="#batchStatusModal"]');
+    const viewHistoryBtn = document.querySelector('[data-target="#statusLogModal"]');
+    
+    if (forceStatusBtn) {
+        console.log('Force Status button found');
+        forceStatusBtn.addEventListener('click', function() {
+            console.log('Force Status button clicked');
+        });
+    } else {
+        console.log('Force Status button NOT found');
+    }
+    
+    if (viewHistoryBtn) {
+        console.log('View History button found');
+        viewHistoryBtn.addEventListener('click', function() {
+            console.log('View History button clicked');
+        });
+    } else {
+        console.log('View History button NOT found');
+    }
+    
+    // Test modal functionality
+    $('#batchStatusModal').on('show.bs.modal', function () {
+        console.log('Force Status modal opening');
+    });
+    
+    $('#statusLogModal').on('show.bs.modal', function () {
+        console.log('Status History modal opening');
+    });
+});
+</script>
 
 <?php include '../includes/footer.php'; ?>
