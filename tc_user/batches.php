@@ -52,7 +52,7 @@ $query = "
     JOIN mandals m ON b.mandal_id = m.id
     JOIN constituencies c ON m.constituency_id = c.id
     JOIN training_centers tc ON b.tc_id = tc.id
-    LEFT JOIN beneficiaries ben ON b.id = ben.batch_id AND ben.status = 'active'
+    LEFT JOIN beneficiaries ben ON b.id = ben.batch_id AND (ben.status = 'active' OR ben.status = 'completed')
     $whereClause
     GROUP BY b.id
     ORDER BY b.status DESC, b.start_date DESC, b.name

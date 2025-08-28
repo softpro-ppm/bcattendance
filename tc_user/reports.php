@@ -57,7 +57,7 @@ if ($report_type) {
             $students_query = "SELECT ben.full_name as student_name, ben.id, b.name as batch_name
                               FROM beneficiaries ben
                               JOIN batches b ON ben.batch_id = b.id
-                              WHERE b.tc_id = ? AND ben.status = 'active'";
+                              WHERE b.tc_id = ? AND (ben.status = 'active' OR ben.status = 'completed')";
             $params = [$tc_id];
             $types = 'i';
             
@@ -107,7 +107,7 @@ if ($report_type) {
             $report_data = [];
             
             foreach ($batches_data as $batch) {
-                $students_count_query = "SELECT COUNT(*) as count FROM beneficiaries WHERE batch_id = ? AND status = 'active'";
+                $students_count_query = "SELECT COUNT(*) as count FROM beneficiaries WHERE batch_id = ? AND (status = 'active' OR status = 'completed')";
                 $students_count = fetchRow($students_count_query, [$batch['id']], 'i')['count'];
                 
                 $attendance_query = "SELECT 

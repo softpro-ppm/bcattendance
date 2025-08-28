@@ -23,7 +23,7 @@ $batches = fetchAll($batches_query, [$tc_id], 'i') ?: [];
 $beneficiaries_query = "SELECT ben.*, b.name as batch_name, b.code as batch_code
                        FROM beneficiaries ben
                        JOIN batches b ON ben.batch_id = b.id
-                       WHERE b.tc_id = ? AND ben.status = 'active'";
+                       WHERE b.tc_id = ? AND (ben.status = 'active' OR ben.status = 'completed')";
 
 $params = [$tc_id];
 $types = 'i';

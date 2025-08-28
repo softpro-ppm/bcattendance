@@ -18,10 +18,10 @@ try {
     $batches_count_result = fetchRow($batches_count_query, [$tc_id], 'i');
     $batches_count = $batches_count_result ? $batches_count_result['count'] : 0;
 
-    // Get total students
+    // Get total students (including completed batches)
     $beneficiaries_query = "SELECT COUNT(*) as count FROM beneficiaries ben 
                            JOIN batches b ON ben.batch_id = b.id 
-                           WHERE b.tc_id = ? AND ben.status = 'active'";
+                           WHERE b.tc_id = ? AND (ben.status = 'active' OR ben.status = 'completed')";
     $beneficiaries_result = fetchRow($beneficiaries_query, [$tc_id], 'i');
     $beneficiaries_count = $beneficiaries_result ? $beneficiaries_result['count'] : 0;
 
@@ -254,7 +254,7 @@ try {
             </div>
             <div class="card-body p-4">
                 <?php
-                // Get batch attendance status for today
+                // Get batch attendance status for today (including completed batches)
                 $batch_status_query = "SELECT 
                                         b.id as batch_id,
                                         b.name as batch_name,
@@ -267,7 +267,7 @@ try {
                                             ELSE 'pending'
                                         END as status
                                        FROM batches b
-                                       LEFT JOIN beneficiaries ben ON b.id = ben.batch_id AND ben.status = 'active'
+                                       LEFT JOIN beneficiaries ben ON b.id = ben.batch_id AND (ben.status = 'active' OR ben.status = 'completed')
                                        LEFT JOIN attendance a ON ben.id = a.beneficiary_id AND a.attendance_date = ?
                                        WHERE b.tc_id = ? AND b.status IN ('active', 'completed')
                                        GROUP BY b.id, b.name

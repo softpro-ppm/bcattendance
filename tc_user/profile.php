@@ -37,7 +37,7 @@ $user = fetchRow($user_query, [$user_id], 'i');
 $stats_queries = [
     'total_batches' => "SELECT COUNT(*) as count FROM batches WHERE tc_id = ?",
     'active_batches' => "SELECT COUNT(*) as count FROM batches WHERE tc_id = ? AND status = 'active'",
-    'total_students' => "SELECT COUNT(*) as count FROM beneficiaries ben JOIN batches b ON ben.batch_id = b.id WHERE b.tc_id = ? AND ben.status = 'active'",
+    'total_students' => "SELECT COUNT(*) as count FROM beneficiaries ben JOIN batches b ON ben.batch_id = b.id WHERE b.tc_id = ? AND (ben.status = 'active' OR ben.status = 'completed')",
     'attendance_today' => "SELECT COUNT(*) as count FROM attendance a JOIN beneficiaries ben ON a.beneficiary_id = ben.id JOIN batches b ON ben.batch_id = b.id WHERE b.tc_id = ? AND a.attendance_date = CURDATE()"
 ];
 
