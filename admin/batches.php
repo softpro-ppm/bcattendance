@@ -99,9 +99,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
 }
 
 // Pagination settings
-$records_per_page = 10;
+$records_per_page = isset($_GET['records_per_page']) ? (int)$_GET['records_per_page'] : 10;
 $current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $search_term = isset($_GET['search']) ? sanitizeInput($_GET['search']) : '';
+
+// Filter parameters
+$filter_constituency = isset($_GET['constituency']) ? (int)$_GET['constituency'] : '';
+$filter_mandal = isset($_GET['mandal']) ? (int)$_GET['mandal'] : '';
+$filter_tc_id = isset($_GET['tc_id']) ? sanitizeInput($_GET['tc_id']) : '';
+$filter_batch_name = isset($_GET['batch_name']) ? sanitizeInput($_GET['batch_name']) : '';
+
 $offset = ($current_page - 1) * $records_per_page;
 
 // Handle form submissions
@@ -199,10 +206,41 @@ $search_condition = '';
 $search_params = [];
 $search_types = '';
 
+// Add filters to search condition
+$where_conditions = [];
+
 if (!empty($search_term)) {
-    $search_condition = " WHERE b.name LIKE ? OR b.code LIKE ? OR m.name LIKE ? OR c.name LIKE ? OR tc.tc_id LIKE ?";
-    $search_params = ["%$search_term%", "%$search_term%", "%$search_term%", "%$search_term%", "%$search_term%"];
-    $search_types = 'sssss';
+    $where_conditions[] = "(b.name LIKE ? OR b.code LIKE ? OR m.name LIKE ? OR c.name LIKE ? OR tc.tc_id LIKE ?)";
+    $search_params = array_merge($search_params, ["%$search_term%", "%$search_term%", "%$search_term%", "%$search_term%", "%$search_term%"]);
+    $search_types .= 'sssss';
+}
+
+if (!empty($filter_constituency)) {
+    $where_conditions[] = "c.id = ?";
+    $search_params[] = $filter_constituency;
+    $search_types .= 'i';
+}
+
+if (!empty($filter_mandal)) {
+    $where_conditions[] = "m.id = ?";
+    $search_params[] = $filter_mandal;
+    $search_types .= 'i';
+}
+
+if (!empty($filter_tc_id)) {
+    $where_conditions[] = "tc.tc_id LIKE ?";
+    $search_params[] = "%$filter_tc_id%";
+    $search_types .= 's';
+}
+
+if (!empty($filter_batch_name)) {
+    $where_conditions[] = "b.name LIKE ?";
+    $search_params[] = "%$filter_batch_name%";
+    $search_types .= 's';
+}
+
+if (!empty($where_conditions)) {
+    $search_condition = " WHERE " . implode(' AND ', $where_conditions);
 }
 
 // Get total count for pagination
@@ -230,6 +268,14 @@ $mandals_with_tc = fetchAll("
     WHERE m.status = 'active' AND tc.status = 'active'
     ORDER BY c.name, m.name
 ");
+
+// Get filter options
+$constituencies = fetchAll("SELECT id, name FROM constituencies WHERE status = 'active' ORDER BY name");
+$mandals = [];
+if (!empty($filter_constituency)) {
+    $mandals = fetchAll("SELECT id, name FROM mandals WHERE constituency_id = ? AND status = 'active' ORDER BY name", [$filter_constituency], 'i');
+}
+$training_centers = fetchAll("SELECT tc_id, name FROM training_centers WHERE status = 'active' ORDER BY tc_id");
 
 // Get all batches with related information (with pagination and search)
 $batches_with_data = fetchAll("
@@ -276,20 +322,100 @@ if (!isset($_SESSION['csrf_token'])) {
                     
                     <!-- Search and Pagination Controls -->
                     <div class="row mb-3">
-                        <div class="col-md-6">
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="liveSearch" placeholder="Search batches, mandals, constituencies...">
-                                <div class="input-group-append">
-                                    <div class="btn btn-outline-secondary" id="searchStatus">
-                                        <i class="fas fa-search"></i>
-                                    </div>
+                        <div class="col-md-12">
+                            <!-- Advanced Filters -->
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h6 class="mb-0"><i class="fas fa-filter"></i> Advanced Filters</h6>
+                                </div>
+                                <div class="card-body">
+                                    <form method="GET" id="filterForm">
+                                        <div class="row">
+                                            <div class="col-md-2">
+                                                <label for="constituency" class="form-label">Constituency</label>
+                                                <select class="form-control" id="constituency" name="constituency">
+                                                    <option value="">All Constituencies</option>
+                                                    <?php foreach ($constituencies as $constituency): ?>
+                                                        <option value="<?php echo $constituency['id']; ?>" 
+                                                                <?php echo $filter_constituency == $constituency['id'] ? 'selected' : ''; ?>>
+                                                            <?php echo htmlspecialchars($constituency['name']); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label for="mandal" class="form-label">Mandal</label>
+                                                <select class="form-control" id="mandal" name="mandal">
+                                                    <option value="">All Mandals</option>
+                                                    <?php foreach ($mandals as $mandal): ?>
+                                                        <option value="<?php echo $mandal['id']; ?>" 
+                                                                <?php echo $filter_mandal == $mandal['id'] ? 'selected' : ''; ?>>
+                                                            <?php echo htmlspecialchars($mandal['name']); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label for="tc_id" class="form-label">TC ID</label>
+                                                <select class="form-control" id="tc_id" name="tc_id">
+                                                    <option value="">All TC IDs</option>
+                                                    <?php foreach ($training_centers as $tc): ?>
+                                                        <option value="<?php echo $tc['tc_id']; ?>" 
+                                                                <?php echo $filter_tc_id == $tc['tc_id'] ? 'selected' : ''; ?>>
+                                                            <?php echo htmlspecialchars($tc['tc_id']); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label for="batch_name" class="form-label">Batch Name</label>
+                                                <input type="text" class="form-control" id="batch_name" name="batch_name" 
+                                                       value="<?php echo htmlspecialchars($filter_batch_name); ?>" 
+                                                       placeholder="Batch name...">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label for="records_per_page" class="form-label">Rows per page</label>
+                                                <select class="form-control" id="records_per_page" name="records_per_page">
+                                                    <option value="10" <?php echo $records_per_page == 10 ? 'selected' : ''; ?>>10</option>
+                                                    <option value="20" <?php echo $records_per_page == 20 ? 'selected' : ''; ?>>20</option>
+                                                    <option value="50" <?php echo $records_per_page == 50 ? 'selected' : ''; ?>>50</option>
+                                                    <option value="100" <?php echo $records_per_page == 100 ? 'selected' : ''; ?>>100</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label class="form-label">&nbsp;</label>
+                                                <div class="d-flex">
+                                                    <button type="submit" class="btn btn-primary mr-2">
+                                                        <i class="fas fa-search"></i> Apply Filters
+                                                    </button>
+                                                    <a href="batches.php" class="btn btn-secondary">
+                                                        <i class="fas fa-times"></i> Clear
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-6 text-right">
-                            <small class="text-muted" id="recordCount">
-                                Total: <?php echo $total_records; ?> batches
-                            </small>
+                            
+                            <!-- Quick Search -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="liveSearch" placeholder="Quick search batches, mandals, constituencies...">
+                                        <div class="input-group-append">
+                                            <div class="btn btn-outline-secondary" id="searchStatus">
+                                                <i class="fas fa-search"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 text-right">
+                                    <small class="text-muted" id="recordCount">
+                                        Showing <?php echo $offset + 1; ?>-<?php echo min($offset + $records_per_page, $total_records); ?> of <?php echo $total_records; ?> batches
+                                    </small>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
@@ -367,9 +493,19 @@ if (!isset($_SESSION['csrf_token'])) {
                             <div class="col-12">
                                 <?php 
                                 $base_url = $_SERVER['PHP_SELF'] . '?';
-                                if (!empty($search_term)) {
-                                    $base_url .= 'search=' . urlencode($search_term) . '&';
+                                $params = [];
+                                
+                                if (!empty($search_term)) $params[] = 'search=' . urlencode($search_term);
+                                if (!empty($filter_constituency)) $params[] = 'constituency=' . $filter_constituency;
+                                if (!empty($filter_mandal)) $params[] = 'mandal=' . $filter_mandal;
+                                if (!empty($filter_tc_id)) $params[] = 'tc_id=' . urlencode($filter_tc_id);
+                                if (!empty($filter_batch_name)) $params[] = 'batch_name=' . urlencode($filter_batch_name);
+                                if ($records_per_page != 10) $params[] = 'records_per_page=' . $records_per_page;
+                                
+                                if (!empty($params)) {
+                                    $base_url .= implode('&', $params) . '&';
                                 }
+                                
                                 echo generatePagination($current_page, $total_pages, $base_url);
                                 ?>
                             </div>
@@ -708,5 +844,36 @@ document.addEventListener('DOMContentLoaded', function() {
 // Auto-hide alerts after 5 seconds
 $(document).ready(function() {
     $('.alert').delay(5000).fadeOut('slow');
+});
+
+// Dynamic mandal loading based on constituency
+document.getElementById('constituency').addEventListener('change', function() {
+    const constituencyId = this.value;
+    const mandalSelect = document.getElementById('mandal');
+    
+    // Clear mandal options
+    mandalSelect.innerHTML = '<option value="">All Mandals</option>';
+    
+    if (constituencyId) {
+        // Fetch mandals for selected constituency
+        fetch(`get_mandals.php?constituency_id=${constituencyId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    data.mandals.forEach(mandal => {
+                        const option = document.createElement('option');
+                        option.value = mandal.id;
+                        option.textContent = mandal.name;
+                        mandalSelect.appendChild(option);
+                    });
+                }
+            })
+            .catch(error => console.error('Error loading mandals:', error));
+    }
+});
+
+// Auto-submit form when filters change
+document.getElementById('records_per_page').addEventListener('change', function() {
+    document.getElementById('filterForm').submit();
 });
 </script>
