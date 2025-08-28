@@ -141,6 +141,12 @@ $currentUser = getCurrentUser();
                                     <span>Batch Status Manager</span>
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a href="../admin/run_phase1_setup.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'run_phase1_setup.php') ? 'active' : ''; ?>">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <span>Phase 1 Setup</span>
+                                </a>
+                            </li>
 
                         </ul>
                     </li>
