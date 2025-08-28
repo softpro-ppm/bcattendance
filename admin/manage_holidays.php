@@ -173,22 +173,28 @@ try {
                     ) THEN 'Specific Batches'
                     ELSE 'All Mandals'
                 END as mandal_coverage,
-                GROUP_CONCAT(
-                    DISTINCT CONCAT(m.name, ' - ', bt.name, ' (', bt.code, ')') 
-                    ORDER BY m.name, bt.name 
-                    SEPARATOR ', '
+                COALESCE(
+                    (SELECT GROUP_CONCAT(
+                        DISTINCT CONCAT(m.name, ' - ', bt.name, ' (', bt.code, ')') 
+                        ORDER BY m.name, bt.name 
+                        SEPARATOR ', '
+                    ) FROM batch_holidays bh2 
+                     JOIN batches bt ON bh2.batch_id = bt.id 
+                     JOIN mandals m ON bt.mandal_id = m.id 
+                     WHERE bh2.holiday_id = h.id), 'All Batches'
                 ) as batch_details,
-                GROUP_CONCAT(
-                    DISTINCT m.name 
-                    ORDER BY m.name 
-                    SEPARATOR ', '
+                COALESCE(
+                    (SELECT GROUP_CONCAT(
+                        DISTINCT m.name 
+                        ORDER BY m.name 
+                        SEPARATOR ', '
+                    ) FROM batch_holidays bh2 
+                     JOIN batches bt ON bh2.batch_id = bt.id 
+                     JOIN mandals m ON bt.mandal_id = m.id 
+                     WHERE bh2.holiday_id = h.id), 'All Mandals'
                 ) as mandal_names
             FROM holidays h
-            LEFT JOIN batch_holidays bh ON h.id = bh.holiday_id
-            LEFT JOIN batches bt ON bh.batch_id = bt.id
-            LEFT JOIN mandals m ON bt.mandal_id = m.id
             WHERE h.description != 'Sunday Holiday'
-            GROUP BY h.id, h.date, h.description, h.type, h.status, h.created_at, h.updated_at
             ORDER BY h.date DESC
         ");
     }
@@ -335,8 +341,30 @@ foreach ($batches as $batch) {
             This table shows only custom holidays you've added (local festivals, national holidays, etc.).
             <br><strong>Coverage Column:</strong> Shows whether the holiday applies to all mandals or specific batches with detailed information.
         </div>
+        <!-- Debug Information -->
+        <div class="alert alert-info mb-3">
+            <strong>Debug Info:</strong> 
+            Total holidays found: <?php echo count($holidays); ?> | 
+            Query executed successfully
+        </div>
+        
         <?php if (!empty($holidays)): ?>
         <div class="table-responsive">
+            <!-- Simple Holidays List (Debug) -->
+            <div class="alert alert-warning mb-3">
+                <strong>Raw Holidays from Database:</strong><br>
+                <?php 
+                $simpleHolidays = fetchAll("SELECT id, date, description, type FROM holidays WHERE description != 'Sunday Holiday' ORDER BY date DESC");
+                if ($simpleHolidays) {
+                    foreach ($simpleHolidays as $h) {
+                        echo "ID: {$h['id']}, Date: {$h['date']}, Description: {$h['description']}, Type: {$h['type']}<br>";
+                    }
+                } else {
+                    echo "No holidays found in simple query either";
+                }
+                ?>
+            </div>
+            
             <table class="table table-striped">
                 <thead>
                     <tr>
