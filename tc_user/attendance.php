@@ -440,6 +440,16 @@ $selected_batch_id = $_GET['batch_id'] ?? ($_POST['batch_id'] ?? ($batches[0]['i
 $beneficiaries = [];
 if ($selected_batch_id) {
     // Use same query structure as admin to ensure consistency
+    // Check if selected batch is completed
+    $batchStatusQuery = "SELECT status FROM batches WHERE id = ?";
+    $batchStatusResult = fetchRow($batchStatusQuery, [$selected_batch_id], 'i');
+    $batchStatus = $batchStatusResult ? $batchStatusResult['status'] : 'active';
+    
+    // Build status condition based on batch status
+    $statusCondition = ($batchStatus === 'completed') ? 
+        "(ben.status = 'active' OR ben.status = 'completed')" : 
+        "ben.status = 'active'";
+    
     $beneficiaries_query = "SELECT ben.*, 
                                    b.name as batch_name, 
                                    b.code as batch_code,
@@ -450,7 +460,7 @@ if ($selected_batch_id) {
                            FROM beneficiaries ben
                            LEFT JOIN batches b ON ben.batch_id = b.id
                            LEFT JOIN attendance a ON ben.id = a.beneficiary_id AND a.attendance_date = ?
-                           WHERE ben.batch_id = ? AND ben.status = 'active' AND b.status IN ('active', 'completed')
+                           WHERE ben.batch_id = ? AND $statusCondition AND b.status IN ('active', 'completed')
                            ORDER BY ben.full_name";
     $beneficiaries = fetchAll($beneficiaries_query, [$current_date, $selected_batch_id], 'si') ?: [];
     
@@ -468,7 +478,8 @@ if ($selected_batch_id) {
                         SUM(CASE WHEN a.status = 'absent' THEN 1 ELSE 0 END) as absent
                       FROM attendance a
                       JOIN beneficiaries ben ON a.beneficiary_id = ben.id
-                      WHERE ben.batch_id = ? AND a.attendance_date = ?";
+                      JOIN batches b ON ben.batch_id = b.id
+                      WHERE ben.batch_id = ? AND a.attendance_date = ? AND b.status IN ('active', 'completed')";
     $summary = fetchRow($summary_query, [$selected_batch_id, $current_date], 'is') ?: 
                ['total' => 0, 'present' => 0, 'absent' => 0];
 } else {
@@ -502,6 +513,15 @@ if ($selected_batch_id && !empty($beneficiaries)) {
         <i class="fas fa-<?php echo $message_type == 'success' ? 'check-circle' : 'exclamation-triangle'; ?>"></i>
         <?php echo $message; ?>
     </div>
+<?php endif; ?>
+
+<!-- Completed Batch Notification -->
+<?php if ($selected_batch_id && isset($batchStatus) && $batchStatus === 'completed'): ?>
+<div class="alert alert-warning alert-dismissible fade show mb-3" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    <strong>Completed Batch:</strong> This batch has ended. You can still mark attendance for historical records or make-up sessions.
+    <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+</div>
 <?php endif; ?>
 
 <!-- Date and Batch Selection -->
@@ -690,8 +710,11 @@ if ($selected_batch_id && !empty($beneficiaries)) {
                                         </div>
                                     </td>
                                     <td>
-                                        <strong><?php echo htmlspecialchars($beneficiary['full_name']); ?></strong><br>
-                                        <small class="text-muted">
+                                        <strong><?php echo htmlspecialchars($beneficiary['full_name']); ?></strong>
+                                        <?php if (isset($batchStatus) && $batchStatus === 'completed'): ?>
+                                            <br><small><span class="badge badge-warning">Completed Batch</span></small>
+                                        <?php endif; ?>
+                                        <br><small class="text-muted">
                                             <i class="fas fa-phone"></i> <?php echo htmlspecialchars($beneficiary['mobile_number']); ?>
                                         </small>
                                         
