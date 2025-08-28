@@ -416,6 +416,28 @@ foreach ($batches as $batch) {
                     echo "Direct query failed: " . $conn->error . "<br>";
                 }
                 
+                // Check batch_holidays relationships
+                echo "<br><strong>Batch Holiday Relationships:</strong><br>";
+                $batchHolidaysResult = $conn->query("SELECT bh.*, h.description, b.name as batch_name, m.name as mandal_name 
+                                                   FROM batch_holidays bh 
+                                                   JOIN holidays h ON bh.holiday_id = h.id 
+                                                   JOIN batches b ON bh.batch_id = b.id 
+                                                   JOIN mandals m ON b.mandal_id = m.id 
+                                                   ORDER BY bh.holiday_date DESC");
+                if ($batchHolidaysResult) {
+                    $batchCount = $batchHolidaysResult->num_rows;
+                    echo "Batch holiday relationships found: {$batchCount}<br>";
+                    if ($batchCount > 0) {
+                        while ($row = $batchHolidaysResult->fetch_assoc()) {
+                            echo "- Holiday: {$row['description']} → Batch: {$row['batch_name']} ({$row['mandal_name']})<br>";
+                        }
+                    } else {
+                        echo "❌ No batch holiday relationships found - this is why all holidays show 'All Mandals'<br>";
+                    }
+                } else {
+                    echo "❌ Failed to check batch holidays: " . $conn->error . "<br>";
+                }
+                
             } catch (Exception $e) {
                 echo "❌ Database error: " . $e->getMessage() . "<br>";
             }
