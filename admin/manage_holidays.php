@@ -540,7 +540,7 @@ foreach ($batches as $batch) {
                     }
                 } else {
                     echo "❌ <strong>batch_holidays table is missing!</strong> This is why all holidays show 'All Mandals'<br>";
-                    echo "💡 <strong>Solution:</strong> Run the fix_holiday_system.php script to recreate the missing table<br>";
+                    echo "💡 <strong>Solution:</strong> Run the create_batch_holidays_table.php script to recreate the missing table<br>";
                 }
                 
             } catch (Exception $e) {
