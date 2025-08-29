@@ -71,17 +71,17 @@ function executeQuery($query, $params = [], $types = '') {
             $stmt->close();
             return $result;
         } else {
-                    // For INSERT, UPDATE, DELETE queries, return boolean or insert ID
-        $affected_rows = $stmt->affected_rows;
-        $insert_id = $stmt->insert_id;
-        $stmt->close();
-        
-        // For INSERT queries, return the insert ID if available
-        if (stripos(trim($query), 'INSERT') === 0 && $insert_id > 0) {
-            return $insert_id;
-        }
-        
-        return $affected_rows >= 0; // Return true if no error occurred
+            // For INSERT, UPDATE, DELETE queries, return boolean or insert ID
+            $affected_rows = $stmt->affected_rows;
+            $insert_id = $stmt->insert_id;
+            $stmt->close();
+            
+            // For INSERT queries, return the insert ID if available
+            if (stripos(trim($query), 'INSERT') === 0 && $insert_id > 0) {
+                return $insert_id;
+            }
+            
+            return $affected_rows >= 0; // Return true if no error occurred
         }
     } else {
         $result = $conn->query($query);
