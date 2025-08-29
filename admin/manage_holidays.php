@@ -418,24 +418,32 @@ foreach ($batches as $batch) {
                 
                 // Check batch_holidays relationships
                 echo "<br><strong>Batch Holiday Relationships:</strong><br>";
-                $batchHolidaysResult = $conn->query("SELECT bh.*, h.description, b.name as batch_name, m.name as mandal_name 
-                                                   FROM batch_holidays bh 
-                                                   JOIN holidays h ON bh.holiday_id = h.id 
-                                                   JOIN batches b ON bh.batch_id = b.id 
-                                                   JOIN mandals m ON b.mandal_id = m.id 
-                                                   ORDER BY bh.holiday_date DESC");
-                if ($batchHolidaysResult) {
-                    $batchCount = $batchHolidaysResult->num_rows;
-                    echo "Batch holiday relationships found: {$batchCount}<br>";
-                    if ($batchCount > 0) {
-                        while ($row = $batchHolidaysResult->fetch_assoc()) {
-                            echo "- Holiday: {$row['description']} → Batch: {$row['batch_name']} ({$row['mandal_name']})<br>";
+                
+                // First check if table exists
+                $tableExists = $conn->query("SHOW TABLES LIKE 'batch_holidays'");
+                if ($tableExists && $tableExists->num_rows > 0) {
+                    $batchHolidaysResult = $conn->query("SELECT bh.*, h.description, b.name as batch_name, m.name as mandal_name 
+                                                       FROM batch_holidays bh 
+                                                       JOIN holidays h ON bh.holiday_id = h.id 
+                                                       JOIN batches b ON bh.batch_id = b.id 
+                                                       JOIN mandals m ON b.mandal_id = m.id 
+                                                       ORDER BY bh.holiday_date DESC");
+                    if ($batchHolidaysResult) {
+                        $batchCount = $batchHolidaysResult->num_rows;
+                        echo "Batch holiday relationships found: {$batchCount}<br>";
+                        if ($batchCount > 0) {
+                            while ($row = $batchHolidaysResult->fetch_assoc()) {
+                                echo "- Holiday: {$row['description']} → Batch: {$row['batch_name']} ({$row['mandal_name']})<br>";
+                            }
+                        } else {
+                            echo "❌ No batch holiday relationships found - this is why all holidays show 'All Mandals'<br>";
                         }
                     } else {
-                        echo "❌ No batch holiday relationships found - this is why all holidays show 'All Mandals'<br>";
+                        echo "❌ Failed to check batch holidays: " . $conn->error . "<br>";
                     }
                 } else {
-                    echo "❌ Failed to check batch holidays: " . $conn->error . "<br>";
+                    echo "❌ <strong>batch_holidays table is missing!</strong> This is why all holidays show 'All Mandals'<br>";
+                    echo "💡 <strong>Solution:</strong> Run the fix_holiday_system.php script to recreate the missing table<br>";
                 }
                 
             } catch (Exception $e) {
