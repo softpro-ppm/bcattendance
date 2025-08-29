@@ -108,7 +108,7 @@ require_once 'includes/header.php';
     
     /* Table styling for mobile */
     .attendance-table {
-        min-width: 600px; /* Minimum width to prevent extreme squashing */
+        min-width: 450px; /* Minimum width for 3 columns */
         font-size: 13px;
     }
     
@@ -118,7 +118,7 @@ require_once 'includes/header.php';
         white-space: nowrap; /* Prevent text wrapping on mobile */
     }
     
-    /* Column widths for mobile */
+    /* Column widths for mobile - now only 3 columns */
     .attendance-table th:nth-child(1),
     .attendance-table td:nth-child(1) {
         width: 50px; /* S.No column */
@@ -133,21 +133,9 @@ require_once 'includes/header.php';
     
     .attendance-table th:nth-child(3),
     .attendance-table td:nth-child(3) {
-        width: 200px; /* Student Details column */
-        min-width: 200px;
-        max-width: 200px;
-    }
-    
-    .attendance-table th:nth-child(4),
-    .attendance-table td:nth-child(4) {
-        width: 100px; /* Batch column */
-        min-width: 100px;
-    }
-    
-    .attendance-table th:nth-child(5),
-    .attendance-table td:nth-child(5) {
-        width: 120px; /* Current Status column */
-        min-width: 120px;
+        width: 300px; /* Student Details column - wider now */
+        min-width: 300px;
+        max-width: 300px;
     }
     
     /* Optimize status buttons for mobile */
@@ -180,7 +168,7 @@ require_once 'includes/header.php';
 /* Extra small devices */
 @media (max-width: 576px) {
     .attendance-table {
-        min-width: 550px;
+        min-width: 400px;
         font-size: 12px;
     }
     
@@ -195,19 +183,19 @@ require_once 'includes/header.php';
         min-width: 65px;
     }
     
-    /* Adjust column widths for very small screens */
+    /* Adjust column widths for very small screens - now only 3 columns */
     .attendance-table th:nth-child(3),
     .attendance-table td:nth-child(3) {
-        width: 180px;
-        min-width: 180px;
-        max-width: 180px;
+        width: 250px;
+        min-width: 250px;
+        max-width: 250px;
     }
 }
 
 /* Extra extra small devices */
 @media (max-width: 480px) {
     .attendance-table {
-        min-width: 500px;
+        min-width: 350px;
         font-size: 11px;
     }
     
@@ -222,24 +210,12 @@ require_once 'includes/header.php';
         min-width: 60px;
     }
     
-    /* Further reduce column widths */
+    /* Further reduce column widths - now only 3 columns */
     .attendance-table th:nth-child(3),
     .attendance-table td:nth-child(3) {
-        width: 160px;
-        min-width: 160px;
-        max-width: 160px;
-    }
-    
-    .attendance-table th:nth-child(4),
-    .attendance-table td:nth-child(4) {
-        width: 80px;
-        min-width: 80px;
-    }
-    
-    .attendance-table th:nth-child(5),
-    .attendance-table td:nth-child(5) {
-        width: 100px;
-        min-width: 100px;
+        width: 220px;
+        min-width: 220px;
+        max-width: 220px;
     }
 }
 
@@ -622,7 +598,7 @@ if ($selected_batch_id && !empty($beneficiaries)) {
                         <!-- Mobile-responsive attendance table - Batch and Status columns hidden on mobile -->
                         <div class="d-block d-md-none alert alert-info alert-sm mb-2">
                             <i class="fas fa-mobile-alt"></i> 
-                            <strong>Mobile View:</strong> Swipe left/right to see all columns. All student information is now visible with proper horizontal scrolling!
+                            <strong>Mobile View:</strong> Streamlined 3-column layout for better mobile experience. Student names and details are fully visible!
                         </div>
                         <table class="attendance-table table-striped table-bordered">
                             <thead>
@@ -630,8 +606,6 @@ if ($selected_batch_id && !empty($beneficiaries)) {
                                     <th>S.No</th>
                                     <th style="background-color: #e3f2fd; color: #1976d2;">📝 Mark Attendance</th>
                                     <th>Student Details</th>
-                                    <th>Batch</th>
-                                    <th>Current Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -678,52 +652,29 @@ if ($selected_batch_id && !empty($beneficiaries)) {
                                             <i class="fas fa-phone"></i> <?php echo htmlspecialchars($beneficiary['mobile_number']); ?>
                                         </small>
                                         
-                                        <!-- Mobile-friendly information display -->
-                                        <div class="mobile-info d-block d-md-none">
-                                            <div class="batch-info">
-                                                <i class="fas fa-graduation-cap"></i> Batch: 
-                                                <span class="badge badge-primary"><?php echo htmlspecialchars($beneficiary['batch_name']); ?></span>
-                                            </div>
-                                            <div class="status-info">
-                                                <i class="fas fa-clock"></i> Status: 
-                                                <?php if (!empty($beneficiary['attendance_status'])): ?>
-                                                    <span class="badge badge-<?php 
-                                                        echo $beneficiary['attendance_status'] == 'present' ? 'success' : 
-                                                             ($beneficiary['attendance_status'] == 'absent' ? 'danger' : 'warning'); 
-                                                    ?>">
-                                                        <?php echo ucfirst($beneficiary['attendance_status']); ?>
-                                                    </span>
-                                                    <?php if ($beneficiary['check_in_time']): ?>
-                                                        <br><small class="text-muted">
-                                                            <i class="fas fa-clock"></i> <?php echo date('h:i A', strtotime($beneficiary['check_in_time'])); ?>
-                                                        </small>
-                                                    <?php endif; ?>
-                                                <?php else: ?>
-                                                    <span class="badge badge-secondary">Not Marked</span>
+                                        <!-- Batch and Status info now shown inline since columns were removed -->
+                                        <br><small class="text-muted">
+                                            <i class="fas fa-graduation-cap"></i> Batch: 
+                                            <span class="badge badge-primary"><?php echo htmlspecialchars($beneficiary['batch_name']); ?></span>
+                                            <?php if (!empty($beneficiary['attendance_status'])): ?>
+                                                | <i class="fas fa-clock"></i> Status: 
+                                                <span class="badge badge-<?php 
+                                                    echo $beneficiary['attendance_status'] == 'present' ? 'success' : 
+                                                         ($beneficiary['attendance_status'] == 'absent' ? 'danger' : 'warning'); 
+                                                ?>">
+                                                    <?php echo ucfirst($beneficiary['attendance_status']); ?>
+                                                </span>
+                                                <?php if ($beneficiary['check_in_time']): ?>
+                                                    | <i class="fas fa-clock"></i> <?php echo date('h:i A', strtotime($beneficiary['check_in_time'])); ?>
                                                 <?php endif; ?>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-primary"><?php echo htmlspecialchars($beneficiary['batch_name']); ?></span>
-                                    </td>
-                                    <td>
-                                        <?php if (!empty($beneficiary['attendance_status'])): ?>
-                                            <span class="badge badge-<?php 
-                                                echo $beneficiary['attendance_status'] == 'present' ? 'success' : 
-                                                     ($beneficiary['attendance_status'] == 'absent' ? 'danger' : 'warning'); 
-                                            ?>">
-                                                <?php echo ucfirst($beneficiary['attendance_status']); ?>
-                                            </span>
-                                            <?php if ($beneficiary['check_in_time']): ?>
-                                                <br><small class="text-muted">
-                                                    <i class="fas fa-clock"></i> <?php echo date('h:i A', strtotime($beneficiary['check_in_time'])); ?>
-                                                </small>
+                                            <?php else: ?>
+                                                | <i class="fas fa-clock"></i> Status: 
+                                                <span class="badge badge-secondary">Not Marked</span>
                                             <?php endif; ?>
-                                        <?php else: ?>
-                                            <span class="badge badge-secondary">Not Marked</span>
-                                        <?php endif; ?>
+                                        </small>
                                     </td>
+                                    <!-- Batch column removed -->
+                                    <!-- Current Status column removed -->
 
                                 </tr>
                                 <?php endforeach; ?>
