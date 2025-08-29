@@ -73,7 +73,7 @@ function editHoliday() {
                 $batchHolidayQuery = "INSERT INTO batch_holidays (holiday_id, batch_id, holiday_date, holiday_name, description, created_by) 
                                      VALUES (?, ?, ?, ?, ?, ?)";
                 $batchHolidayResult = executeQuery($batchHolidayQuery, [
-                    $holidayId, $batchId, $date, $description, $type, $_SESSION['admin_user_id']
+                    $holidayId, $batchId, $date, $description, $description, $_SESSION['admin_user_id'] ?? 1
                 ]);
                 
                 if (!$batchHolidayResult) {
@@ -132,6 +132,11 @@ function addHoliday() {
     $isAllBatches = isset($_POST['is_all_batches']) ? 1 : 0;
     
     try {
+        // Debug logging
+        error_log("Holiday creation attempt - Date: $date, Description: $description, Type: $type");
+        error_log("Is All Batches: " . ($isAllBatches ? 'Yes' : 'No'));
+        error_log("Batch IDs: " . json_encode($batchIds));
+        
         // Validate required fields
         if (empty($date) || empty($description) || empty($type)) {
             throw new Exception("All fields are required");
@@ -156,21 +161,36 @@ function addHoliday() {
             throw new Exception("Failed to insert holiday into database");
         }
         
-        $holidayId = $conn->insert_id; // Get the inserted holiday ID
+        $holidayId = getLastInsertId(); // Get the inserted holiday ID
+        error_log("Holiday created with ID: $holidayId");
         
         // Store batch selections in batch_holidays table
         if (!$isAllBatches && !empty($batchIds)) {
+            error_log("Processing specific batches: " . count($batchIds) . " batches selected");
+            
             foreach ($batchIds as $batchId) {
+                // Validate batch exists
+                $batchExists = fetchRow("SELECT id, name FROM batches WHERE id = ? AND status IN ('active', 'completed')", [$batchId]);
+                if (!$batchExists) {
+                    error_log("Invalid batch ID: $batchId");
+                    continue; // Skip invalid batch IDs
+                }
+                
                 $batchHolidayQuery = "INSERT INTO batch_holidays (holiday_id, batch_id, holiday_date, holiday_name, description, created_by) 
                                      VALUES (?, ?, ?, ?, ?, ?)";
                 $batchHolidayResult = executeQuery($batchHolidayQuery, [
-                    $holidayId, $batchId, $date, $description, $type, $_SESSION['admin_user_id']
+                    $holidayId, $batchId, $date, $description, $description, $_SESSION['admin_user_id'] ?? 1
                 ]);
                 
                 if (!$batchHolidayResult) {
-                    throw new Exception("Failed to store batch holiday relationship");
+                    error_log("Failed to insert batch holiday relationship for batch ID: $batchId");
+                    throw new Exception("Failed to store batch holiday relationship for batch: " . $batchExists['name']);
                 }
+                
+                error_log("Successfully linked holiday to batch: " . $batchExists['name']);
             }
+        } else {
+            error_log("Holiday applies to all batches");
         }
         
         // Mark attendance as holiday
@@ -184,8 +204,10 @@ function addHoliday() {
             $attendanceResult = executeQuery($attendanceQuery, [$date]);
             
             if (!$attendanceResult) {
+                error_log("Failed to update attendance records for all batches");
                 throw new Exception("Failed to update attendance records");
             }
+            error_log("Successfully marked all active beneficiaries as holiday");
         } else {
             // Mark specific batches as holiday
             if (!empty($batchIds)) {
@@ -199,12 +221,16 @@ function addHoliday() {
                 $attendanceResult = executeQuery($attendanceQuery, $params);
                 
                 if (!$attendanceResult) {
+                    error_log("Failed to update attendance records for specific batches");
                     throw new Exception("Failed to update attendance records for specific batches");
                 }
+                error_log("Successfully marked specific batch beneficiaries as holiday");
             }
         }
         
-        $_SESSION['success'] = "Holiday '$description' added successfully for " . date('d/m/Y', strtotime($date)) . "!";
+        $coverageText = $isAllBatches ? "all batches" : "specific batches";
+        $_SESSION['success'] = "Holiday '$description' added successfully for " . date('d/m/Y', strtotime($date)) . "! Applies to $coverageText.";
+        error_log("Holiday created successfully with coverage: $coverageText");
         
     } catch (Exception $e) {
         $_SESSION['error'] = "Error adding holiday: " . $e->getMessage();
