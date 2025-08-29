@@ -45,13 +45,16 @@ try {
         LIMIT 10
     ");
 
-    // Calculate attendance percentages based on ACTIVE students only
+    // Calculate attendance percentages based on WORKING students only (excluding holidays)
     $activeStudentsToday = $stats['active_students_today'];
+    $workingStudentsToday = $stats['working_students_today'];
     $presentToday = $stats['present_today'];
     $absentToday = $stats['absent_today'];
+    $holidaysToday = $stats['holidays_today'];
     
-    $presentPercentage = $activeStudentsToday > 0 ? round(($presentToday / $activeStudentsToday) * 100, 1) : 0;
-    $absentPercentage = $activeStudentsToday > 0 ? round(($absentToday / $activeStudentsToday) * 100, 1) : 0;
+    // Calculate percentages based on working days only
+    $presentPercentage = $workingStudentsToday > 0 ? round(($presentToday / $workingStudentsToday) * 100, 1) : 0;
+    $absentPercentage = $workingStudentsToday > 0 ? round(($absentToday / $workingStudentsToday) * 100, 1) : 0;
 
     // Return JSON response
     header('Content-Type: application/json');
@@ -63,8 +66,10 @@ try {
             'total_mandals' => $stats['total_mandals'],
             'total_batches' => $stats['total_batches'],
             'active_students_today' => $activeStudentsToday,
+            'working_students_today' => $workingStudentsToday,
             'present_today' => $presentToday,
             'absent_today' => $absentToday,
+            'holidays_today' => $holidaysToday,
             'today_attendance' => $stats['today_attendance'],
             'present_percentage' => $presentPercentage,
             'absent_percentage' => $absentPercentage

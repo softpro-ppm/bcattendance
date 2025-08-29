@@ -347,7 +347,7 @@ function getDashboardStats() {
     ");
     $stats['today_attendance'] = $result ? $result['total'] : 0;
     
-    // Present today (only from students in active batches)
+    // Present today (only from students in active batches, excluding holidays)
     $result = fetchRow("
         SELECT COUNT(*) as total 
         FROM attendance a 
@@ -359,7 +359,7 @@ function getDashboardStats() {
     ");
     $stats['present_today'] = $result ? $result['total'] : 0;
     
-    // Absent today (only from students in active batches)
+    // Absent today (only from students in active batches, excluding holidays)
     $result = fetchRow("
         SELECT COUNT(*) as total 
         FROM attendance a 
@@ -371,7 +371,97 @@ function getDashboardStats() {
     ");
     $stats['absent_today'] = $result ? $result['total'] : 0;
     
+    // Holidays today (only from students in active batches)
+    $result = fetchRow("
+        SELECT COUNT(*) as total 
+        FROM attendance a 
+        INNER JOIN beneficiaries b ON a.beneficiary_id = b.id 
+        INNER JOIN batches bt ON b.batch_id = bt.id
+        WHERE a.attendance_date = CURDATE() 
+        AND bt.end_date >= CURDATE()
+        AND (a.status = 'holiday' OR a.status = 'H')
+    ");
+    $stats['holidays_today'] = $result ? $result['total'] : 0;
+    
+    // Working students today (excluding holidays)
+    $stats['working_students_today'] = $stats['active_students_today'] - $stats['holidays_today'];
+    
     return $stats;
+}
+
+/**
+ * Calculate attendance percentage for a specific beneficiary or batch
+ * Excludes holidays from working days calculation
+ */
+function calculateAttendancePercentage($beneficiaryId = null, $batchId = null, $startDate = null, $endDate = null) {
+    try {
+        if ($startDate === null) {
+            $startDate = date('Y-m-01'); // Start of current month
+        }
+        if ($endDate === null) {
+            $endDate = date('Y-m-d'); // Today
+        }
+        
+        $whereConditions = ["a.attendance_date BETWEEN ? AND ?"];
+        $params = [$startDate, $endDate];
+        
+        if ($beneficiaryId) {
+            $whereConditions[] = "a.beneficiary_id = ?";
+            $params[] = $beneficiaryId;
+        }
+        
+        if ($batchId) {
+            $whereConditions[] = "b.batch_id = ?";
+            $params[] = $batchId;
+        }
+        
+        $whereClause = implode(" AND ", $whereConditions);
+        
+        // Get total working days (excluding holidays)
+        $workingDaysQuery = "
+            SELECT COUNT(DISTINCT a.attendance_date) as working_days
+            FROM attendance a
+            INNER JOIN beneficiaries b ON a.beneficiary_id = b.id
+            WHERE $whereClause
+            AND a.status IN ('present', 'absent', 'P', 'A')
+        ";
+        
+        $workingDaysResult = fetchRow($workingDaysQuery, $params);
+        $workingDays = $workingDaysResult ? $workingDaysResult['working_days'] : 0;
+        
+        // Get present days
+        $presentDaysQuery = "
+            SELECT COUNT(*) as present_days
+            FROM attendance a
+            INNER JOIN beneficiaries b ON a.beneficiary_id = b.id
+            WHERE $whereClause
+            AND (a.status = 'present' OR a.status = 'P')
+        ";
+        
+        $presentDaysResult = fetchRow($presentDaysQuery, $params);
+        $presentDays = $presentDaysResult ? $presentDaysResult['present_days'] : 0;
+        
+        // Calculate percentage based on working days only
+        $percentage = $workingDays > 0 ? round(($presentDays / $workingDays) * 100, 2) : 0;
+        
+        return [
+            'working_days' => $workingDays,
+            'present_days' => $presentDays,
+            'percentage' => $percentage,
+            'start_date' => $startDate,
+            'end_date' => $endDate
+        ];
+        
+    } catch (Exception $e) {
+        error_log("Error calculating attendance percentage: " . $e->getMessage());
+        return [
+            'working_days' => 0,
+            'present_days' => 0,
+            'percentage' => 0,
+            'start_date' => $startDate,
+            'end_date' => $endDate
+        ];
+    }
 }
 
 /**

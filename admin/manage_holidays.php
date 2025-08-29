@@ -179,8 +179,16 @@ function addHoliday() {
             }
         }
         
-        // Mark attendance as holiday
+        // Step 1: Backup existing attendance records before marking as holiday
         if ($isAllBatches) {
+            // Backup all existing attendance records for this date
+            $backupQuery = "INSERT INTO attendance_backup (beneficiary_id, attendance_date, original_status, backup_date, holiday_id)
+                           SELECT beneficiary_id, attendance_date, status, NOW(), ?
+                           FROM attendance 
+                           WHERE attendance_date = ? AND status IN ('present', 'absent')
+                           ON DUPLICATE KEY UPDATE original_status = VALUES(original_status)";
+            executeQuery($backupQuery, [$holidayId, $date]);
+            
             // Mark all active beneficiaries as holiday for this date
             $attendanceQuery = "INSERT INTO attendance (beneficiary_id, attendance_date, status, created_at) 
                                SELECT b.id, ?, 'holiday', NOW() 
@@ -195,6 +203,17 @@ function addHoliday() {
         } else {
             // Mark specific batches as holiday
             if (!empty($batchIds)) {
+                // Backup existing attendance records for specific batches
+                $placeholders = str_repeat('?,', count($batchIds) - 1) . '?';
+                $backupQuery = "INSERT INTO attendance_backup (beneficiary_id, attendance_date, original_status, backup_date, holiday_id)
+                               SELECT a.beneficiary_id, a.attendance_date, a.status, NOW(), ?
+                               FROM attendance a
+                               JOIN beneficiaries b ON a.beneficiary_id = b.id
+                               WHERE a.attendance_date = ? AND a.status IN ('present', 'absent') AND b.batch_id IN ($placeholders)
+                               ON DUPLICATE KEY UPDATE original_status = VALUES(original_status)";
+                $backupParams = array_merge([$holidayId], [$date], $batchIds);
+                executeQuery($backupQuery, $backupParams);
+                
                 $placeholders = str_repeat('?,', count($batchIds) - 1) . '?';
                 $attendanceQuery = "INSERT INTO attendance (beneficiary_id, attendance_date, status, created_at) 
                                    SELECT b.id, ?, 'holiday', NOW() 
@@ -234,8 +253,20 @@ function deleteHoliday() {
         // Delete from holidays table
         executeQuery("DELETE FROM holidays WHERE id = ?", [$holidayId]);
         
-        // Remove holiday status from attendance records (set back to absent)
+        // Step 1: Restore original attendance status from backup
+        $restoreQuery = "UPDATE attendance a 
+                        JOIN attendance_backup ab ON a.beneficiary_id = ab.beneficiary_id 
+                        AND a.attendance_date = ab.attendance_date 
+                        AND ab.holiday_id = ?
+                        SET a.status = ab.original_status
+                        WHERE a.attendance_date = ? AND a.status = 'holiday'";
+        executeQuery($restoreQuery, [$holidayId, $date]);
+        
+        // Step 2: For any remaining holiday records without backup, set to absent
         executeQuery("UPDATE attendance SET status = 'absent' WHERE attendance_date = ? AND status = 'holiday'", [$date]);
+        
+        // Step 3: Clean up backup records for this holiday
+        executeQuery("DELETE FROM attendance_backup WHERE holiday_id = ?", [$holidayId]);
         
         $_SESSION['success'] = "Holiday deleted successfully!";
     } catch (Exception $e) {
