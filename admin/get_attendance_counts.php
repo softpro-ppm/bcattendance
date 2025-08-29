@@ -45,7 +45,9 @@ try {
     $query = "SELECT 
         COUNT(*) as total,
         SUM(CASE WHEN a.status = 'present' OR a.status = 'P' THEN 1 ELSE 0 END) as present,
-        SUM(CASE WHEN a.status = 'absent' OR a.status = 'A' OR a.status IS NULL THEN 1 ELSE 0 END) as absent
+        SUM(CASE WHEN a.status = 'absent' OR a.status = 'A' OR a.status IS NULL THEN 1 ELSE 0 END) as absent,
+        SUM(CASE WHEN b.status = 'active' THEN 1 ELSE 0 END) as active,
+        SUM(CASE WHEN b.status = 'inactive' THEN 1 ELSE 0 END) as inactive
     FROM beneficiaries b
     LEFT JOIN constituencies c ON b.constituency_id = c.id
     LEFT JOIN mandals m ON b.mandal_id = m.id
@@ -63,6 +65,8 @@ try {
     $total = (int)($result['total'] ?? 0);
     $present = (int)($result['present'] ?? 0);
     $absent = (int)($result['absent'] ?? 0);
+    $active = (int)($result['active'] ?? 0);
+    $inactive = (int)($result['inactive'] ?? 0);
     
     // If absent count seems wrong, calculate it properly
     if ($present + $absent > $total) {
@@ -77,6 +81,8 @@ try {
         'success' => true,
         'counts' => [
             'total' => $total,
+            'active' => $active,
+            'inactive' => $inactive,
             'present' => $present,
             'absent' => $absent,
             'rate' => $rate

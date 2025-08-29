@@ -594,15 +594,31 @@ $beneficiaries = fetchAll($query, $allParams, $allTypes);
         
         <!-- Attendance Summary Cards -->
         <div class="row mb-3">
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <div class="card border-primary">
                     <div class="card-body text-center p-2">
                         <h4 class="card-title text-primary mb-1" id="totalCount">0</h4>
-                        <p class="card-text small mb-0">Total</p>
+                        <p class="card-text small mb-0">Total (Active+Inactive)</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
+                <div class="card border-warning">
+                    <div class="card-body text-center p-2">
+                        <h4 class="card-title text-warning mb-1" id="activeCount">0</h4>
+                        <p class="card-text small mb-0">Active</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card border-secondary">
+                    <div class="card-body text-center p-2">
+                        <h4 class="card-title text-secondary mb-1" id="inactiveCount">0</h4>
+                        <p class="card-text small mb-0">Inactive</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
                 <div class="card border-success">
                     <div class="card-body text-center p-2">
                         <h4 class="card-title text-success mb-1" id="presentCount">0</h4>
@@ -610,7 +626,7 @@ $beneficiaries = fetchAll($query, $allParams, $allTypes);
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <div class="card border-danger">
                     <div class="card-body text-center p-2">
                         <h4 class="card-title text-danger mb-1" id="absentCount">0</h4>
@@ -618,7 +634,7 @@ $beneficiaries = fetchAll($query, $allParams, $allTypes);
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <div class="card border-info">
                     <div class="card-body text-center p-2">
                         <h4 class="card-title text-info mb-1" id="attendanceRate">0%</h4>
@@ -1050,16 +1066,20 @@ function updateCounts() {
                 
                 // Update cards with server data
                 const totalEl = document.getElementById('totalCount');
+                const activeEl = document.getElementById('activeCount');
+                const inactiveEl = document.getElementById('inactiveCount');
                 const presentEl = document.getElementById('presentCount');
                 const absentEl = document.getElementById('absentCount');
                 const rateEl = document.getElementById('attendanceRate');
                 
                 if (totalEl) totalEl.textContent = counts.total;
+                if (activeEl) activeEl.textContent = counts.active;
+                if (inactiveEl) inactiveEl.textContent = counts.inactive;
                 if (presentEl) presentEl.textContent = counts.present;
                 if (absentEl) absentEl.textContent = counts.absent;
                 if (rateEl) rateEl.textContent = counts.rate + '%';
                 
-                console.log('📊 Server counts updated - Total:', counts.total, 'Present:', counts.present, 'Absent:', counts.absent, 'Rate:', counts.rate + '%');
+                console.log('📊 Server counts updated - Total:', counts.total, 'Active:', counts.active, 'Inactive:', counts.inactive, 'Present:', counts.present, 'Absent:', counts.absent, 'Rate:', counts.rate + '%');
             } else {
                 console.error('Failed to get counts from server:', data);
                 // Fallback to local counting if server fails
@@ -1078,7 +1098,7 @@ function updateCountsLocal() {
     console.log('🔥 Using local counting (fallback)...');
     
     const rows = document.querySelectorAll('.beneficiary-row:not([style*="display: none"])');
-    let total = 0, present = 0, absent = 0;
+    let total = 0, active = 0, inactive = 0, present = 0, absent = 0;
     
     rows.forEach(row => {
         total++;
@@ -1110,11 +1130,15 @@ function updateCountsLocal() {
     
     // Update cards
     const totalEl = document.getElementById('totalCount');
+    const activeEl = document.getElementById('activeCount');
+    const inactiveEl = document.getElementById('inactiveCount');
     const presentEl = document.getElementById('presentCount');
     const absentEl = document.getElementById('absentCount');
     const rateEl = document.getElementById('attendanceRate');
     
     if (totalEl) totalEl.textContent = total + ' (page only)';
+    if (activeEl) activeEl.textContent = 'N/A (server)';
+    if (inactiveEl) inactiveEl.textContent = 'N/A (server)';
     if (presentEl) presentEl.textContent = present;
     if (absentEl) absentEl.textContent = absent;
     if (rateEl) {
@@ -1122,7 +1146,7 @@ function updateCountsLocal() {
         rateEl.textContent = rate + '%';
     }
     
-    console.log('📊 Local counts - Total:', total, 'Present:', present, 'Absent:', absent);
+    console.log('📊 Local counts - Total:', total, 'Active:', active, 'Inactive:', inactive, 'Present:', present, 'Absent:', absent);
 }
 
 // Other functions
@@ -1297,11 +1321,13 @@ function showAttendanceStats() {
     console.log('🔥 Show Stats button clicked');
     
     const total = document.getElementById('totalCount').textContent;
+    const active = document.getElementById('activeCount').textContent;
+    const inactive = document.getElementById('inactiveCount').textContent;
     const present = document.getElementById('presentCount').textContent;
     const absent = document.getElementById('absentCount').textContent;
     const rate = document.getElementById('attendanceRate').textContent;
     
-    alert('Attendance Statistics:\n\nTotal: ' + total + '\nPresent: ' + present + '\nAbsent: ' + absent + '\nRate: ' + rate);
+    alert('Attendance Statistics:\n\nTotal: ' + total + '\nActive: ' + active + '\nInactive: ' + inactive + '\nPresent: ' + present + '\nAbsent: ' + absent + '\nRate: ' + rate);
 }
 
 function clearSearch() {
