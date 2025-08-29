@@ -14,18 +14,27 @@ require_once '../includes/header.php';
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action'])) {
+        // Debug logging
+        error_log("Form submission received - Action: " . $_POST['action']);
+        error_log("POST data: " . json_encode($_POST));
+        
         switch ($_POST['action']) {
             case 'add_holiday':
+                error_log("Processing add_holiday action");
                 addHoliday();
                 break;
             case 'edit_holiday':
+                error_log("Processing edit_holiday action");
                 editHoliday();
                 break;
             case 'delete_holiday':
+                error_log("Processing delete_holiday action");
                 deleteHoliday();
                 break;
             // Auto-mark Sundays functionality removed
-
+            default:
+                error_log("Unknown action: " . $_POST['action']);
+                break;
         }
     }
 }
@@ -119,8 +128,8 @@ function editHoliday() {
         $_SESSION['error'] = "Error updating holiday: " . $e->getMessage();
     }
     
-    // Redirect back to the page
-    header('Location: manage_holidays.php');
+    // Use JavaScript redirect to avoid blank page issues
+    echo "<script>window.location.href = 'manage_holidays.php';</script>";
     exit;
 }
 
@@ -237,12 +246,8 @@ function addHoliday() {
         error_log("Holiday addition error: " . $e->getMessage());
     }
     
-    // Ensure clean redirect
-    if (headers_sent()) {
-        echo "<script>window.location.href = 'manage_holidays.php';</script>";
-    } else {
-        header('Location: manage_holidays.php');
-    }
+    // Use JavaScript redirect to avoid blank page issues
+    echo "<script>window.location.href = 'manage_holidays.php';</script>";
     exit;
 }
 
@@ -265,12 +270,8 @@ function deleteHoliday() {
         $_SESSION['error'] = "Error deleting holiday: " . $e->getMessage();
     }
     
-    // Ensure clean redirect
-    if (headers_sent()) {
-        echo "<script>window.location.href = 'manage_holidays.php';</script>";
-    } else {
-        header('Location: manage_holidays.php');
-    }
+    // Use JavaScript redirect to avoid blank page issues
+    echo "<script>window.location.href = 'manage_holidays.php';</script>";
     exit;
 }
 
