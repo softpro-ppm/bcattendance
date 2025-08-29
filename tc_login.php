@@ -221,25 +221,7 @@ if (!isset($_SESSION['csrf_token'])) {
             text-decoration: underline;
         }
         
-        .credentials-info {
-            background: #e7f3ff;
-            border: 1px solid #b3d9ff;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            font-size: 0.85rem;
-        }
-        
-        .credentials-info h4 {
-            margin: 0 0 0.5rem 0;
-            color: #0056b3;
-            font-size: 0.9rem;
-        }
-        
-        .credentials-info p {
-            margin: 0.25rem 0;
-            color: #0056b3;
-        }
+
         
         @media (max-width: 480px) {
             .login-container {
@@ -259,11 +241,7 @@ if (!isset($_SESSION['csrf_token'])) {
             <p class="login-subtitle">BC Attendance System</p>
         </div>
 
-        <div class="credentials-info">
-            <h4><i class="fas fa-info-circle"></i> Login Credentials</h4>
-            <p><strong>Username:</strong> Your TC ID (e.g., TTC7430317)</p>
-            <p><strong>Password:</strong> institute</p>
-        </div>
+
 
         <?php if (!empty($error)): ?>
             <div class="error-message">
