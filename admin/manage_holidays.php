@@ -14,27 +14,17 @@ require_once '../includes/header.php';
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action'])) {
-        // Debug logging
-        error_log("Form submission received - Action: " . $_POST['action']);
-        error_log("POST data: " . json_encode($_POST));
-        
         switch ($_POST['action']) {
             case 'add_holiday':
-                error_log("Processing add_holiday action");
                 addHoliday();
                 break;
             case 'edit_holiday':
-                error_log("Processing edit_holiday action");
                 editHoliday();
                 break;
             case 'delete_holiday':
-                error_log("Processing delete_holiday action");
                 deleteHoliday();
                 break;
             // Auto-mark Sundays functionality removed
-            default:
-                error_log("Unknown action: " . $_POST['action']);
-                break;
         }
     }
 }
@@ -141,11 +131,6 @@ function addHoliday() {
     $isAllBatches = isset($_POST['is_all_batches']) ? 1 : 0;
     
     try {
-        // Debug logging
-        error_log("Holiday creation attempt - Date: $date, Description: $description, Type: $type");
-        error_log("Is All Batches: " . ($isAllBatches ? 'Yes' : 'No'));
-        error_log("Batch IDs: " . json_encode($batchIds));
-        
         // Validate required fields
         if (empty($date) || empty($description) || empty($type)) {
             throw new Exception("All fields are required");
@@ -172,17 +157,13 @@ function addHoliday() {
         
         // executeQuery now returns the insert ID for INSERT statements
         $holidayId = $result;
-        error_log("Holiday created with ID: $holidayId");
         
         // Store batch selections in batch_holidays table
         if (!$isAllBatches && !empty($batchIds)) {
-            error_log("Processing specific batches: " . count($batchIds) . " batches selected");
-            
             foreach ($batchIds as $batchId) {
                 // Validate batch exists
                 $batchExists = fetchRow("SELECT id, name FROM batches WHERE id = ? AND status IN ('active', 'completed')", [$batchId]);
                 if (!$batchExists) {
-                    error_log("Invalid batch ID: $batchId");
                     continue; // Skip invalid batch IDs
                 }
                 
@@ -193,14 +174,9 @@ function addHoliday() {
                 ]);
                 
                 if (!$batchHolidayResult) {
-                    error_log("Failed to insert batch holiday relationship for batch ID: $batchId");
                     throw new Exception("Failed to store batch holiday relationship for batch: " . $batchExists['name']);
                 }
-                
-                error_log("Successfully linked holiday to batch: " . $batchExists['name']);
             }
-        } else {
-            error_log("Holiday applies to all batches");
         }
         
         // Mark attendance as holiday
@@ -214,10 +190,8 @@ function addHoliday() {
             $attendanceResult = executeQuery($attendanceQuery, [$date]);
             
             if (!$attendanceResult) {
-                error_log("Failed to update attendance records for all batches");
                 throw new Exception("Failed to update attendance records");
             }
-            error_log("Successfully marked all active beneficiaries as holiday");
         } else {
             // Mark specific batches as holiday
             if (!empty($batchIds)) {
@@ -231,16 +205,13 @@ function addHoliday() {
                 $attendanceResult = executeQuery($attendanceQuery, $params);
                 
                 if (!$attendanceResult) {
-                    error_log("Failed to update attendance records for specific batches");
                     throw new Exception("Failed to update attendance records for specific batches");
                 }
-                error_log("Successfully marked specific batch beneficiaries as holiday");
             }
         }
         
         $coverageText = $isAllBatches ? "all batches" : "specific batches";
         $_SESSION['success'] = "Holiday '$description' added successfully for " . date('d/m/Y', strtotime($date)) . "! Applies to $coverageText.";
-        error_log("Holiday created successfully with coverage: $coverageText");
         
     } catch (Exception $e) {
         $_SESSION['error'] = "Error adding holiday: " . $e->getMessage();
@@ -495,87 +466,7 @@ foreach ($batches as $batch) {
             This table shows only custom holidays you've added (local festivals, national holidays, etc.).
             <br><strong>Coverage Column:</strong> Shows whether the holiday applies to all mandals or specific batches with detailed information.
         </div>
-        <!-- Debug Information -->
-        <div class="alert alert-info mb-3">
-            <strong>Debug Info:</strong> 
-            Total holidays found: <?php echo count($holidays); ?> | 
-            Query executed successfully<br>
-            <strong>Debug Details:</strong><br>
-            <?php 
-            // Test database connection
-            try {
-                $conn = getDBConnection();
-                echo "✅ Database connection: Working<br>";
-                
-                // Test simple query first
-                $simpleTest = fetchAll("SELECT COUNT(*) as count FROM holidays");
-                echo "Total records in holidays table: " . ($simpleTest ? $simpleTest[0]['count'] : 'Error') . "<br>";
-                
-                // Test filtered query
-                $filteredTest = fetchAll("SELECT COUNT(*) as count FROM holidays WHERE description != 'Sunday Holiday'");
-                echo "Holidays excluding Sundays: " . ($filteredTest ? $filteredTest[0]['count'] : 'Error') . "<br>";
-                
-                // Show all holidays
-                $allHolidays = fetchAll("SELECT * FROM holidays ORDER BY date DESC");
-                if ($allHolidays) {
-                    echo "All holidays in table:<br>";
-                    foreach ($allHolidays as $h) {
-                        echo "- ID: {$h['id']}, Date: {$h['date']}, Description: {$h['description']}, Type: {$h['type']}<br>";
-                    }
-                } else {
-                    echo "No holidays found in simple query<br>";
-                }
-                
-                // Test direct query
-                echo "<br><strong>Direct Query Test:</strong><br>";
-                $directResult = $conn->query("SELECT * FROM holidays WHERE description != 'Sunday Holiday' ORDER BY date DESC");
-                if ($directResult) {
-                    $directCount = $directResult->num_rows;
-                    echo "Direct query returned: {$directCount} rows<br>";
-                    if ($directCount > 0) {
-                        while ($row = $directResult->fetch_assoc()) {
-                            echo "- ID: {$row['id']}, Date: {$row['date']}, Description: {$row['description']}<br>";
-                        }
-                    }
-                } else {
-                    echo "Direct query failed: " . $conn->error . "<br>";
-                }
-                
-                // Check batch_holidays relationships
-                echo "<br><strong>Batch Holiday Relationships:</strong><br>";
-                
-                // First check if table exists
-                $tableExists = $conn->query("SHOW TABLES LIKE 'batch_holidays'");
-                if ($tableExists && $tableExists->num_rows > 0) {
-                    $batchHolidaysResult = $conn->query("SELECT bh.*, h.description, b.name as batch_name, m.name as mandal_name 
-                                                       FROM batch_holidays bh 
-                                                       JOIN holidays h ON bh.holiday_id = h.id 
-                                                       JOIN batches b ON bh.batch_id = b.id 
-                                                       JOIN mandals m ON b.mandal_id = m.id 
-                                                       ORDER BY bh.holiday_date DESC");
-                    if ($batchHolidaysResult) {
-                        $batchCount = $batchHolidaysResult->num_rows;
-                        echo "Batch holiday relationships found: {$batchCount}<br>";
-                        if ($batchCount > 0) {
-                            while ($row = $batchHolidaysResult->fetch_assoc()) {
-                                echo "- Holiday: {$row['description']} → Batch: {$row['batch_name']} ({$row['mandal_name']})<br>";
-                            }
-                        } else {
-                            echo "❌ No batch holiday relationships found - this is why all holidays show 'All Mandals'<br>";
-                        }
-                    } else {
-                        echo "❌ Failed to check batch holidays: " . $conn->error . "<br>";
-                    }
-                } else {
-                    echo "❌ <strong>batch_holidays table is missing!</strong> This is why all holidays show 'All Mandals'<br>";
-                    echo "💡 <strong>Solution:</strong> Run the create_batch_holidays_table.php script to recreate the missing table<br>";
-                }
-                
-            } catch (Exception $e) {
-                echo "❌ Database error: " . $e->getMessage() . "<br>";
-            }
-            ?>
-        </div>
+
         
         <?php 
         // Determine which holidays to display
@@ -593,26 +484,6 @@ foreach ($batches as $batch) {
         
         if (!empty($displayHolidays)): ?>
         <div class="table-responsive">
-            <!-- Simple Holidays List (Debug) -->
-            <div class="alert alert-warning mb-3">
-                <strong>Raw Holidays from Database:</strong><br>
-                <?php 
-                $simpleHolidays = fetchAll("SELECT id, date, description, type FROM holidays WHERE description != 'Sunday Holiday' ORDER BY date DESC");
-                if ($simpleHolidays) {
-                    foreach ($simpleHolidays as $h) {
-                        echo "ID: {$h['id']}, Date: {$h['date']}, Description: {$h['description']}, Type: {$h['type']}<br>";
-                    }
-                } else {
-                    echo "No holidays found in simple query either";
-                }
-                ?>
-            </div>
-            
-            <?php if ($holidaySource === 'Fallback Query'): ?>
-            <div class="alert alert-success mb-3">
-                <strong>Fallback Query Found Holidays:</strong> <?php echo count($displayHolidays); ?> holidays found using fallback query.
-            </div>
-            <?php endif; ?>
             
             <table class="table table-striped">
                 <thead>
