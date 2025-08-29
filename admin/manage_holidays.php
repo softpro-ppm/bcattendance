@@ -18,6 +18,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             case 'add_holiday':
                 addHoliday();
                 break;
+            case 'edit_holiday':
+                editHoliday();
+                break;
             case 'delete_holiday':
                 deleteHoliday();
                 break;
@@ -25,6 +28,100 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         }
     }
+}
+
+function editHoliday() {
+    $holidayId = $_POST['holiday_id'];
+    $date = $_POST['date'];
+    $description = $_POST['description'];
+    $type = $_POST['type'];
+    $batchIds = $_POST['batch_ids'] ?? [];
+    $isAllBatches = isset($_POST['is_all_batches']) ? 1 : 0;
+    
+    try {
+        // Validate required fields
+        if (empty($holidayId) || empty($date) || empty($description) || empty($type)) {
+            throw new Exception("All fields are required");
+        }
+        
+        // Validate date format
+        if (!strtotime($date)) {
+            throw new Exception("Invalid date format");
+        }
+        
+        // Check if holiday already exists for this date (excluding current holiday)
+        $existingHoliday = fetchRow("SELECT id FROM holidays WHERE date = ? AND id != ?", [$date, $holidayId]);
+        if ($existingHoliday) {
+            throw new Exception("A holiday already exists for this date");
+        }
+        
+        // Update holiday in holidays table
+        $holidayQuery = "UPDATE holidays SET date = ?, description = ?, type = ? WHERE id = ?";
+        $result = executeQuery($holidayQuery, [$date, $description, $type, $holidayId]);
+        
+        if (!$result) {
+            throw new Exception("Failed to update holiday in database");
+        }
+        
+        // Remove existing batch assignments
+        $deleteQuery = "DELETE FROM batch_holidays WHERE holiday_id = ?";
+        executeQuery($deleteQuery, [$holidayId]);
+        
+        // Store new batch selections in batch_holidays table
+        if (!$isAllBatches && !empty($batchIds)) {
+            foreach ($batchIds as $batchId) {
+                $batchHolidayQuery = "INSERT INTO batch_holidays (holiday_id, batch_id, holiday_date, holiday_name, description, created_by) 
+                                     VALUES (?, ?, ?, ?, ?, ?)";
+                $batchHolidayResult = executeQuery($batchHolidayQuery, [
+                    $holidayId, $batchId, $date, $description, $type, $_SESSION['admin_user_id']
+                ]);
+                
+                if (!$batchHolidayResult) {
+                    throw new Exception("Failed to store batch holiday relationship");
+                }
+            }
+        }
+        
+        // Mark attendance as holiday
+        if ($isAllBatches) {
+            // Mark all active beneficiaries as holiday for this date
+            $attendanceQuery = "INSERT INTO attendance (beneficiary_id, attendance_date, status, created_at) 
+                               SELECT b.id, ?, 'holiday', NOW() 
+                               FROM beneficiaries b 
+                               WHERE b.status = 'active'
+                               ON DUPLICATE KEY UPDATE status = 'holiday'";
+            $attendanceResult = executeQuery($attendanceQuery, [$date]);
+            
+            if (!$attendanceResult) {
+                throw new Exception("Failed to update attendance records");
+            }
+        } else {
+            // Mark specific batches as holiday
+            if (!empty($batchIds)) {
+                $placeholders = str_repeat('?,', count($batchIds) - 1) . '?';
+                $attendanceQuery = "INSERT INTO attendance (beneficiary_id, attendance_date, status, created_at) 
+                                   SELECT b.id, ?, 'holiday', NOW() 
+                                   FROM beneficiaries b 
+                                   WHERE b.status = 'active' AND b.batch_id IN ($placeholders)
+                                   ON DUPLICATE KEY UPDATE status = 'holiday'";
+                $params = array_merge([$date], $batchIds);
+                $attendanceResult = executeQuery($attendanceQuery, $params);
+                
+                if (!$attendanceResult) {
+                    throw new Exception("Failed to update attendance records");
+                }
+            }
+        }
+        
+        $_SESSION['success'] = "Holiday updated successfully!";
+        
+    } catch (Exception $e) {
+        $_SESSION['error'] = "Error updating holiday: " . $e->getMessage();
+    }
+    
+    // Redirect back to the page
+    header('Location: manage_holidays.php');
+    exit;
 }
 
 function addHoliday() {
@@ -532,14 +629,19 @@ foreach ($batches as $batch) {
                             <?php endif; ?>
                         </td>
                         <td>
-                            <form method="POST" style="display: inline;">
-                                <input type="hidden" name="action" value="delete_holiday">
-                                <input type="hidden" name="holiday_id" value="<?php echo $holiday['id']; ?>">
-                                <input type="hidden" name="date" value="<?php echo $holiday['date']; ?>">
-                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure? This will remove holiday status from all attendance records for this date.')">
-                                    <i class="fas fa-trash"></i> Delete
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-primary btn-sm" onclick="editHoliday(<?php echo $holiday['id']; ?>, '<?php echo $holiday['date']; ?>', '<?php echo htmlspecialchars($holiday['description']); ?>', '<?php echo $holiday['type']; ?>')">
+                                    <i class="fas fa-edit"></i> Edit
                                 </button>
-                            </form>
+                                <form method="POST" style="display: inline;">
+                                    <input type="hidden" name="action" value="delete_holiday">
+                                    <input type="hidden" name="holiday_id" value="<?php echo $holiday['id']; ?>">
+                                    <input type="hidden" name="date" value="<?php echo $holiday['date']; ?>">
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure? This will remove holiday status from all attendance records for this date.')">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -569,6 +671,141 @@ document.getElementById('is_all_batches').addEventListener('change', function() 
 });
 
 // Auto-mark Sundays functionality removed
+</script>
+
+<!-- Edit Holiday Modal -->
+<div class="modal fade" id="editHolidayModal" tabindex="-1" role="dialog" aria-labelledby="editHolidayModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editHolidayModalLabel">Edit Holiday</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="">
+                <input type="hidden" name="action" value="edit_holiday">
+                <input type="hidden" name="holiday_id" id="edit_holiday_id">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="edit_date">Holiday Date</label>
+                                <input type="date" id="edit_date" name="date" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="edit_description">Description</label>
+                                <input type="text" id="edit_description" name="description" class="form-control" placeholder="e.g., Local Festival" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="edit_type">Type</label>
+                                <select id="edit_type" name="type" class="form-control">
+                                    <option value="national">National Holiday</option>
+                                    <option value="program">Program Holiday</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="edit_is_all_batches">Apply To</label>
+                                <div class="form-check">
+                                    <input type="checkbox" id="edit_is_all_batches" name="is_all_batches" class="form-check-input">
+                                    <label class="form-check-label" for="edit_is_all_batches">All Batches</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row" id="edit-batch-selection" style="display: none;">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Select Specific Batches</label>
+                                <div class="row">
+                                    <?php foreach ($mandals as $mandal): ?>
+                                    <div class="col-md-4">
+                                        <h6><?php echo htmlspecialchars($mandal['name']); ?></h6>
+                                        <?php if (isset($batchesByMandal[$mandal['id']])): ?>
+                                            <?php foreach ($batchesByMandal[$mandal['id']] as $batch): ?>
+                                            <div class="form-check">
+                                                <input type="checkbox" name="batch_ids[]" value="<?php echo $batch['id']; ?>" 
+                                                       class="form-check-input edit-batch-checkbox" id="edit_batch_<?php echo $batch['id']; ?>">
+                                                <label class="form-check-label" for="edit_batch_<?php echo $batch['id']; ?>">
+                                                    <?php echo htmlspecialchars($batch['name']); ?>
+                                                </label>
+                                            </div>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Holiday</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Existing script
+document.getElementById('is_all_batches').addEventListener('change', function() {
+    const batchSelection = document.getElementById('batch-selection');
+    if (this.checked) {
+        batchSelection.style.display = 'none';
+        // Uncheck all batch checkboxes
+        document.querySelectorAll('input[name="batch_ids[]"]').forEach(cb => cb.checked = false);
+    } else {
+        batchSelection.style.display = 'block';
+    }
+});
+
+// Edit holiday functionality
+function editHoliday(id, date, description, type) {
+    // Set form values
+    document.getElementById('edit_holiday_id').value = id;
+    document.getElementById('edit_date').value = date;
+    document.getElementById('edit_description').value = description;
+    document.getElementById('edit_type').value = type;
+    
+    // Check if holiday has specific batch assignments
+    const hasSpecificBatches = false; // This will be determined by checking batch_holidays table
+    
+    if (hasSpecificBatches) {
+        document.getElementById('edit_is_all_batches').checked = false;
+        document.getElementById('edit-batch-selection').style.display = 'block';
+        // TODO: Check specific batches based on existing assignments
+    } else {
+        document.getElementById('edit_is_all_batches').checked = true;
+        document.getElementById('edit-batch-selection').style.display = 'none';
+    }
+    
+    // Show modal
+    $('#editHolidayModal').modal('show');
+}
+
+// Edit modal batch selection toggle
+document.getElementById('edit_is_all_batches').addEventListener('change', function() {
+    const batchSelection = document.getElementById('edit-batch-selection');
+    if (this.checked) {
+        batchSelection.style.display = 'none';
+        // Uncheck all batch checkboxes
+        document.querySelectorAll('.edit-batch-checkbox').forEach(cb => cb.checked = false);
+    } else {
+        batchSelection.style.display = 'block';
+    }
+});
 </script>
 
 <?php require_once '../includes/footer.php'; ?>
