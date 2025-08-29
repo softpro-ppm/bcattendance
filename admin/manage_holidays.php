@@ -170,7 +170,8 @@ function addHoliday() {
             throw new Exception("Failed to insert holiday into database");
         }
         
-        $holidayId = getLastInsertId(); // Get the inserted holiday ID
+        // executeQuery now returns the insert ID for INSERT statements
+        $holidayId = $result;
         error_log("Holiday created with ID: $holidayId");
         
         // Store batch selections in batch_holidays table

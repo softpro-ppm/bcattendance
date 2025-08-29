@@ -71,10 +71,17 @@ function executeQuery($query, $params = [], $types = '') {
             $stmt->close();
             return $result;
         } else {
-            // For INSERT, UPDATE, DELETE queries, return boolean
-            $affected_rows = $stmt->affected_rows;
-            $stmt->close();
-            return $affected_rows >= 0; // Return true if no error occurred
+                    // For INSERT, UPDATE, DELETE queries, return boolean or insert ID
+        $affected_rows = $stmt->affected_rows;
+        $insert_id = $stmt->insert_id;
+        $stmt->close();
+        
+        // For INSERT queries, return the insert ID if available
+        if (stripos(trim($query), 'INSERT') === 0 && $insert_id > 0) {
+            return $insert_id;
+        }
+        
+        return $affected_rows >= 0; // Return true if no error occurred
         }
     } else {
         $result = $conn->query($query);
@@ -113,6 +120,19 @@ function fetchAll($query, $params = [], $types = '') {
 
 // Function to get last insert ID
 function getLastInsertId() {
-    return getDBConnection()->insert_id;
+    // Get the current connection that was used for the last query
+    $conn = getDBConnection();
+    $lastId = $conn->insert_id;
+    
+    // If insert_id is 0, try to get it from the last query
+    if ($lastId == 0) {
+        $result = $conn->query("SELECT LAST_INSERT_ID() as id");
+        if ($result) {
+            $row = $result->fetch_assoc();
+            $lastId = $row['id'];
+        }
+    }
+    
+    return $lastId;
 }
 ?>
