@@ -7,6 +7,263 @@ $breadcrumbs = [
 
 require_once '../includes/header.php';
 
+// Add mobile-responsive CSS for attendance table
+?>
+<style>
+/* Mobile-first responsive design for admin attendance table */
+#attendanceTable {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    font-size: 14px;
+}
+
+#attendanceTable th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    padding: 12px 8px;
+    text-align: center;
+    border: 1px solid #dee2e6;
+    white-space: nowrap;
+}
+
+#attendanceTable td {
+    padding: 10px 8px;
+    border: 1px solid #dee2e6;
+    vertical-align: middle;
+}
+
+#attendanceTable tbody tr:nth-of-type(odd) {
+    background-color: rgba(0,0,0,.05);
+}
+
+#attendanceTable tbody tr:hover {
+    background-color: rgba(0,123,255,.075);
+}
+
+/* Status buttons styling */
+.status-buttons .btn {
+    padding: 8px 16px;
+    font-size: 14px;
+    min-width: 80px;
+    margin: 2px;
+}
+
+/* Mobile-first responsive styles */
+@media (max-width: 768px) {
+    /* Table container - allow horizontal scroll when needed */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border: none;
+        border-radius: 0;
+    }
+    
+    /* Table styling for mobile */
+    #attendanceTable {
+        min-width: 800px; /* Minimum width to prevent extreme squashing */
+        font-size: 13px;
+    }
+    
+    #attendanceTable th,
+    #attendanceTable td {
+        padding: 8px 6px;
+        white-space: nowrap; /* Prevent text wrapping on mobile */
+    }
+    
+    /* Column widths for mobile */
+    #attendanceTable th:nth-child(1),
+    #attendanceTable td:nth-child(1) {
+        width: 40px; /* Checkbox column */
+        min-width: 40px;
+    }
+    
+    #attendanceTable th:nth-child(2),
+    #attendanceTable td:nth-child(2) {
+        width: 50px; /* S.No column */
+        min-width: 50px;
+    }
+    
+    #attendanceTable th:nth-child(3),
+    #attendanceTable td:nth-child(3) {
+        width: 140px; /* Status column */
+        min-width: 140px;
+    }
+    
+    #attendanceTable th:nth-child(4),
+    #attendanceTable td:nth-child(4) {
+        width: 200px; /* Name column */
+        min-width: 200px;
+        max-width: 200px;
+    }
+    
+    #attendanceTable th:nth-child(5),
+    #attendanceTable td:nth-child(5) {
+        width: 100px; /* Mobile column */
+        min-width: 100px;
+    }
+    
+    #attendanceTable th:nth-child(6),
+    #attendanceTable td:nth-child(6) {
+        width: 100px; /* Constituency column */
+        min-width: 100px;
+    }
+    
+    #attendanceTable th:nth-child(7),
+    #attendanceTable td:nth-child(7) {
+        width: 100px; /* Mandal column */
+        min-width: 100px;
+    }
+    
+    #attendanceTable th:nth-child(8),
+    #attendanceTable td:nth-child(8) {
+        width: 80px; /* Batch column */
+        min-width: 80px;
+    }
+    
+    /* Optimize status buttons for mobile */
+    .status-buttons .btn {
+        padding: 6px 12px;
+        font-size: 12px;
+        min-width: 70px;
+    }
+    
+    /* Student details optimization */
+    #attendanceTable td:nth-child(4) strong {
+        font-size: 13px;
+        line-height: 1.3;
+        display: block;
+        margin-bottom: 4px;
+    }
+    
+    #attendanceTable td:nth-child(4) small {
+        font-size: 11px;
+        display: block;
+        margin-bottom: 2px;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 576px) {
+    #attendanceTable {
+        min-width: 750px;
+        font-size: 12px;
+    }
+    
+    #attendanceTable th,
+    #attendanceTable td {
+        padding: 6px 4px;
+    }
+    
+    .status-buttons .btn {
+        padding: 5px 10px;
+        font-size: 11px;
+        min-width: 65px;
+    }
+    
+    /* Adjust column widths for very small screens */
+    #attendanceTable th:nth-child(4),
+    #attendanceTable td:nth-child(4) {
+        width: 180px;
+        min-width: 180px;
+        max-width: 180px;
+    }
+}
+
+/* Extra extra small devices */
+@media (max-width: 480px) {
+    #attendanceTable {
+        min-width: 700px;
+        font-size: 11px;
+    }
+    
+    #attendanceTable th,
+    #attendanceTable td {
+        padding: 4px 2px;
+    }
+    
+    .status-buttons .btn {
+        padding: 4px 8px;
+        font-size: 10px;
+        min-width: 60px;
+    }
+    
+    /* Further reduce column widths */
+    #attendanceTable th:nth-child(4),
+    #attendanceTable td:nth-child(4) {
+        width: 160px;
+        min-width: 160px;
+        max-width: 160px;
+    }
+    
+    #attendanceTable th:nth-child(5),
+    #attendanceTable td:nth-child(5) {
+        width: 80px;
+        min-width: 80px;
+    }
+    
+    #attendanceTable th:nth-child(6),
+    #attendanceTable td:nth-child(6) {
+        width: 80px;
+        min-width: 80px;
+    }
+    
+    #attendanceTable th:nth-child(7),
+    #attendanceTable td:nth-child(7) {
+        width: 80px;
+        min-width: 80px;
+    }
+    
+    #attendanceTable th:nth-child(8),
+    #attendanceTable td:nth-child(8) {
+        width: 70px;
+        min-width: 70px;
+    }
+}
+
+/* Desktop styles */
+@media (min-width: 769px) {
+    #attendanceTable {
+        font-size: 14px;
+    }
+    
+    #attendanceTable th,
+    #attendanceTable td {
+        padding: 12px 8px;
+    }
+    
+    .status-buttons .btn {
+        padding: 8px 16px;
+        font-size: 14px;
+        min-width: 80px;
+    }
+}
+
+/* Ensure proper table display */
+#attendanceTable th,
+#attendanceTable td {
+    display: table-cell !important;
+}
+
+/* Optimize badges */
+.badge {
+    font-size: 11px;
+    padding: 4px 8px;
+    font-weight: 500;
+}
+
+/* Table header sticky on mobile */
+@media (max-width: 768px) {
+    #attendanceTable thead th {
+        position: sticky;
+        top: 0;
+        background-color: #f8f9fa;
+        z-index: 2;
+    }
+}
+</style>
+
+<?php
 // Check and mark completed batches automatically
 $batchCompletionResult = checkAndMarkCompletedBatches();
 
@@ -414,6 +671,11 @@ $beneficiaries = fetchAll($query, $allParams, $allTypes);
             </div>
 
             <div class="table-responsive">
+                <!-- Mobile-responsive alert -->
+                <div class="d-block d-md-none alert alert-info alert-sm mb-2">
+                    <i class="fas fa-mobile-alt"></i> 
+                    <strong>Mobile View:</strong> Swipe left/right to see all columns. All student information is now visible with proper horizontal scrolling!
+                </div>
                 <table class="table table-striped table-hover" id="attendanceTable">
                     <thead class="thead-light">
                         <tr>

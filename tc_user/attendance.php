@@ -14,11 +14,12 @@ require_once 'includes/header.php';
 <meta http-equiv="Expires" content="0">
 
 <style>
-/* Custom styling for attendance table without DataTables */
+/* Mobile-first responsive design for attendance table */
 .attendance-table {
     width: 100%;
     border-collapse: collapse;
     background-color: #fff;
+    font-size: 14px;
 }
 
 .attendance-table th {
@@ -27,6 +28,7 @@ require_once 'includes/header.php';
     padding: 12px 8px;
     text-align: center;
     border: 1px solid #dee2e6;
+    white-space: nowrap;
 }
 
 .attendance-table td {
@@ -86,243 +88,193 @@ require_once 'includes/header.php';
     transition: all 0.3s ease;
 }
 
-/* Mobile responsive styles for attendance table */
+/* Status buttons styling */
+.status-buttons .btn {
+    padding: 8px 16px;
+    font-size: 14px;
+    min-width: 80px;
+    margin: 2px;
+}
+
+/* Mobile-first responsive styles */
 @media (max-width: 768px) {
-    /* Mobile-first layout - stack information vertically */
+    /* Table container - allow horizontal scroll when needed */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border: none;
+        border-radius: 0;
+    }
+    
+    /* Table styling for mobile */
     .attendance-table {
-        font-size: 0.9rem;
-        width: 100%; /* Full width on mobile */
-        min-width: auto; /* Remove minimum width constraint */
+        min-width: 600px; /* Minimum width to prevent extreme squashing */
+        font-size: 13px;
     }
     
     .attendance-table th,
     .attendance-table td {
         padding: 8px 6px;
-        white-space: normal; /* Allow text wrapping on mobile */
+        white-space: nowrap; /* Prevent text wrapping on mobile */
     }
     
-    /* Hide Batch and Current Status column headers on mobile */
-    .attendance-table th:nth-child(4),
-    .attendance-table th:nth-child(5) {
-        display: none;
-    }
-    
-    /* Hide Batch and Current Status column cells on mobile */
-    .attendance-table td:nth-child(4),
-    .attendance-table td:nth-child(5) {
-        display: none;
-    }
-    
-    /* Make attendance buttons more touch-friendly */
-    .status-buttons .btn {
-        padding: 8px 12px;
-        font-size: 0.85rem;
-        min-width: 70px;
-    }
-    
-    /* Optimize student details column for mobile */
-    .attendance-table td:nth-child(3) {
-        min-width: auto;
-        max-width: none;
-    }
-    
-    .attendance-table td:nth-child(3) strong {
-        font-size: 0.95rem;
-        line-height: 1.3;
-    }
-    
-    .attendance-table td:nth-child(3) small {
-        font-size: 0.8rem;
-    }
-    
-    /* Add mobile-specific information display */
-    .mobile-info {
-        display: block;
-        margin-top: 8px;
-        padding: 6px 8px;
-        background-color: #f8f9fa;
-        border-radius: 4px;
-        border-left: 3px solid #007bff;
-    }
-    
-    .mobile-info .batch-info {
-        display: inline-block;
-        margin-right: 15px;
-        font-size: 0.8rem;
-    }
-    
-    .mobile-info .status-info {
-        display: inline-block;
-        font-size: 0.8rem;
-    }
-    
-    .mobile-info .batch-info .badge {
-        font-size: 0.75rem;
-        padding: 3px 6px;
-        margin-left: 5px;
-    }
-    
-    .mobile-info .status-info .badge {
-        font-size: 0.75rem;
-        padding: 3px 6px;
-        margin-left: 5px;
-    }
-    
-    /* Ensure table container doesn't scroll horizontally */
-    .table-responsive {
-        overflow-x: hidden;
-        border: none;
-        border-radius: 0;
-    }
-    
-    /* Optimize column widths for mobile */
+    /* Column widths for mobile */
     .attendance-table th:nth-child(1),
     .attendance-table td:nth-child(1) {
-        width: 50px; /* S.No column - smaller on mobile */
+        width: 50px; /* S.No column */
+        min-width: 50px;
     }
     
     .attendance-table th:nth-child(2),
     .attendance-table td:nth-child(2) {
-        width: 140px; /* Mark Attendance column */
+        width: 160px; /* Mark Attendance column */
+        min-width: 160px;
     }
     
     .attendance-table th:nth-child(3),
     .attendance-table td:nth-child(3) {
-        width: auto; /* Student Details column - flexible width */
+        width: 200px; /* Student Details column */
+        min-width: 200px;
+        max-width: 200px;
+    }
+    
+    .attendance-table th:nth-child(4),
+    .attendance-table td:nth-child(4) {
+        width: 100px; /* Batch column */
+        min-width: 100px;
+    }
+    
+    .attendance-table th:nth-child(5),
+    .attendance-table td:nth-child(5) {
+        width: 120px; /* Current Status column */
+        min-width: 120px;
+    }
+    
+    /* Optimize status buttons for mobile */
+    .status-buttons .btn {
+        padding: 6px 12px;
+        font-size: 12px;
+        min-width: 70px;
+    }
+    
+    /* Student details optimization */
+    .attendance-table td:nth-child(3) strong {
+        font-size: 13px;
+        line-height: 1.3;
+        display: block;
+        margin-bottom: 4px;
+    }
+    
+    .attendance-table td:nth-child(3) small {
+        font-size: 11px;
+        display: block;
+        margin-bottom: 2px;
+    }
+    
+    /* Mobile info display */
+    .mobile-info {
+        display: none; /* Hide on mobile since we're showing full table */
     }
 }
 
+/* Extra small devices */
 @media (max-width: 576px) {
-    /* Extra small devices */
     .attendance-table {
-        font-size: 0.8rem;
-        width: 100%;
-        min-width: auto;
+        min-width: 550px;
+        font-size: 12px;
     }
     
     .attendance-table th,
     .attendance-table td {
         padding: 6px 4px;
-        white-space: normal;
     }
     
     .status-buttons .btn {
-        padding: 6px 10px;
-        font-size: 0.8rem;
+        padding: 5px 10px;
+        font-size: 11px;
         min-width: 65px;
     }
     
+    /* Adjust column widths for very small screens */
+    .attendance-table th:nth-child(3),
     .attendance-table td:nth-child(3) {
-        min-width: auto;
-        max-width: none;
-    }
-    
-    /* Ensure proper spacing on very small screens */
-    .table-responsive {
-        margin: 0 -15px;
-        overflow-x: hidden;
-    }
-    
-    .attendance-table {
-        margin: 0;
-        width: 100%;
-    }
-    
-    /* Optimize badges for very small screens */
-    .badge {
-        font-size: 0.7rem !important;
-        padding: 2px 4px !important;
-    }
-    
-    /* Ensure all columns remain visible */
-    .attendance-table th,
-    .attendance-table td {
-        display: table-cell !important;
-    }
-    
-    /* Mobile info styling for very small screens */
-    .mobile-info {
-        padding: 4px 6px;
-        margin-top: 6px;
-    }
-    
-    .mobile-info .batch-info,
-    .mobile-info .status-info {
-        display: block;
-        margin-bottom: 4px;
-        margin-right: 0;
+        width: 180px;
+        min-width: 180px;
+        max-width: 180px;
     }
 }
 
-/* Additional mobile optimizations */
-@media (max-width: 768px) {
-    /* Ensure table container is properly responsive */
-    .table-responsive {
-        border: none;
-        border-radius: 0;
-    }
-    
-    /* Optimize table header for mobile */
-    .attendance-table thead th {
-        position: sticky;
-        top: 0;
-        background-color: #f8f9fa;
-        z-index: 2;
-    }
-    
-    /* Ensure proper spacing between columns */
-    .attendance-table th,
-    .attendance-table td {
-        border-right: 1px solid #dee2e6;
-    }
-    
-    .attendance-table th:last-child,
-    .attendance-table td:last-child {
-        border-right: none;
-    }
-}
-
-/* Extra small devices - ensure minimum usability */
+/* Extra extra small devices */
 @media (max-width: 480px) {
     .attendance-table {
-        min-width: 500px; /* Minimum width to prevent extreme squashing */
+        min-width: 500px;
+        font-size: 11px;
     }
     
     .attendance-table th,
     .attendance-table td {
         padding: 4px 2px;
-        font-size: 0.75rem;
     }
     
     .status-buttons .btn {
-        padding: 8px 8px;
-        font-size: 0.75rem;
+        padding: 4px 8px;
+        font-size: 10px;
         min-width: 60px;
-        min-height: 40px;
     }
     
-    /* Optimize badges for very small screens */
-    .badge {
-        font-size: 0.65rem !important;
-        padding: 2px 4px !important;
+    /* Further reduce column widths */
+    .attendance-table th:nth-child(3),
+    .attendance-table td:nth-child(3) {
+        width: 160px;
+        min-width: 160px;
+        max-width: 160px;
     }
     
-    /* Ensure mobile alert is visible */
-    .alert-info {
-        font-size: 0.8rem;
-        padding: 8px 12px;
+    .attendance-table th:nth-child(4),
+    .attendance-table td:nth-child(4) {
+        width: 80px;
+        min-width: 80px;
+    }
+    
+    .attendance-table th:nth-child(5),
+    .attendance-table td:nth-child(5) {
+        width: 100px;
+        min-width: 100px;
     }
 }
 
-/* Mobile info display styling */
+/* Desktop styles */
+@media (min-width: 769px) {
+    .attendance-table {
+        font-size: 14px;
+    }
+    
+    .attendance-table th,
+    .attendance-table td {
+        padding: 12px 8px;
+    }
+    
+    .status-buttons .btn {
+        padding: 8px 16px;
+        font-size: 14px;
+        min-width: 80px;
+    }
+    
+    /* Hide mobile info on desktop */
+    .mobile-info {
+        display: none !important;
+    }
+}
+
+/* Mobile info display styling (hidden by default) */
 .mobile-info {
-    display: none; /* Hidden by default on desktop */
+    display: none;
     margin-top: 8px;
     padding: 8px 10px;
     background-color: #f8f9fa;
     border-radius: 6px;
     border-left: 3px solid #007bff;
-    font-size: 0.85rem;
+    font-size: 13px;
 }
 
 .mobile-info .batch-info {
@@ -338,7 +290,7 @@ require_once 'includes/header.php';
 
 .mobile-info .batch-info .badge,
 .mobile-info .status-info .badge {
-    font-size: 0.75rem;
+    font-size: 11px;
     padding: 4px 8px;
     margin-left: 6px;
     font-weight: 500;
@@ -349,17 +301,26 @@ require_once 'includes/header.php';
     margin-right: 4px;
 }
 
-/* Desktop: Hide mobile info */
-@media (min-width: 769px) {
-    .mobile-info {
-        display: none !important;
-    }
+/* Ensure proper table display */
+.attendance-table th,
+.attendance-table td {
+    display: table-cell !important;
 }
 
-/* Mobile: Show mobile info */
+/* Optimize badges */
+.badge {
+    font-size: 11px;
+    padding: 4px 8px;
+    font-weight: 500;
+}
+
+/* Table header sticky on mobile */
 @media (max-width: 768px) {
-    .mobile-info {
-        display: block !important;
+    .attendance-table thead th {
+        position: sticky;
+        top: 0;
+        background-color: #f8f9fa;
+        z-index: 2;
     }
 }
 </style>
@@ -661,8 +622,7 @@ if ($selected_batch_id && !empty($beneficiaries)) {
                         <!-- Mobile-responsive attendance table - Batch and Status columns hidden on mobile -->
                         <div class="d-block d-md-none alert alert-info alert-sm mb-2">
                             <i class="fas fa-mobile-alt"></i> 
-                            <strong>Mobile View:</strong> Batch and Status information is now displayed below each student's details for easy viewing. 
-                            No horizontal scrolling required!
+                            <strong>Mobile View:</strong> Swipe left/right to see all columns. All student information is now visible with proper horizontal scrolling!
                         </div>
                         <table class="attendance-table table-striped table-bordered">
                             <thead>
