@@ -132,3 +132,11 @@ SELECT
 FROM attendance 
 WHERE attendance_date = DATE_SUB(CURDATE(), INTERVAL 1 DAY);
 */
+
+-- Check database timezone settings
+SELECT 
+    @@global.time_zone as global_timezone,
+    @@session.time_zone as session_timezone,
+    NOW() as database_time,
+    CURDATE() as database_date,
+    UNIX_TIMESTAMP() as unix_timestamp;
