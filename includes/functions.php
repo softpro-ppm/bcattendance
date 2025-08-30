@@ -355,7 +355,7 @@ function getDashboardStats() {
         INNER JOIN batches bt ON b.batch_id = bt.id
         WHERE a.attendance_date = CURDATE() 
         AND bt.end_date >= CURDATE()
-        AND (a.status = 'present' OR a.status = 'P')
+        AND (a.status = 'present' OR a.status = 'P' OR a.status = 'late')
     ");
     $stats['present_today'] = $result ? $result['total'] : 0;
     
@@ -367,7 +367,7 @@ function getDashboardStats() {
         INNER JOIN batches bt ON b.batch_id = bt.id
         WHERE a.attendance_date = CURDATE() 
         AND bt.end_date >= CURDATE()
-        AND (a.status = 'absent' OR a.status = 'A')
+        AND (a.status = 'absent' OR a.status = 'A' OR a.status = 'excused')
     ");
     $stats['absent_today'] = $result ? $result['total'] : 0;
     

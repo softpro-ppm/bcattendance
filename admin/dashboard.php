@@ -24,8 +24,8 @@ $batchMarkingStatus = fetchAll("
         COUNT(b.id) as total_beneficiaries,
         COUNT(CASE WHEN b.status = 'active' THEN 1 END) as active_beneficiaries,
         COUNT(a.id) as marked_attendance,
-        SUM(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END) as present_count,
-        SUM(CASE WHEN a.status = 'absent' THEN 1 ELSE 0 END) as absent_count,
+        SUM(CASE WHEN a.status IN ('present', 'P', 'late') THEN 1 ELSE 0 END) as present_count,
+        SUM(CASE WHEN a.status IN ('absent', 'A', 'excused') THEN 1 ELSE 0 END) as absent_count,
         CASE 
             WHEN COUNT(a.id) > 0 THEN 'submitted'
             ELSE 'pending'
