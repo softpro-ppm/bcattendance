@@ -68,20 +68,56 @@ $data = fetchAll($query, $params, $types);
 // Prepare CSV data
 $headers = ['Date', 'Beneficiary ID', 'Name', 'Mobile', 'Constituency', 'Mandal', 'Batch', 'Status', 'Marked At'];
 
-$csvData = [];
-foreach ($data as $row) {
-    $csvData[] = [
-        formatDate($row['attendance_date'], 'd/m/Y'),
-        $row['beneficiary_id'],
-        $row['full_name'],
-        $row['mobile_number'],
-        $row['constituency_name'] ?? 'N/A',
-        $row['mandal_name'] ?? 'N/A',
-        $row['batch_name'] ?? 'N/A',
-        formatStatusDisplay($row['status']),
-        formatDateTime($row['created_at'], 'd/m/Y H:i')
-    ];
-}
+    $csvData = [];
+    foreach ($data as $row) {
+        // Enhanced holiday detection for single day export
+        $status = $row['status'];
+        $date = $row['attendance_date'];
+        
+        // Check if it should be marked as holiday
+        $displayStatus = '';
+        
+        // First check if it's already marked as holiday
+        if (strtoupper($status) === 'H' || strtoupper($status) === 'HOLIDAY') {
+            $displayStatus = 'Holiday';
+        }
+        // Check if it's Sunday (should always be holiday)
+        elseif (date('N', strtotime($date)) == 7) {
+            $displayStatus = 'Holiday';
+        }
+        // Check if it's a custom holiday
+        else {
+            // Check holidays table
+            $holidayCheck = fetchRow("SELECT id FROM holidays WHERE date = ?", [$date]);
+            if ($holidayCheck) {
+                $displayStatus = 'Holiday';
+            }
+            // Check batch-specific holidays
+            else {
+                $batchHolidayCheck = fetchRow("SELECT id FROM batch_holidays WHERE holiday_date = ? AND batch_id = ?", 
+                                             [$date, $row['batch_id']]);
+                if ($batchHolidayCheck) {
+                    $displayStatus = 'Holiday';
+                }
+                // If not a holiday, use the original status
+                else {
+                    $displayStatus = formatStatusDisplay($status);
+                }
+            }
+        }
+        
+        $csvData[] = [
+            formatDate($row['attendance_date'], 'd/m/Y'),
+            $row['beneficiary_id'],
+            $row['full_name'],
+            $row['mobile_number'],
+            $row['constituency_name'] ?? 'N/A',
+            $row['mandal_name'] ?? 'N/A',
+            $row['batch_name'] ?? 'N/A',
+            $displayStatus,
+            formatDateTime($row['created_at'], 'd/m/Y H:i')
+        ];
+    }
 
 // Generate filename
 $filename = 'attendance_' . str_replace('-', '', $date);

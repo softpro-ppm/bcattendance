@@ -479,27 +479,51 @@ function exportAttendanceToExcel($beneficiaries, $dateRange, $attendanceByBenefi
             // Name
             $sheet->setCellValue($col++, $beneficiary['full_name'] ?? '');
             
-            // Attendance columns
+            // Attendance columns with enhanced holiday detection
             foreach ($dateRange as $date) {
                 $status = $attendanceByBeneficiary[$beneficiary['beneficiary_id']][$date] ?? '';
                 
-                // Convert status to display format
+                // Enhanced holiday detection logic
                 $displayStatus = '';
-                switch (strtoupper($status)) {
-                    case 'P':
-                    case 'PRESENT':
-                        $displayStatus = 'P';
-                        break;
-                    case 'A':
-                    case 'ABSENT':
-                        $displayStatus = 'A';
-                        break;
-                    case 'H':
-                    case 'HOLIDAY':
+                
+                // First check if it's already marked as holiday
+                if (strtoupper($status) === 'H' || strtoupper($status) === 'HOLIDAY') {
+                    $displayStatus = 'H';
+                }
+                // Check if it's Sunday (should always be holiday)
+                elseif (date('N', strtotime($date)) == 7) {
+                    $displayStatus = 'H';
+                }
+                // Check if it's a custom holiday
+                else {
+                    // Check holidays table
+                    $holidayCheck = fetchRow("SELECT id FROM holidays WHERE date = ?", [$date]);
+                    if ($holidayCheck) {
                         $displayStatus = 'H';
-                        break;
-                    default:
-                        $displayStatus = '';
+                    }
+                    // Check batch-specific holidays
+                    else {
+                        $batchHolidayCheck = fetchRow("SELECT id FROM batch_holidays WHERE holiday_date = ? AND batch_id = ?", 
+                                                     [$date, $beneficiary['batch_id']]);
+                        if ($batchHolidayCheck) {
+                            $displayStatus = 'H';
+                        }
+                        // If not a holiday, use the original status
+                        else {
+                            switch (strtoupper($status)) {
+                                case 'P':
+                                case 'PRESENT':
+                                    $displayStatus = 'P';
+                                    break;
+                                case 'A':
+                                case 'ABSENT':
+                                    $displayStatus = 'A';
+                                    break;
+                                default:
+                                    $displayStatus = '';
+                            }
+                        }
+                    }
                 }
                 
                 $sheet->setCellValue($col++, $displayStatus);
@@ -540,30 +564,33 @@ function exportAttendanceToExcel($beneficiaries, $dateRange, $attendanceByBenefi
 */
 
 function exportAttendanceToCSV($beneficiaries, $dateRange, $attendanceByBeneficiary, $startDate, $endDate) {
+    // Create output file
     $filename = 'attendance_report_' . date('Y-m-d_H-i-s') . '.csv';
-    
-    header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="' . $filename . '"');
-    
     $output = fopen('php://output', 'w');
     
-    // Write headers (no title row, no empty row)
+    // Set headers for CSV download
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    header('Cache-Control: no-cache, must-revalidate');
+    header('Expires: Sat, 26 Jul 1997 05:00:00 GMT');
+    
+    // Write CSV headers
     $headers = [
-        'S. NO',
+        'S.No',
         'Batch Start Date',
-        'End Date', 
+        'Batch End Date', 
         'Constituency',
         'Mandal',
-        'TC',
-        'Batch',
-        'Phone No.',
-        'Aadhar No.',
-        'Name'
+        'Training Center ID',
+        'Batch Name',
+        'Mobile Number',
+        'Aadhar Number',
+        'Full Name'
     ];
     
-    // Add date columns with simple format
+    // Add date columns
     foreach ($dateRange as $date) {
-        $headers[] = date('d/m/Y', strtotime($date));
+        $headers[] = date('j/n/Y', strtotime($date));
     }
     
     fputcsv($output, $headers);
@@ -584,27 +611,51 @@ function exportAttendanceToCSV($beneficiaries, $dateRange, $attendanceByBenefici
             $beneficiary['full_name'] ?? ''
         ];
         
-        // Add attendance columns
+        // Add attendance columns with enhanced holiday detection
         foreach ($dateRange as $date) {
             $status = $attendanceByBeneficiary[$beneficiary['beneficiary_id']][$date] ?? '';
             
-            // Convert status to display format
+            // Enhanced holiday detection logic
             $displayStatus = '';
-            switch (strtoupper($status)) {
-                case 'P':
-                case 'PRESENT':
-                    $displayStatus = 'P';
-                    break;
-                case 'A':
-                case 'ABSENT':
-                    $displayStatus = 'A';
-                    break;
-                case 'H':
-                case 'HOLIDAY':
+            
+            // First check if it's already marked as holiday
+            if (strtoupper($status) === 'H' || strtoupper($status) === 'HOLIDAY') {
+                $displayStatus = 'H';
+            }
+            // Check if it's Sunday (should always be holiday)
+            elseif (date('N', strtotime($date)) == 7) {
+                $displayStatus = 'H';
+            }
+            // Check if it's a custom holiday
+            else {
+                // Check holidays table
+                $holidayCheck = fetchRow("SELECT id FROM holidays WHERE date = ?", [$date]);
+                if ($holidayCheck) {
                     $displayStatus = 'H';
-                    break;
-                default:
-                    $displayStatus = '';
+                }
+                // Check batch-specific holidays
+                else {
+                    $batchHolidayCheck = fetchRow("SELECT id FROM batch_holidays WHERE holiday_date = ? AND batch_id = ?", 
+                                                 [$date, $beneficiary['batch_id']]);
+                    if ($batchHolidayCheck) {
+                        $displayStatus = 'H';
+                    }
+                    // If not a holiday, use the original status
+                    else {
+                        switch (strtoupper($status)) {
+                            case 'P':
+                            case 'PRESENT':
+                                $displayStatus = 'P';
+                                break;
+                            case 'A':
+                            case 'ABSENT':
+                                $displayStatus = 'A';
+                                break;
+                            default:
+                                $displayStatus = '';
+                        }
+                    }
+                }
             }
             
             $row[] = $displayStatus;
