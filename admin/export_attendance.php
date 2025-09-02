@@ -50,6 +50,7 @@ $query = "SELECT
     b.beneficiary_id,
     b.full_name,
     b.mobile_number,
+    b.batch_id,
     c.name as constituency_name,
     m.name as mandal_name,
     bt.name as batch_name,
@@ -87,8 +88,10 @@ $headers = ['Date', 'Beneficiary ID', 'Name', 'Mobile', 'Constituency', 'Mandal'
         }
         // Check if it's a custom holiday
         else {
-            // Check if it's a batch-specific holiday first
-            $batchHolidayCheck = fetchRow("SELECT id FROM batch_holidays WHERE holiday_date = ? AND batch_id = ?", 
+            // Check if it's a batch-specific holiday first (IMPROVED LOGIC)
+            $batchHolidayCheck = fetchRow("SELECT bh.id FROM batch_holidays bh 
+                                         JOIN batches b ON bh.batch_id = b.id 
+                                         WHERE bh.holiday_date = ? AND b.id = ?", 
                                          [$date, $row['batch_id']]);
             if ($batchHolidayCheck) {
                 $displayStatus = 'Holiday';

@@ -615,7 +615,7 @@ function exportAttendanceToCSV($beneficiaries, $dateRange, $attendanceByBenefici
         foreach ($dateRange as $date) {
             $status = $attendanceByBeneficiary[$beneficiary['beneficiary_id']][$date] ?? '';
             
-            // Enhanced holiday detection logic
+            // Enhanced holiday detection logic with improved batch-specific checking
             $displayStatus = '';
             
             // First check if it's already marked as holiday
@@ -628,8 +628,10 @@ function exportAttendanceToCSV($beneficiaries, $dateRange, $attendanceByBenefici
             }
             // Check if it's a custom holiday
             else {
-                // Check if it's a batch-specific holiday first
-                $batchHolidayCheck = fetchRow("SELECT id FROM batch_holidays WHERE holiday_date = ? AND batch_id = ?", 
+                // Check if it's a batch-specific holiday first (IMPROVED LOGIC)
+                $batchHolidayCheck = fetchRow("SELECT bh.id FROM batch_holidays bh 
+                                             JOIN batches b ON bh.batch_id = b.id 
+                                             WHERE bh.holiday_date = ? AND b.id = ?", 
                                              [$date, $beneficiary['batch_id']]);
                 if ($batchHolidayCheck) {
                     $displayStatus = 'H';
