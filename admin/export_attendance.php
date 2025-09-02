@@ -87,16 +87,18 @@ $headers = ['Date', 'Beneficiary ID', 'Name', 'Mobile', 'Constituency', 'Mandal'
         }
         // Check if it's a custom holiday
         else {
-            // Check holidays table
-            $holidayCheck = fetchRow("SELECT id FROM holidays WHERE date = ?", [$date]);
-            if ($holidayCheck) {
+            // Check if it's a batch-specific holiday first
+            $batchHolidayCheck = fetchRow("SELECT id FROM batch_holidays WHERE holiday_date = ? AND batch_id = ?", 
+                                         [$date, $row['batch_id']]);
+            if ($batchHolidayCheck) {
                 $displayStatus = 'Holiday';
             }
-            // Check batch-specific holidays
+            // Check if it's an all-mandals holiday (no batch-specific entries)
             else {
-                $batchHolidayCheck = fetchRow("SELECT id FROM batch_holidays WHERE holiday_date = ? AND batch_id = ?", 
-                                             [$date, $row['batch_id']]);
-                if ($batchHolidayCheck) {
+                $holidayCheck = fetchRow("SELECT h.id FROM holidays h 
+                                        LEFT JOIN batch_holidays bh ON h.date = bh.holiday_date 
+                                        WHERE h.date = ? AND bh.id IS NULL", [$date]);
+                if ($holidayCheck) {
                     $displayStatus = 'Holiday';
                 }
                 // If not a holiday, use the original status
