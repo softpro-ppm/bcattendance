@@ -138,6 +138,9 @@ require_once '../includes/header.php';
                                         <button type="button" class="btn btn-success btn-sm" id="export_excel">
                                             <i class="fas fa-file-excel"></i> Export Excel
                                         </button>
+                                        <button type="button" class="btn btn-warning btn-sm" id="debug_export">
+                                            <i class="fas fa-bug"></i> Debug Export
+                                        </button>
                                         <button type="button" class="btn btn-info btn-sm" id="refresh_data">
                                             <i class="fas fa-sync-alt"></i> Refresh
                                         </button>
@@ -754,6 +757,11 @@ function setupEventListeners() {
         exportToExcel();
     });
     
+    // Debug export button
+    document.getElementById('debug_export').addEventListener('click', function() {
+        debugExport();
+    });
+    
     // Sort headers
     document.querySelectorAll('th[data-sort]').forEach(th => {
         th.addEventListener('click', function() {
@@ -959,29 +967,100 @@ function exportToExcel() {
         }
     });
     
+    console.log('Exporting data with filters:', currentFilters);
+    
     fetch('batch_reports_api.php', {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
+        console.log('Export data received:', data);
         if (data.success) {
-            generateExcel(data.data);
+            if (data.data && data.data.length > 0) {
+                generateExcel(data.data);
+            } else {
+                showError('No data available to export. Please check your filters.');
+            }
         } else {
-            showError('Failed to export data: ' + data.error);
+            showError('Failed to export data: ' + (data.error || 'Unknown error'));
         }
     })
     .catch(error => {
-        console.error('Error:', error);
-        showError('Failed to export data');
+        console.error('Export error:', error);
+        showError('Failed to export data: ' + error.message);
     })
     .finally(() => {
         hideLoading();
     });
 }
 
+function debugExport() {
+    console.log('=== DEBUG EXPORT ===');
+    console.log('Current filters:', currentFilters);
+    console.log('Current sort:', currentSort, currentSortOrder);
+    console.log('Current page:', currentPage);
+    
+    // Test API connection
+    const formData = new FormData();
+    formData.append('action', 'get_batch_data');
+    formData.append('limit', 5); // Just get 5 records for testing
+    formData.append('sort_by', currentSort);
+    formData.append('sort_order', currentSortOrder);
+    
+    // Add filters
+    Object.keys(currentFilters).forEach(key => {
+        if (currentFilters[key]) {
+            formData.append(key, currentFilters[key]);
+        }
+    });
+    
+    console.log('Testing API call...');
+    
+    fetch('batch_reports_api.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        console.log('API Response status:', response.status);
+        console.log('API Response headers:', response.headers);
+        return response.text(); // Get raw text first
+    })
+    .then(text => {
+        console.log('Raw API response:', text);
+        try {
+            const data = JSON.parse(text);
+            console.log('Parsed API data:', data);
+            
+            if (data.success) {
+                console.log('API Success! Records found:', data.data ? data.data.length : 0);
+                console.log('Total records:', data.total);
+                console.log('Sample record:', data.data ? data.data[0] : 'No data');
+                showSuccess(`Debug: API working! Found ${data.total} total records, ${data.data ? data.data.length : 0} in this page.`);
+            } else {
+                console.log('API Error:', data.error);
+                showError('Debug: API Error - ' + data.error);
+            }
+        } catch (e) {
+            console.log('JSON Parse Error:', e);
+            console.log('Raw response was:', text);
+            showError('Debug: Invalid JSON response from API');
+        }
+    })
+    .catch(error => {
+        console.error('Debug API error:', error);
+        showError('Debug: Network error - ' + error.message);
+    });
+}
+
 function generateExcel(data) {
-    // Create CSV content
+    // Create CSV content with proper headers
     let csv = 'Sr. No.,Student Name,Aadhar Number,Mobile,Batch,Batch Code,Mandal,Constituency,Attendance %,Present Days,Working Days,Status\n';
     
     data.forEach((student, index) => {
@@ -989,16 +1068,24 @@ function generateExcel(data) {
         csv += `"${serialNumber}","${student.full_name}","${student.aadhar_number || ''}","${student.mobile_number || ''}","${student.batch_name}","${student.batch_code}","${student.mandal_name}","${student.constituency_name}","${student.attendance_percentage}%","${student.present_days}","${student.total_days}","${student.beneficiary_status}"\n`;
     });
     
-    // Create and download file
+    // Create and download file with proper Excel extension
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', `batch_report_${new Date().toISOString().split('T')[0]}.csv`);
+    
+    // Generate filename with current date and time
+    const now = new Date();
+    const timestamp = now.toISOString().split('T')[0] + '_' + now.toTimeString().split(' ')[0].replace(/:/g, '-');
+    link.setAttribute('download', `batch_report_${timestamp}.csv`);
+    
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    
+    // Show success message
+    showSuccess('Report exported successfully!');
 }
 
 function showLoading() {
@@ -1012,6 +1099,32 @@ function hideLoading() {
 function showError(message) {
     // You can implement a better error display system
     alert(message);
+}
+
+function showSuccess(message) {
+    // Create a temporary success message
+    const successDiv = document.createElement('div');
+    successDiv.className = 'alert alert-success alert-dismissible fade show';
+    successDiv.style.position = 'fixed';
+    successDiv.style.top = '20px';
+    successDiv.style.right = '20px';
+    successDiv.style.zIndex = '9999';
+    successDiv.style.minWidth = '300px';
+    successDiv.innerHTML = `
+        ${message}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    `;
+    
+    document.body.appendChild(successDiv);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        if (successDiv.parentNode) {
+            successDiv.parentNode.removeChild(successDiv);
+        }
+    }, 3000);
 }
 
 function escapeHtml(text) {
