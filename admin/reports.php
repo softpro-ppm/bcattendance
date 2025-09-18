@@ -72,7 +72,7 @@ function exportAttendanceReport($startDate, $endDate, $constituency, $mandal, $b
     LEFT JOIN mandals m ON b.mandal_id = m.id
     LEFT JOIN batches bt ON b.batch_id = bt.id
     LEFT JOIN training_centers tc ON bt.tc_id = tc.id
-    WHERE b.status = 'active'";
+    WHERE b.status IN ('active', 'completed')"; // Include both active and completed beneficiaries
     
     $beneficiaryParams = [];
     $beneficiaryTypes = '';
@@ -97,6 +97,11 @@ function exportAttendanceReport($startDate, $endDate, $constituency, $mandal, $b
     
     $beneficiariesQuery .= " ORDER BY m.name, bt.name, b.full_name";
     $beneficiaries = fetchAll($beneficiariesQuery, $beneficiaryParams, $beneficiaryTypes);
+    
+    // Debug logging
+    error_log("Export Attendance Report - Beneficiaries found: " . count($beneficiaries));
+    error_log("Export Attendance Report - Date range: $startDate to $endDate");
+    error_log("Export Attendance Report - Filters: constituency=$constituency, mandal=$mandal, batch=$batch");
     
     // Get date range
     $startDateTime = new DateTime($startDate);
@@ -124,7 +129,8 @@ function exportAttendanceReport($startDate, $endDate, $constituency, $mandal, $b
     
     $attendanceData = fetchAll($attendanceQuery, $attendanceParams, $attendanceTypes);
     
-
+    // Debug logging
+    error_log("Export Attendance Report - Attendance records found: " . count($attendanceData));
     
     // Organize attendance data by beneficiary and date
     $attendanceByBeneficiary = [];
